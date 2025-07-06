@@ -23,22 +23,13 @@ const reviewSchema = new mongoose.Schema({
   },
   username: {
     type: String,
-    required: true,
-    default: 'Anonymous'
-  },
-  location: {
-    type: String,
-    trim: true
-  },
-  drinkDate: {
-    type: Date,
-    default: Date.now
+    required: true
   }
 }, {
   timestamps: true
 });
 
-// Ensure user can only review each beer once
+// Compound index to ensure one review per user per beer
 reviewSchema.index({ user: 1, beer: 1 }, { unique: true });
 
 module.exports = mongoose.model('Review', reviewSchema);

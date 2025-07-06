@@ -8,14 +8,14 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     minlength: 3,
-    maxlength: 30
+    maxlength: 20
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    trim: true,
-    lowercase: true
+    lowercase: true,
+    trim: true
   },
   password: {
     type: String,
@@ -32,17 +32,35 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  bio: {
+    type: String,
+    maxlength: 500,
+    default: ''
+  },
+  favoriteStyles: [{
+    type: String
+  }],
   friends: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  favoriteBeers: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Beer'
+  friendRequests: [{
+    from: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
   }],
-  profileImage: {
-    type: String,
-    default: ''
+  totalReviews: {
+    type: Number,
+    default: 0
+  },
+  averageRating: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
@@ -50,14 +68,30 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
+  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
+  
+  try {
+    // Hash password with cost of 12
+    const hashedPassword = await bcrypt.hash(this.password, 12);
+    this.password = hashedPassword;
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
-// Method to check password
+// Instance method to check password
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+// Instance method to get public profile
+userSchema.methods.getPublicProfile = function() {
+  const userObject = this.toObject();
+  delete userObject.password;
+  delete userObject.__v;
+  return userObject;
 };
 
 module.exports = mongoose.model('User', userSchema);
