@@ -293,10 +293,10 @@ export const api = {
       }
     },
 
-    // Search users
+      // Search users - Updated endpoint
     search: async (query) => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/users/search?q=${encodeURIComponent(query)}`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/users/search?q=${encodeURIComponent(query)}`, {
           headers: getAuthHeaders(),
         });
         
