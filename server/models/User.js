@@ -61,6 +61,15 @@ const userSchema = new mongoose.Schema({
   averageRating: {
     type: Number,
     default: 0
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
   }
 }, {
   timestamps: true
@@ -91,6 +100,7 @@ userSchema.methods.getPublicProfile = function() {
   const userObject = this.toObject();
   delete userObject.password;
   delete userObject.__v;
+  // Keep isAdmin and role for admin functionality
   return userObject;
 };
 

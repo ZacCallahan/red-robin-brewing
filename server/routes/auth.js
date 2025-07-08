@@ -4,34 +4,39 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const authenticateToken = require('../middleware/auth');
 
-
-// @route   POST /api/auth/register
-// @desc    Register a new user
-
+// @route   GET /api/auth/users/search
+// @desc    Search users (excluding current user)
 router.get('/users/search', authenticateToken, async (req, res) => {
   try {
     const { q } = req.query;
+    const currentUserId = req.user._id; // Get current user ID from auth middleware
     
     if (!q || q.length < 2) {
       return res.status(400).json({ message: 'Search query must be at least 2 characters' });
     }
     
     // Search users by username, firstName, or lastName
+    // Exclude the current user from results
     const users = await User.find({
-      $or: [
-        { username: { $regex: q, $options: 'i' } },
-        { firstName: { $regex: q, $options: 'i' } },
-        { lastName: { $regex: q, $options: 'i' } }
+      $and: [
+        {
+          $or: [
+            { username: { $regex: q, $options: 'i' } },
+            { firstName: { $regex: q, $options: 'i' } },
+            { lastName: { $regex: q, $options: 'i' } }
+          ]
+        },
+        { _id: { $ne: currentUserId } } // Exclude current user
       ]
     }).select('username firstName lastName createdAt').limit(10);
     
     // Calculate real stats for each user
-    const Review = require('../models/Review'); // Make sure to import Review model
-    const Beer = require('../models/Beer'); // Import Beer model too
+    const Review = require('../models/Review');
+    const Beer = require('../models/Beer');
     
     const usersWithStats = await Promise.all(users.map(async (user) => {
-      // Get user's reviews
-      const userReviews = await Review.find({ userId: user._id });
+      // Get user's reviews using 'user' field (not 'userId')
+      const userReviews = await Review.find({ user: user._id });
       
       // Get beers added by user
       const userBeers = await Beer.find({ createdBy: user._id });
@@ -56,6 +61,40 @@ router.get('/users/search', authenticateToken, async (req, res) => {
   }
 });
 
+// @route   GET /api/auth/users/:userId/reviews
+// @desc    Get reviews for a specific user
+router.get('/users/:userId/reviews', authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const Review = require('../models/Review');
+    const Beer = require('../models/Beer');
+    
+    // Query using 'user' field (not 'userId') and populate 'beer' field (not 'beerId')
+    const reviews = await Review.find({ user: userId })
+      .sort({ createdAt: -1 }) // Most recent first
+      .populate('beer', 'name brewery style') // Populate beer details
+      .lean(); // Use lean for better performance
+    
+    // Map the response to match what the frontend expects
+    const reviewsWithBeerDetails = reviews.map(review => ({
+      ...review,
+      _id: review._id,
+      rating: review.rating,
+      comment: review.notes, // Map 'notes' to 'comment' for frontend compatibility
+      createdAt: review.createdAt,
+      beer: review.beer // This will have the populated beer data
+    }));
+    
+    res.json(reviewsWithBeerDetails);
+    
+  } catch (error) {
+    console.error('Get user reviews error:', error);
+    res.status(500).json({ message: 'Server error while fetching user reviews' });
+  }
+});
+
+// @route   POST /api/auth/register
+// @desc    Register a new user
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password, firstName, lastName } = req.body;
@@ -137,7 +176,9 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error during login' });
   }
 });
-// Send friend request
+
+// @route   POST /api/auth/friend-request/:userId
+// @desc    Send friend request
 router.post('/friend-request/:userId', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
@@ -178,7 +219,8 @@ router.post('/friend-request/:userId', authenticateToken, async (req, res) => {
   }
 });
 
-// Accept friend request
+// @route   POST /api/auth/accept-friend/:userId
+// @desc    Accept friend request
 router.post('/accept-friend/:userId', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
@@ -211,7 +253,8 @@ router.post('/accept-friend/:userId', authenticateToken, async (req, res) => {
   }
 });
 
-// Get user's friends
+// @route   GET /api/auth/friends
+// @desc    Get user's friends
 router.get('/friends', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user._id)

@@ -5,184 +5,228 @@ import HomePage from './pages/HomePage';
 import BeersPage from './pages/BeersPage';
 import FriendsPage from './pages/FriendsPage';
 import AddBeerPage from './pages/AddBeerPage';
+import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import BeerDetailPage from './pages/BeerDetailPage';
 import UserProfilePage from './pages/UserProfilePage';
-import ProfilePage from './pages/ProfilePage';
+import AdminDashboard from './pages/AdminDashboard'; // NEW: Admin dashboard import
 
-const BeerReviewApp = () => {
+function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [beers, setBeers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [selectedBeer, setSelectedBeer] = useState(null);
-  const [beerReviews, setBeerReviews] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [beerReviews, setBeerReviews] = useState([]);
 
-  // Check authentication on app start
+  // Check if user is logged in on app load
   useEffect(() => {
-    const checkAuth = () => {
-      const isAuth = api.auth.isAuthenticated();
-      const currentUser = api.auth.getCurrentUser();
-      
-      setIsLoggedIn(isAuth);
-      setUser(currentUser);
-    };
+    const token = localStorage.getItem('authToken');
+    const userData = localStorage.getItem('user');
     
-    checkAuth();
-    loadData();
+    if (token && userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+      }
+    }
   }, []);
 
-  // Load data on app start
-  const loadData = async () => {
+  // Load beers on app start
+  useEffect(() => {
+    loadBeers();
+  }, []);
+
+  const loadBeers = async () => {
     try {
-      setLoading(true);
-      const result = await api.test();
-      console.log('✅ Backend connected:', result);
-      
       const beersData = await api.beers.getAll();
-      console.log('✅ Beers loaded:', beersData);
-      
-      if (Array.isArray(beersData)) {
-        setBeers(beersData);
-      } else {
-        console.error('❌ Expected array, got:', beersData);
-        setBeers([]);
-        setError('Failed to load beers - invalid data format');
-      }
-      
+      setBeers(beersData || []);
     } catch (error) {
-      console.error('❌ Backend connection failed:', error);
-      setError('Failed to connect to server');
-      setBeers([]);
-    } finally {
-      setLoading(false);
+      console.error('Error loading beers:', error);
     }
   };
 
-  // Handle login success
-  const handleLoginSuccess = (userData) => {
-    setIsLoggedIn(true);
-    setUser(userData.user);
-    setCurrentPage('home');
-  };
-
-  // Handle logout
-  const handleLogout = () => {
-    api.auth.logout();
-    setIsLoggedIn(false);
-    setUser(null);
-    setCurrentPage('home');
-  };
-
-  // Function to refresh beers list
-  const refreshBeers = async () => {
+  const loadBeerReviews = async (beerId) => {
     try {
-      const beersData = await api.beers.getAll();
-      setBeers(beersData);
+      const reviews = await api.reviews.getByBeerId(beerId);
+      setBeerReviews(reviews || []);
     } catch (error) {
-      console.error('Error refreshing beers:', error);
-    }
-  };
-
-  // Handle navigation - clear selected beer when navigating away from beer detail
-  const handleNavigation = (page) => {
-    setCurrentPage(page);
-    if (page !== 'beer-detail') {
-      setSelectedBeer(null);
+      console.error('Error loading beer reviews:', error);
       setBeerReviews([]);
     }
-    if (page !== 'user-profile') {
-      setSelectedUser(null);
+  };
+
+  const handleNavigation = (page) => {
+    setCurrentPage(page);
+  };
+
+const handleLogin = async (credentials) => {
+  try {
+    console.log('🔑 Starting login with credentials:', credentials);
+    
+    const response = await api.auth.login(credentials);
+    console.log('✅ Login API response:', response);
+    
+    console.log('👤 Setting user:', response.user);
+    setUser(response.user);
+    
+    console.log('🔐 Setting logged in to true');
+    setIsLoggedIn(true);
+    
+    console.log('🏠 Navigating to home');
+    setCurrentPage('home');
+    
+    console.log('✅ Login completed successfully');
+  } catch (error) {
+    console.error('❌ Login error in handleLogin:', error);
+    throw error;
+  }
+};
+
+  const handleRegister = async (userData) => {
+    try {
+      const response = await api.auth.register(userData);
+      setUser(response.user);
+      setIsLoggedIn(true);
+      setCurrentPage('home');
+    } catch (error) {
+      throw error;
     }
   };
 
-  // Handle user selection
+  const handleLogout = () => {
+    api.auth.logout();
+    setUser(null);
+    setIsLoggedIn(false);
+    setCurrentPage('home');
+  };
+
+  const handleBeerSelect = (beer) => {
+    setSelectedBeer(beer);
+    loadBeerReviews(beer._id);
+    setCurrentPage('beer-detail');
+  };
+
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setCurrentPage('user-profile');
   };
 
-  // Handle beer selection and load reviews immediately
-  const handleBeerSelect = (beer) => {
-    setSelectedBeer(beer);
-    setCurrentPage('beer-detail');
-    // Load reviews immediately when beer is selected
-    loadBeerReviews(beer._id);
-  };
-
-  // Function to load reviews for a specific beer
-  const loadBeerReviews = async (beerId) => {
-    try {
-      console.log('Loading reviews for beer:', beerId);
-      const reviews = await api.reviews.getByBeerId(beerId);
-      console.log('Reviews loaded:', reviews);
-      setBeerReviews(Array.isArray(reviews) ? reviews : []);
-    } catch (error) {
-      console.error('Error loading reviews:', error);
-      setBeerReviews([]);
-    }
-  };
-
-  // Shared props for all pages
-  const pageProps = {
-    isLoggedIn,
-    user,
-    beers,
-    loading,
-    error,
-    selectedBeer,
-    beerReviews,
-    selectedUser,
-    handleNavigation,
-    handleLoginSuccess,
-    handleLogout,
-    handleUserSelect,
-    handleBeerSelect,
-    refreshBeers,
-    loadBeerReviews
-  };
-
   const renderPage = () => {
-    switch(currentPage) {
+    switch (currentPage) {
       case 'home':
-        return <HomePage {...pageProps} />;
+        return (
+          <HomePage 
+            beers={beers}
+            handleBeerSelect={handleBeerSelect}
+            isLoggedIn={isLoggedIn}
+          />
+        );
       case 'beers':
-        return <BeersPage {...pageProps} />;
+        return (
+          <BeersPage 
+            beers={beers}
+            handleBeerSelect={handleBeerSelect}
+            isLoggedIn={isLoggedIn}
+          />
+        );
       case 'friends':
-        return <FriendsPage {...pageProps} />;
-      case 'add':
-        return <AddBeerPage {...pageProps} />;
-      case 'login':
-        return <LoginPage {...pageProps} />;
-      case 'register':
-        return <RegisterPage {...pageProps} />;
-      case 'beer-detail':
-        return <BeerDetailPage {...pageProps} />;
-      case 'user-profile':
-        return <UserProfilePage {...pageProps} />;
+        return (
+          <FriendsPage 
+            isLoggedIn={isLoggedIn}
+            handleNavigation={handleNavigation}
+            handleUserSelect={handleUserSelect}
+          />
+        );
+      case 'add-beer':
+        return (
+          <AddBeerPage 
+            isLoggedIn={isLoggedIn}
+            handleNavigation={handleNavigation}
+            handleLogout={handleLogout}
+            refreshBeers={loadBeers}
+          />
+        );
       case 'profile':
-        return <ProfilePage {...pageProps} />;
+        return (
+          <ProfilePage 
+            isLoggedIn={isLoggedIn}
+            user={user}
+            handleNavigation={handleNavigation}
+            handleBeerSelect={handleBeerSelect}
+          />
+        );
+      case 'login':
+        return (
+          <LoginPage 
+            handleLogin={handleLogin}
+            handleNavigation={handleNavigation}
+          />
+        );
+      case 'register':
+        return (
+          <RegisterPage 
+            handleRegister={handleRegister}
+            handleNavigation={handleNavigation}
+          />
+        );
+      case 'beer-detail':
+        return (
+          <BeerDetailPage 
+            selectedBeer={selectedBeer}
+            beerReviews={beerReviews}
+            isLoggedIn={isLoggedIn}
+            user={user}
+            handleNavigation={handleNavigation}
+            handleLogout={handleLogout}
+            loadBeerReviews={loadBeerReviews}
+            refreshBeers={loadBeers}
+          />
+        );
+      case 'user-profile':
+        return (
+          <UserProfilePage 
+            selectedUser={selectedUser}
+          />
+        );
+      case 'admin':  // NEW: Admin dashboard case
+        return (
+          <AdminDashboard 
+            user={user}
+            isLoggedIn={isLoggedIn}
+            handleNavigation={handleNavigation}
+          />
+        );
       default:
-        return <HomePage {...pageProps} />;
+        return (
+          <HomePage 
+            beers={beers} 
+            handleBeerSelect={handleBeerSelect} 
+            isLoggedIn={isLoggedIn}
+          />
+        );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="App">
       <Navigation 
         currentPage={currentPage}
+        handleNavigation={handleNavigation}
         isLoggedIn={isLoggedIn}
         user={user}
-        handleNavigation={handleNavigation}
         handleLogout={handleLogout}
       />
       {renderPage()}
     </div>
   );
-};
+}
 
-export default BeerReviewApp;
+export default App;

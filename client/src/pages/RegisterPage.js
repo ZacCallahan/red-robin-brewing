@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { api } from '../services/api';
 
-const RegisterPage = ({ handleNavigation, handleLoginSuccess }) => {
+const RegisterPage = ({ handleNavigation, handleRegister }) => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -43,12 +42,9 @@ const RegisterPage = ({ handleNavigation, handleLoginSuccess }) => {
         return;
       }
 
-      // Create account
+      // Create account - just call handleRegister, it will handle the API call
       const { confirmPassword, ...registrationData } = formData;
-      const response = await api.auth.register(registrationData);
-      console.log('✅ Registration successful:', response);
-      
-      handleLoginSuccess(response);
+      await handleRegister(registrationData);
       
     } catch (error) {
       console.error('❌ Registration failed:', error);

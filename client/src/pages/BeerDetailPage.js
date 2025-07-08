@@ -12,10 +12,10 @@ const BeerDetailPage = ({
   loadBeerReviews, 
   refreshBeers 
 }) => {
-  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState(null);
   const [submittingReview, setSubmittingReview] = useState(false);
-  // Local state for this component only
+  // Local state for this component only - changed back to 'notes' to match API
   const [localUserReview, setLocalUserReview] = useState({ rating: 0, notes: '', username: '' });
 
   // Reset local review state when component mounts or beer changes
@@ -56,7 +56,7 @@ const BeerDetailPage = ({
       const reviewData = {
         beerId: selectedBeer._id,
         rating: localUserReview.rating,
-        notes: localUserReview.notes
+        notes: localUserReview.notes // Changed back to 'notes' to match API
       };
 
       console.log('Submitting review:', reviewData);
@@ -191,7 +191,7 @@ const BeerDetailPage = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-2">Tasting Notes (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-800 mb-2">Review Comments (Optional)</label>
                   <textarea
                     value={localUserReview.notes}
                     onChange={(e) => handleReviewChange('notes', e.target.value)}
@@ -245,8 +245,9 @@ const BeerDetailPage = ({
                       {new Date(review.createdAt).toLocaleDateString()}
                     </span>
                   </div>
+                  {/* Changed from review.comment back to review.notes */}
                   {review.notes && (
-                    <p className="text-gray-700 leading-relaxed">{review.notes}</p>
+                    <p className="text-gray-700 leading-relaxed italic">"{review.notes}"</p>
                   )}
                 </div>
               ))}

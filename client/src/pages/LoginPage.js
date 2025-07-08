@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { api } from '../services/api';
 
-const LoginPage = ({ handleNavigation, handleLoginSuccess }) => {
+const LoginPage = ({ handleNavigation, handleLogin }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -28,10 +27,8 @@ const LoginPage = ({ handleNavigation, handleLoginSuccess }) => {
         return;
       }
 
-      const response = await api.auth.login(formData);
-      console.log('✅ Login successful:', response);
-      
-      handleLoginSuccess(response);
+      // Just call handleLogin with credentials - it will handle the API call
+      await handleLogin(formData);
       
     } catch (error) {
       console.error('❌ Login failed:', error);

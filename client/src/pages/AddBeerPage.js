@@ -19,6 +19,7 @@ const AddBeerPage = ({
     notes: ''
   });
   const [localRating, setLocalRating] = useState(0);
+  const [localReviewComment, setLocalReviewComment] = useState('');
   const [localError, setLocalError] = useState(null);
   const [localLoading, setLocalLoading] = useState(false);
 
@@ -33,6 +34,7 @@ const AddBeerPage = ({
       notes: ''
     });
     setLocalRating(0);
+    setLocalReviewComment('');
     setLocalError(null);
   }, []);
 
@@ -53,8 +55,28 @@ const AddBeerPage = ({
         setLocalError('Please fill in all required fields');
         return;
       }
+
+      // Validate ABV range
+      const abvValue = parseFloat(localBeer.abv);
+      if (abvValue < 0 || abvValue > 20) {
+        setLocalError('ABV must be between 0% and 20%');
+        return;
+      }
+
+      // Validate IBU range if provided
+      if (localBeer.ibu && (parseInt(localBeer.ibu) < 0 || parseInt(localBeer.ibu) > 200)) {
+        setLocalError('IBU must be between 0 and 200');
+        return;
+      }
+
+      // Validate rating if provided
+      if (localRating > 0 && (localRating < 1 || localRating > 5)) {
+        setLocalError('Rating must be between 1 and 5 stars');
+        return;
+      }
       
       console.log('Adding beer:', localBeer);
+      console.log('Adding rating:', localRating);
       
       // Create the beer data object
       const beerData = {
@@ -66,9 +88,24 @@ const AddBeerPage = ({
         description: localBeer.notes
       };
       
-      // Save to database
+      console.log('Beer data being sent:', beerData);
+      
+      // Save beer to database
       const savedBeer = await api.beers.create(beerData);
       console.log('✅ Beer saved:', savedBeer);
+      
+      // If user provided a rating, create a review
+      if (localRating > 0) {
+        const reviewData = {
+          beerId: savedBeer._id,
+          rating: localRating,
+          notes: localReviewComment || '' // Changed from 'comment' to 'notes' to match API
+        };
+        
+        console.log('Adding review:', reviewData);
+        const savedReview = await api.reviews.create(reviewData);
+        console.log('✅ Review saved:', savedReview);
+      }
       
       // Reset local form
       setLocalBeer({
@@ -80,6 +117,7 @@ const AddBeerPage = ({
         notes: ''
       });
       setLocalRating(0);
+      setLocalReviewComment('');
       
       // Refresh the beers list
       await refreshBeers();
@@ -192,40 +230,78 @@ const AddBeerPage = ({
                 <input
                   type="number"
                   step="0.1"
+                  min="0"
+                  max="20"
                   value={localBeer.abv}
                   onChange={(e) => handleInputChange('abv', e.target.value)}
                   className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                   placeholder="5.0"
                 />
+                <p className="text-xs text-gray-500 mt-1">Maximum 20%</p>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-800 mb-2">IBU</label>
                 <input
                   type="number"
+                  min="0"
+                  max="200"
                   value={localBeer.ibu}
                   onChange={(e) => handleInputChange('ibu', e.target.value)}
                   className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                   placeholder="30"
                 />
+                <p className="text-xs text-gray-500 mt-1">0-200 range</p>
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-800 mb-2">Your Rating</label>
-              <StarRating rating={localRating} onRate={setLocalRating} interactive={true} size="w-8 h-8" />
+              <label className="block text-sm font-medium text-gray-800 mb-2">
+                Your Rating (Optional)
+              </label>
+              <div className="flex items-center gap-3">
+                <StarRating rating={localRating} onRate={setLocalRating} interactive={true} size="w-8 h-8" />
+                {localRating > 0 && (
+                  <span className="text-sm text-gray-600">
+                    {localRating}/5 stars
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {localRating > 0 ? 'Your rating will be saved as your first review' : 'Click stars to rate this beer'}
+              </p>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-800 mb-2">Tasting Notes</label>
+              <label className="block text-sm font-medium text-gray-800 mb-2">
+                Beer Description (Optional)
+              </label>
               <textarea
                 value={localBeer.notes}
                 onChange={(e) => handleInputChange('notes', e.target.value)}
-                rows="4"
+                rows="3"
                 className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                placeholder="Share your thoughts about this beer..."
+                placeholder="Describe this beer's characteristics, flavor profile, etc..."
               />
             </div>
+            
+            {localRating > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-800 mb-2">
+                  Your Review Comment (Optional)
+                </label>
+                <textarea
+                  value={localReviewComment}
+                  onChange={(e) => setLocalReviewComment(e.target.value)}
+                  rows="3"
+                  className="w-full px-3 py-2 border-2 border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                  placeholder="Share your personal thoughts and tasting experience..."
+                />
+                <p className="text-xs text-red-600 mt-1">
+                  This will be saved as your review comment
+                </p>
+              </div>
+            )}
             
             <button
               type="button"
@@ -233,7 +309,8 @@ const AddBeerPage = ({
               disabled={localLoading}
               className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white py-4 px-6 rounded-full hover:from-red-700 hover:to-red-900 transition-all duration-300 font-bold text-lg shadow-xl border-2 border-gray-300 hover:border-white transform hover:scale-105 disabled:opacity-50"
             >
-              {localLoading ? 'Adding Beer...' : 'Add Beer & Review'}
+              {localLoading ? 'Adding Beer...' : 
+                localRating > 0 ? 'Add Beer & Review' : 'Add Beer'}
             </button>
           </div>
         </div>

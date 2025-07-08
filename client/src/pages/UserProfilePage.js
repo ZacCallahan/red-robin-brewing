@@ -1,7 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import StarRating from '../components/StarRating';
+import { api } from '../services/api';
 
 const UserProfilePage = ({ selectedUser }) => {
+  const [userReviews, setUserReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUserReviews = async () => {
+      if (!selectedUser?._id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        const reviews = await api.users.getUserReviews(selectedUser._id);
+        setUserReviews(reviews || []);
+      } catch (error) {
+        console.error('Error fetching user reviews:', error);
+        setError('Failed to load user reviews');
+        setUserReviews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserReviews();
+  }, [selectedUser]);
+
   if (!selectedUser) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
@@ -54,18 +83,91 @@ const UserProfilePage = ({ selectedUser }) => {
           </div>
         </div>
 
-        {/* User Activity Summary */}
-        <div className="bg-white rounded-xl shadow-xl p-8 border-4 border-gray-200 text-center">
-          <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-white font-bold text-2xl select-none">
-              {selectedUser.username?.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">
-            {selectedUser.firstName}'s Beer Journey
+        {/* User Reviews Section */}
+        <div className="bg-white rounded-xl shadow-xl p-8 border-4 border-gray-200">
+          <h3 className="text-2xl font-bold text-gray-900 mb-6 font-serif">
+            {selectedUser.firstName}'s Reviews
           </h3>
           
-          {selectedUser.totalReviews > 0 ? (
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                <span className="text-white font-bold">⭐</span>
+              </div>
+              <p className="text-gray-600">Loading reviews...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-red-600 mb-2">Error loading reviews</p>
+              <p className="text-gray-500 text-sm">{error}</p>
+            </div>
+          ) : userReviews.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-gray-400 text-2xl">📝</span>
+              </div>
+              <p className="text-gray-600 mb-2">No reviews yet</p>
+              <p className="text-gray-500 text-sm">
+                {selectedUser.firstName} hasn't reviewed any beers yet
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {userReviews.map((review) => (
+                <div
+                  key={review._id}
+                  className="border-2 border-gray-200 rounded-lg p-6 hover:border-red-300 transition-colors"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="text-xl font-bold text-gray-900">
+                        {review.beer?.name || 'Unknown Beer'}
+                      </h4>
+                      <p className="text-red-600 font-medium">
+                        {review.beer?.brewery || 'Unknown Brewery'}
+                      </p>
+                      <p className="text-gray-600 text-sm">
+                        {review.beer?.style || 'Unknown Style'}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center gap-2 mb-2">
+                        <StarRating rating={review.rating} />
+                        <span className="text-lg font-bold text-red-600">
+                          {review.rating}/5
+                        </span>
+                      </div>
+                      <p className="text-gray-500 text-sm">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {review.comment && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <p className="text-gray-700 leading-relaxed italic">
+                        "{review.comment}"
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* User Activity Summary - Only show if there are reviews */}
+        {userReviews.length > 0 && (
+          <div className="bg-white rounded-xl shadow-xl p-8 border-4 border-gray-200 text-center mt-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-white font-bold text-2xl select-none">
+                {selectedUser.username?.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">
+              {selectedUser.firstName}'s Beer Journey
+            </h3>
+            
             <div className="space-y-4">
               <p className="text-gray-700 text-lg">
                 <span className="font-semibold text-red-600">{selectedUser.firstName}</span> has reviewed{' '}
@@ -90,23 +192,14 @@ const UserProfilePage = ({ selectedUser }) => {
                 <StarRating rating={Math.round(selectedUser.averageRating || 0)} />
               </div>
             </div>
-          ) : (
-            <div className="py-8">
-              <p className="text-gray-600 mb-4">
-                {selectedUser.firstName} hasn't reviewed any beers yet
-              </p>
-              <p className="text-sm text-gray-500">
-                Encourage them to start their beer journey!
+            
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-sm text-gray-500 italic">
+                "Every beer tells a story, and every review helps others discover their next favorite brew"
               </p>
             </div>
-          )}
-          
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-500 italic">
-              "Every beer tells a story, and every review helps others discover their next favorite brew"
-            </p>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

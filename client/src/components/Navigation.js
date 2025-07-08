@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Beer, Users, Plus, User, LogIn, LogOut, Menu, X } from 'lucide-react';
+import { Home, Beer, Users, Plus, User, LogIn, LogOut, Menu, X, Settings } from 'lucide-react';
 
 const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -69,7 +69,11 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
               <NavButton page="home" icon={Home}>Home</NavButton>
               <NavButton page="beers" icon={Beer}>Beers</NavButton>
               <NavButton page="friends" icon={Users}>Friends</NavButton>
-              <NavButton page="add" icon={Plus}>Add Beer</NavButton>
+              <NavButton page="add-beer" icon={Plus}>Add Beer</NavButton>
+              {/* NEW: Admin link - only show for admin users */}
+              {isLoggedIn && user?.isAdmin && (
+                <NavButton page="admin" icon={Settings}>Admin</NavButton>
+              )}
             </div>
 
             {/* User Section */}
@@ -112,7 +116,12 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
               <NavButton page="home" icon={Home} mobile>Home</NavButton>
               <NavButton page="beers" icon={Beer} mobile>Beers</NavButton>
               <NavButton page="friends" icon={Users} mobile>Friends</NavButton>
-              <NavButton page="add" icon={Plus} mobile>Add Beer</NavButton>
+              <NavButton page="add-beer" icon={Plus} mobile>Add Beer</NavButton>
+              
+              {/* NEW: Admin link for mobile - only show for admin users */}
+              {isLoggedIn && user?.isAdmin && (
+                <NavButton page="admin" icon={Settings} mobile>Admin</NavButton>
+              )}
               
               <div className="border-t border-gray-700 my-3"></div>
               

@@ -284,6 +284,7 @@ app.get('/api/users/:userId', async (req, res) => {
 // Routes
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/admin', require('./routes/admin')); // NEW: Admin routes
 
 // Global error handler
 app.use((error, req, res, next) => {
@@ -319,6 +320,7 @@ mongoose.connect(process.env.MONGODB_URI)
     console.log('🍺 MongoDB connected successfully!');
     console.log('🔐 Authentication system enabled');
     console.log('📊 User profiles and friend system ready');
+    console.log('🛡️ Admin system ready'); // NEW: Admin system log
   })
   .catch(err => {
     console.log('❌ MongoDB connection error:', err);
@@ -341,4 +343,5 @@ app.listen(PORT, () => {
   console.log(`   Beers: GET /api/beers, POST /api/beers (auth required)`);
   console.log(`   Reviews: GET /api/reviews/beer/:id, POST /api/reviews (auth required)`);
   console.log(`   Users: GET /api/users/profile (auth required)`);
+  console.log(`   Admin: /api/admin/* (admin auth required)`); // NEW: Admin endpoints log
 });

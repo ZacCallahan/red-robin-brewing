@@ -4,7 +4,6 @@ import StarRating from '../components/StarRating';
 import BeerCard from '../components/BeerCard';
 
 const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) => {
-  const [userStats, setUserStats] = useState(null);
   const [userReviews, setUserReviews] = useState([]);
   const [userBeers, setUserBeers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,15 +21,13 @@ const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) =
       setError(null);
 
       // Get user's reviews and beers in parallel
-      const [reviewsResponse, beersResponse, profileResponse] = await Promise.all([
+      const [reviewsResponse, beersResponse] = await Promise.all([
         api.users.getMyReviews(),
-        api.users.getMyBeers(),
-        api.auth.getProfile()
+        api.users.getMyBeers()
       ]);
 
       setUserReviews(reviewsResponse);
       setUserBeers(beersResponse);
-      setUserStats(profileResponse);
 
     } catch (error) {
       console.error('Error loading profile:', error);
