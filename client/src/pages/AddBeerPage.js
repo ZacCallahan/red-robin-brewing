@@ -1,164 +1,136 @@
-import React, { useState, useEffect } from 'react';
-import { Beer } from 'lucide-react';
+import React, { useState } from 'react';
+import { Beer, Clock, CheckCircle } from 'lucide-react';
 import { api } from '../services/api';
-import StarRating from '../components/StarRating';
 
-const AddBeerPage = ({ 
-  isLoggedIn, 
-  handleNavigation, 
-  handleLogout, 
-  refreshBeers 
-}) => {
-  // Move all hooks to the top level (before any conditional returns)
-  const [localBeer, setLocalBeer] = useState({
+const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers }) => {
+  const [beerData, setBeerData] = useState({
     name: '',
     brewery: '',
     style: '',
     abv: '',
-    ibu: '',
-    notes: ''
+    description: '',
+    sessionable: false
   });
-  const [localRating, setLocalRating] = useState(0);
-  const [localReviewComment, setLocalReviewComment] = useState('');
-  const [localError, setLocalError] = useState(null);
-  const [localLoading, setLocalLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
-  // Reset form when component mounts
-  useEffect(() => {
-    setLocalBeer({
-      name: '',
-      brewery: '',
-      style: '',
-      abv: '',
-      ibu: '',
-      notes: ''
-    });
-    setLocalRating(0);
-    setLocalReviewComment('');
-    setLocalError(null);
-  }, []);
+  // Beer styles available
+  const beerStyles = ['IPA', 'Stout', 'Wheat', 'Lager', 'Ale', 'Pilsner', 'Sour', 'Porter', 'Other'];
 
   const handleInputChange = (field, value) => {
-    setLocalBeer(prev => ({
+    setBeerData(prev => ({
       ...prev,
       [field]: value
+    }));
+    
+    // Auto-suggest sessionable based on ABV and style
+    if (field === 'abv' || field === 'style') {
+      const newAbv = field === 'abv' ? parseFloat(value) : parseFloat(beerData.abv);
+      const newStyle = field === 'style' ? value : beerData.style;
+      
+      if (!isNaN(newAbv)) {
+        const sessionableStyles = ['Lager', 'Wheat', 'Pilsner', 'Ale'];
+        const autoSessionable = (newAbv <= 4.5) || (newAbv <= 5.0 && sessionableStyles.includes(newStyle));
+        
+        if (autoSessionable && !beerData.sessionable) {
+          setBeerData(prev => ({
+            ...prev,
+            [field]: value,
+            sessionable: true
+          }));
+        } else {
+          setBeerData(prev => ({
+            ...prev,
+            [field]: value
+          }));
+        }
+      }
+    }
+  };
+
+  const handleSessionableToggle = () => {
+    setBeerData(prev => ({
+      ...prev,
+      sessionable: !prev.sessionable
     }));
   };
 
   const handleSubmit = async () => {
+    if (!isLoggedIn) {
+      setError('You must be logged in to add a beer');
+      return;
+    }
+
     try {
-      setLocalLoading(true);
-      setLocalError(null);
-      
-      // Validate required fields
-      if (!localBeer.name || !localBeer.brewery || !localBeer.style || !localBeer.abv) {
-        setLocalError('Please fill in all required fields');
+      setIsSubmitting(true);
+      setError(null);
+
+      // Validation
+      if (!beerData.name || !beerData.brewery || !beerData.style || !beerData.abv) {
+        setError('Please fill in all required fields');
         return;
       }
 
-      // Validate ABV range
-      const abvValue = parseFloat(localBeer.abv);
-      if (abvValue < 0 || abvValue > 20) {
-        setLocalError('ABV must be between 0% and 20%');
+      if (isNaN(parseFloat(beerData.abv)) || parseFloat(beerData.abv) < 0 || parseFloat(beerData.abv) > 20) {
+        setError('ABV must be a number between 0 and 20');
         return;
       }
 
-      // Validate IBU range if provided
-      if (localBeer.ibu && (parseInt(localBeer.ibu) < 0 || parseInt(localBeer.ibu) > 200)) {
-        setLocalError('IBU must be between 0 and 200');
-        return;
-      }
-
-      // Validate rating if provided
-      if (localRating > 0 && (localRating < 1 || localRating > 5)) {
-        setLocalError('Rating must be between 1 and 5 stars');
-        return;
-      }
-      
-      console.log('Adding beer:', localBeer);
-      console.log('Adding rating:', localRating);
-      
-      // Create the beer data object
-      const beerData = {
-        name: localBeer.name,
-        brewery: localBeer.brewery,
-        style: localBeer.style,
-        abv: parseFloat(localBeer.abv),
-        ibu: localBeer.ibu ? parseInt(localBeer.ibu) : undefined,
-        description: localBeer.notes
+      const submitData = {
+        ...beerData,
+        abv: parseFloat(beerData.abv)
       };
+
+      await api.beers.create(submitData);
       
-      console.log('Beer data being sent:', beerData);
-      
-      // Save beer to database
-      const savedBeer = await api.beers.create(beerData);
-      console.log('✅ Beer saved:', savedBeer);
-      
-      // If user provided a rating, create a review
-      if (localRating > 0) {
-        const reviewData = {
-          beerId: savedBeer._id,
-          rating: localRating,
-          notes: localReviewComment || '' // Changed from 'comment' to 'notes' to match API
-        };
-        
-        console.log('Adding review:', reviewData);
-        const savedReview = await api.reviews.create(reviewData);
-        console.log('✅ Review saved:', savedReview);
-      }
-      
-      // Reset local form
-      setLocalBeer({
+      setSuccess(true);
+      setBeerData({
         name: '',
         brewery: '',
         style: '',
         abv: '',
-        ibu: '',
-        notes: ''
+        description: '',
+        sessionable: false
       });
-      setLocalRating(0);
-      setLocalReviewComment('');
       
       // Refresh the beers list
-      await refreshBeers();
-      
-      // Redirect to home page
-      handleNavigation('home');
-      
-    } catch (error) {
-      console.error('❌ Error adding beer:', error);
-      if (error.message.includes('401') || error.message.includes('unauthorized')) {
-        setLocalError('Your session has expired. Please log in again.');
-        handleLogout();
-      } else {
-        setLocalError(error.message || 'Failed to add beer. Please try again.');
+      if (refreshBeers) {
+        await refreshBeers();
       }
+
+      // Auto-redirect after success
+      setTimeout(() => {
+        setSuccess(false);
+        handleNavigation('beers');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error adding beer:', error);
+      setError(error.message || 'Failed to add beer. Please try again.');
     } finally {
-      setLocalLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  // Check if user is logged in AFTER all hooks are defined
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <div className="max-w-md w-full mx-4">
-          <div className="bg-white rounded-lg shadow-lg p-8 border-4 border-gray-200 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <Beer className="w-8 h-8 text-white" />
-            </div>
+          <div className="bg-white rounded-xl shadow-xl p-8 border-4 border-gray-200 text-center">
+            <Beer className="w-16 h-16 text-red-600 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-4 font-serif">Login Required</h2>
-            <p className="text-gray-700 mb-6">You need to be logged in to add new beers to our collection.</p>
+            <p className="text-gray-600 mb-6">You need to be logged in to add beers to our collection.</p>
             <div className="space-y-3">
               <button 
                 onClick={() => handleNavigation('login')}
-                className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white py-3 px-6 rounded-full hover:from-red-700 hover:to-red-900 transition-all duration-300 font-bold"
+                className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold"
               >
-                Login to Continue
+                Login
               </button>
               <button 
                 onClick={() => handleNavigation('register')}
-                className="w-full border-2 border-red-600 text-red-600 py-3 px-6 rounded-full hover:bg-red-600 hover:text-white transition-all duration-300 font-bold"
+                className="w-full border-2 border-red-600 text-red-600 px-6 py-3 rounded-lg hover:bg-red-600 hover:text-white transition-colors font-semibold"
               >
                 Create Account
               </button>
@@ -169,149 +141,185 @@ const AddBeerPage = ({
     );
   }
 
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+        <div className="max-w-md w-full mx-4">
+          <div className="bg-white rounded-xl shadow-xl p-8 border-4 border-green-200 text-center">
+            <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 font-serif">Beer Added Successfully!</h2>
+            <p className="text-gray-600 mb-4">"{beerData.name}" has been added to our collection.</p>
+            <p className="text-sm text-gray-500">Redirecting to beers page...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <div className="max-w-2xl mx-auto p-6">
-        <h2 className="text-3xl font-bold text-gray-900 mb-6 font-serif">Add New Beer</h2>
-        
-        {localError && (
-          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-            {localError}
-          </div>
-        )}
-        
-        <div className="bg-white rounded-lg shadow-lg p-6 border-4 border-gray-200">
-          <div className="space-y-4">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-black to-gray-800 rounded-xl p-2 mb-8 text-center">
+          <h2 className="text-3xl font-bold text-white mb-2 font-serif">Add New Beer</h2>
+          <p className="text-gray-300">Share a new brew with our community</p>
+        </div>
+
+        {/* Form */}
+        <div className="bg-white rounded-xl shadow-xl p-8 border-4 border-gray-200">
+          {error && (
+            <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <div className="space-y-6">
+            {/* Beer Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-800 mb-2">Beer Name</label>
+              <label className="block text-sm font-medium text-gray-800 mb-2">
+                Beer Name *
+              </label>
               <input
                 type="text"
-                value={localBeer.name}
+                value={beerData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                placeholder="e.g., Hoppy IPA"
+                className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                placeholder="e.g., Hazy IPA, Imperial Stout"
+                required
               />
             </div>
-            
+
+            {/* Brewery */}
             <div>
-              <label className="block text-sm font-medium text-gray-800 mb-2">Brewery</label>
+              <label className="block text-sm font-medium text-gray-800 mb-2">
+                Brewery *
+              </label>
               <input
                 type="text"
-                value={localBeer.brewery}
+                value={beerData.brewery}
                 onChange={(e) => handleInputChange('brewery', e.target.value)}
-                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                placeholder="e.g., Local Craft Brewery"
+                className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                placeholder="e.g., Stone Brewing, Little Creatures"
+                required
               />
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            {/* Style and ABV Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Style */}
               <div>
-                <label className="block text-sm font-medium text-gray-800 mb-2">Style</label>
+                <label className="block text-sm font-medium text-gray-800 mb-2">
+                  Beer Style *
+                </label>
                 <select
-                  value={localBeer.style}
+                  value={beerData.style}
                   onChange={(e) => handleInputChange('style', e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  required
                 >
-                  <option value="">Select Style</option>
-                  <option value="IPA">IPA</option>
-                  <option value="Stout">Stout</option>
-                  <option value="Wheat">Wheat</option>
-                  <option value="Lager">Lager</option>
-                  <option value="Ale">Ale</option>
-                  <option value="Pilsner">Pilsner</option>
-                  <option value="Sour">Sour</option>
-                  <option value="Porter">Porter</option>
-                  <option value="Other">Other</option>
+                  <option value="">Select a style</option>
+                  {beerStyles.map(style => (
+                    <option key={style} value={style}>{style}</option>
+                  ))}
                 </select>
               </div>
-              
+
+              {/* ABV */}
               <div>
-                <label className="block text-sm font-medium text-gray-800 mb-2">ABV (%)</label>
+                <label className="block text-sm font-medium text-gray-800 mb-2">
+                  ABV (%) *
+                </label>
                 <input
                   type="number"
                   step="0.1"
                   min="0"
                   max="20"
-                  value={localBeer.abv}
+                  value={beerData.abv}
                   onChange={(e) => handleInputChange('abv', e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  placeholder="5.0"
+                  className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  placeholder="e.g., 5.5"
+                  required
                 />
-                <p className="text-xs text-gray-500 mt-1">Maximum 20%</p>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-800 mb-2">IBU</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="200"
-                  value={localBeer.ibu}
-                  onChange={(e) => handleInputChange('ibu', e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  placeholder="30"
-                />
-                <p className="text-xs text-gray-500 mt-1">0-200 range</p>
               </div>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-800 mb-2">
-                Your Rating (Optional)
-              </label>
-              <div className="flex items-center gap-3">
-                <StarRating rating={localRating} onRate={setLocalRating} interactive={true} size="w-8 h-8" />
-                {localRating > 0 && (
-                  <span className="text-sm text-gray-600">
-                    {localRating}/5 stars
-                  </span>
-                )}
+
+            {/* Sessionable Toggle */}
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-green-600" />
+                    Sessionable Beer
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Perfect for drinking multiple over a session (typically low ABV, balanced flavor)
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSessionableToggle}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                    beerData.sessionable ? 'bg-green-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      beerData.sessionable ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                {localRating > 0 ? 'Your rating will be saved as your first review' : 'Click stars to rate this beer'}
-              </p>
+              {beerData.sessionable && (
+                <div className="mt-3 p-3 bg-green-100 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-medium text-green-800">
+                      This beer is marked as sessionable
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
-            
+
+            {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-800 mb-2">
-                Beer Description (Optional)
+                Description
               </label>
               <textarea
-                value={localBeer.notes}
-                onChange={(e) => handleInputChange('notes', e.target.value)}
-                rows="3"
-                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                placeholder="Describe this beer's characteristics, flavor profile, etc..."
+                value={beerData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                rows="4"
+                className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                placeholder="Describe the beer's flavor profile, aroma, appearance, or any other notes..."
+                maxLength="500"
               />
-            </div>
-            
-            {localRating > 0 && (
-              <div>
-                <label className="block text-sm font-medium text-gray-800 mb-2">
-                  Your Review Comment (Optional)
-                </label>
-                <textarea
-                  value={localReviewComment}
-                  onChange={(e) => setLocalReviewComment(e.target.value)}
-                  rows="3"
-                  className="w-full px-3 py-2 border-2 border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-50"
-                  placeholder="Share your personal thoughts and tasting experience..."
-                />
-                <p className="text-xs text-red-600 mt-1">
-                  This will be saved as your review comment
-                </p>
+              <div className="text-right text-sm text-gray-500 mt-1">
+                {beerData.description.length}/500 characters
               </div>
-            )}
-            
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={localLoading}
-              className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white py-4 px-6 rounded-full hover:from-red-700 hover:to-red-900 transition-all duration-300 font-bold text-lg shadow-xl border-2 border-gray-300 hover:border-white transform hover:scale-105 disabled:opacity-50"
-            >
-              {localLoading ? 'Adding Beer...' : 
-                localRating > 0 ? 'Add Beer & Review' : 'Add Beer'}
-            </button>
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-4">
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white py-4 px-6 rounded-lg hover:from-red-700 hover:to-red-900 transition-all duration-300 font-bold text-lg shadow-xl disabled:opacity-50 transform hover:scale-105"
+              >
+                {isSubmitting ? 'Adding Beer...' : 'Add Beer to Collection'}
+              </button>
+            </div>
+
+            {/* Back Button */}
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => handleNavigation('beers')}
+                className="text-gray-600 hover:text-gray-800 font-medium"
+              >
+                ← Back to Beers
+              </button>
+            </div>
           </div>
         </div>
       </div>

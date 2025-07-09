@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Clock } from 'lucide-react';
 import BeerCard from '../components/BeerCard';
 
 const BeersPage = ({ beers, handleBeerSelect }) => {
@@ -7,6 +7,7 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
   const [sortBy, setSortBy] = useState('name');
   const [selectedStyle, setSelectedStyle] = useState('');
   const [minRating, setMinRating] = useState(0);
+  const [showSessionableOnly, setShowSessionableOnly] = useState(false);
   
   // Get unique styles for filter dropdown
   const availableStyles = [...new Set(beers.map(beer => beer.style))].sort();
@@ -20,8 +21,9 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
 
     const matchesStyle = !selectedStyle || beer.style === selectedStyle;
     const matchesRating = !minRating || (beer.averageRating || 0) >= minRating;
+    const matchesSessionable = !showSessionableOnly || beer.sessionable;
 
-    return matchesSearch && matchesStyle && matchesRating;
+    return matchesSearch && matchesStyle && matchesRating && matchesSessionable;
   });
 
   // Sort beers
@@ -33,19 +35,33 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
         return (b.totalReviews || 0) - (a.totalReviews || 0);
       case 'recent':
         return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      case 'abv-low':
+        return (a.abv || 0) - (b.abv || 0);
+      case 'abv-high':
+        return (b.abv || 0) - (a.abv || 0);
       case 'name':
       default:
         return a.name.localeCompare(b.name);
     }
   });
+
+  const sessionableCount = beers.filter(beer => beer.sessionable).length;
     
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50">
       <div className="max-w-6xl mx-auto p-6">
-        {/* Header with black accent - made smaller */}
+        {/* Header */}
         <div className="bg-gradient-to-r from-black to-gray-800 rounded-xl p-2 mb-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-2 font-serif select-none">All Beers ({beers.length})</h2>
           <p className="text-gray-300 select-none">Explore our complete craft beer collection</p>
+          {sessionableCount > 0 && (
+            <div className="mt-2">
+              <span className="inline-flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                <Clock className="w-3 h-3" />
+                {sessionableCount} Sessionable Beers
+              </span>
+            </div>
+          )}
         </div>
         
         {/* Search and Filters */}
@@ -78,6 +94,8 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
                 <option value="rating">Highest Rated</option>
                 <option value="reviews">Most Reviewed</option>
                 <option value="recent">Recently Added</option>
+                <option value="abv-low">Lowest ABV</option>
+                <option value="abv-high">Highest ABV</option>
               </select>
             </div>
 
@@ -97,34 +115,66 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
             </div>
           </div>
 
-          {/* Rating Filter */}
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-black mb-3 select-none">Minimum Rating</label>
-            <div className="flex items-center gap-2">
-              {[0, 1, 2, 3, 4, 5].map((rating) => (
+          {/* Rating Filter and Sessionable Toggle */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+            {/* Rating Filter */}
+            <div>
+              <label className="block text-sm font-medium text-black mb-3 select-none">Minimum Rating</label>
+              <div className="flex items-center gap-2">
+                {[0, 1, 2, 3, 4, 5].map((rating) => (
+                  <button
+                    key={rating}
+                    onClick={() => setMinRating(rating)}
+                    className={`px-3 py-1.5 rounded-lg border-2 transition-all duration-200 text-sm font-medium select-none ${
+                      minRating === rating
+                        ? 'border-black bg-black text-white'
+                        : 'border-gray-300 hover:border-black text-gray-600 hover:text-black'
+                    }`}
+                  >
+                    {rating === 0 ? 'All' : `${rating}⭐+`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sessionable Filter */}
+            <div>
+              <label className="block text-sm font-medium text-black mb-3 select-none">Beer Type</label>
+              <div className="flex items-center gap-4">
                 <button
-                  key={rating}
-                  onClick={() => setMinRating(rating)}
-                  className={`px-3 py-1.5 rounded-lg border-2 transition-all duration-200 text-sm font-medium select-none ${
-                    minRating === rating
+                  onClick={() => setShowSessionableOnly(false)}
+                  className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 text-sm font-medium select-none ${
+                    !showSessionableOnly
                       ? 'border-black bg-black text-white'
                       : 'border-gray-300 hover:border-black text-gray-600 hover:text-black'
                   }`}
                 >
-                  {rating === 0 ? 'All' : `${rating}⭐+`}
+                  All Beers
                 </button>
-              ))}
+                <button
+                  onClick={() => setShowSessionableOnly(true)}
+                  className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 text-sm font-medium select-none flex items-center gap-2 ${
+                    showSessionableOnly
+                      ? 'border-green-500 bg-green-500 text-white'
+                      : 'border-gray-300 hover:border-green-500 text-gray-600 hover:text-green-600'
+                  }`}
+                >
+                  <Clock className="w-4 h-4" />
+                  Sessionable Only
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Clear Filters */}
-          {(localSearchTerm || selectedStyle || minRating > 0) && (
+          {(localSearchTerm || selectedStyle || minRating > 0 || showSessionableOnly) && (
             <div className="mt-4 pt-4 border-t">
               <button
                 onClick={() => {
                   setLocalSearchTerm('');
                   setSelectedStyle('');
                   setMinRating(0);
+                  setShowSessionableOnly(false);
                   setSortBy('name');
                 }}
                 className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 font-semibold transition-colors select-none"
@@ -142,6 +192,7 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
             {localSearchTerm && ` matching "${localSearchTerm}"`}
             {selectedStyle && ` in ${selectedStyle} style`}
             {minRating > 0 && ` rated ${minRating}+ stars`}
+            {showSessionableOnly && ` that are sessionable`}
           </p>
         </div>
 
@@ -161,6 +212,8 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
                 <p className="text-gray-600 mb-4 select-none">
                   {localSearchTerm 
                     ? `No beers match your search "${localSearchTerm}"`
+                    : showSessionableOnly
+                    ? 'No sessionable beers match your filters'
                     : 'Try adjusting your filters'
                   }
                 </p>
@@ -169,6 +222,7 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
                     setLocalSearchTerm('');
                     setSelectedStyle('');
                     setMinRating(0);
+                    setShowSessionableOnly(false);
                   }}
                   className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 font-semibold transition-colors select-none"
                 >

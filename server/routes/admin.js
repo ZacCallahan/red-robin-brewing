@@ -256,87 +256,77 @@ router.put('/beers/:id', async (req, res) => {
   }
 });
 
-const axios = require('axios');
-
 // @route   POST /api/admin/populate
-// @desc    Populate database with beers from Punk API
+// @desc    Populate database with curated Australian and international beers
 router.post('/populate', async (req, res) => {
   try {
-    console.log('🍺 Starting beer import from Punk API...');
+    console.log('🍺 Starting curated beer import...');
     
-    // Test connection first
-    console.log('🔗 Testing API connection...');
-    const testResponse = await axios.get('https://api.punkapi.com/v2/beers?per_page=1', {
-      timeout: 10000,
-      headers: {
-        'User-Agent': 'Beer-Review-App/1.0'
-      }
-    });
-    
-    console.log('✅ API connection successful');
-    
-    // Fetch all beers in batches
-    const allBeers = [];
-    let page = 1;
-    let hasMore = true;
-    const perPage = 80; // Max allowed by Punk API
-    
-    while (hasMore && page <= 4) { // Limit to 4 pages (320 beers max)
-      console.log(`📥 Fetching page ${page}...`);
+    const curatedBeers = [
+      // Popular Australian Beers
+      { name: "XXXX Gold", brewery: "XXXX", style: "Lager", abv: 3.5, ibu: 15, description: "Australia's most popular mid-strength lager with a crisp, refreshing taste." },
+      { name: "Victoria Bitter", brewery: "Carlton & United", style: "Lager", abv: 4.9, ibu: 25, description: "VB - Australia's iconic full-strength lager with a distinctive bitter taste." },
+      { name: "Carlton Draught", brewery: "Carlton & United", style: "Lager", abv: 4.6, ibu: 18, description: "Made from beer - Australia's favourite draught beer with smooth taste." },
+      { name: "Tooheys New", brewery: "Tooheys", style: "Lager", abv: 4.6, ibu: 17, description: "NSW's favourite beer with a clean, refreshing taste." },
+      { name: "Great Northern", brewery: "Carlton & United", style: "Lager", abv: 4.2, ibu: 12, description: "Tropical Queensland beer that's crisp and easy drinking." },
+      { name: "Coopers Pale Ale", brewery: "Coopers", style: "Ale", abv: 4.5, ibu: 30, description: "Australia's original craft beer - cloudy, flavoursome pale ale." },
+      { name: "Coopers Sparkling Ale", brewery: "Coopers", style: "Ale", abv: 5.8, ibu: 35, description: "Premium bottle-conditioned ale with secondary fermentation." },
+      { name: "James Boag's Premium", brewery: "James Boag's", style: "Lager", abv: 5.0, ibu: 20, description: "Tasmanian premium lager brewed with pure Tasmanian ingredients." },
+      { name: "Little Creatures Pale Ale", brewery: "Little Creatures", style: "Ale", abv: 5.2, ibu: 43, description: "Fremantle's famous hoppy pale ale that started the craft beer revolution." },
+      { name: "Stone & Wood Pacific Ale", brewery: "Stone & Wood", style: "Ale", abv: 4.4, ibu: 25, description: "Byron Bay's cloudy ale with tropical hop character and galaxy hops." },
+      { name: "Balter XPA", brewery: "Balter", style: "Ale", abv: 5.0, ibu: 30, description: "Gold Coast XPA with easy-drinking hop character." },
+      { name: "Pirate Life Pale Ale", brewery: "Pirate Life", style: "Ale", abv: 4.4, ibu: 35, description: "Adelaide's hoppy pale ale with American hop character." },
+      { name: "4 Pines Pale Ale", brewery: "4 Pines", style: "Ale", abv: 5.1, ibu: 42, description: "Sydney Northern Beaches pale ale with citrus and pine notes." },
+      { name: "Furphy Refreshing Ale", brewery: "Furphy", style: "Ale", abv: 4.4, ibu: 18, description: "Geelong's refreshing ale with balanced hop and malt character." },
+      { name: "Mountain Goat Steam Ale", brewery: "Mountain Goat", style: "Ale", abv: 4.5, ibu: 25, description: "Melbourne's original craft beer with unique steam beer character." },
+      { name: "Carlton Dry", brewery: "Carlton & United", style: "Lager", abv: 4.5, ibu: 15, description: "Ultra-crisp dry lager with clean finish." },
+      { name: "Swan Draught", brewery: "Swan", style: "Lager", abv: 4.5, ibu: 16, description: "Western Australia's pride - clean, crisp lager from Perth." },
+      { name: "West End Draught", brewery: "West End", style: "Lager", abv: 4.5, ibu: 17, description: "South Australia's favourite beer since 1859." },
+      { name: "Cascade Premium Light", brewery: "Cascade", style: "Lager", abv: 2.8, ibu: 12, description: "Tasmania's own light beer with full flavour despite lower alcohol." },
+      { name: "Pure Blonde", brewery: "Carlton & United", style: "Lager", abv: 4.6, ibu: 12, description: "Premium mid-strength with low carb content." },
       
-      const response = await axios.get(`https://api.punkapi.com/v2/beers?page=${page}&per_page=${perPage}`, {
-        timeout: 15000,
-        headers: {
-          'User-Agent': 'Beer-Review-App/1.0'
-        }
-      });
-      
-      const punkBeers = response.data;
-      console.log(`📋 Page ${page}: Retrieved ${punkBeers.length} beers`);
-      
-      if (punkBeers.length === 0) {
-        hasMore = false;
-      } else {
-        allBeers.push(...punkBeers);
-        page++;
-      }
-      
-      // If we got less than the full page, we're done
-      if (punkBeers.length < perPage) {
-        hasMore = false;
-      }
-    }
+      // Popular International Beers
+      { name: "Heineken", brewery: "Heineken", style: "Lager", abv: 5.0, ibu: 23, description: "Dutch premium lager with subtle hop character." },
+      { name: "Corona Extra", brewery: "Corona", style: "Lager", abv: 4.6, ibu: 18, description: "Light Mexican lager traditionally served with lime." },
+      { name: "Stella Artois", brewery: "Stella Artois", style: "Lager", abv: 5.2, ibu: 24, description: "Belgian lager with a crisp, clean finish." },
+      { name: "Budweiser", brewery: "Anheuser-Busch", style: "Lager", abv: 5.0, ibu: 12, description: "Classic American lager with crisp, clean taste." },
+      { name: "Coors Light", brewery: "Molson Coors", style: "Lager", abv: 4.2, ibu: 10, description: "Light, refreshing lager brewed in the Rocky Mountains." },
+      { name: "Guinness Draught", brewery: "Guinness", style: "Stout", abv: 4.2, ibu: 45, description: "Iconic Irish stout with creamy head and roasted barley flavor." },
+      { name: "Founders Breakfast Stout", brewery: "Founders", style: "Stout", abv: 8.3, ibu: 60, description: "Coffee chocolate stout brewed with coffee and chocolate." },
+      { name: "Samuel Smith's Imperial Stout", brewery: "Samuel Smith", style: "Stout", abv: 7.0, ibu: 40, description: "Rich, complex stout with chocolate and coffee notes." },
+      { name: "Young's Double Chocolate Stout", brewery: "Young's", style: "Stout", abv: 5.2, ibu: 25, description: "Rich stout with real chocolate and luxurious taste." },
+      { name: "Asahi Super Dry", brewery: "Asahi", style: "Lager", abv: 5.0, ibu: 16, description: "Japanese lager with clean, dry finish." },
+      { name: "Sapporo Premium", brewery: "Sapporo", style: "Lager", abv: 4.9, ibu: 17, description: "Premium Japanese lager with crisp taste." },
+      { name: "Tiger Beer", brewery: "Tiger", style: "Lager", abv: 5.0, ibu: 18, description: "Singapore lager popular across Australia's Asian communities." },
+      { name: "Blue Moon", brewery: "Blue Moon Brewing", style: "Wheat", abv: 5.4, ibu: 9, description: "Smooth wheat beer with coriander and orange peel." },
+      { name: "Hoegaarden", brewery: "Hoegaarden", style: "Wheat", abv: 4.9, ibu: 15, description: "Original Belgian white beer with coriander and orange peel." },
+      { name: "Paulaner Hefe-Weizen", brewery: "Paulaner", style: "Wheat", abv: 5.5, ibu: 12, description: "Traditional Bavarian wheat beer with banana and clove notes." },
+      { name: "Weihenstephaner Hefeweizen", brewery: "Weihenstephaner", style: "Wheat", abv: 5.4, ibu: 14, description: "Classic wheat beer from world's oldest brewery." },
+      { name: "Sierra Nevada Pale Ale", brewery: "Sierra Nevada", style: "Ale", abv: 5.6, ibu: 38, description: "Classic American pale ale that helped define the style." },
+      { name: "Stone IPA", brewery: "Stone Brewing", style: "IPA", abv: 6.9, ibu: 77, description: "Bold, hoppy IPA with citrus and pine notes." },
+      { name: "Dogfish Head 60 Minute IPA", brewery: "Dogfish Head", style: "IPA", abv: 6.0, ibu: 60, description: "Continuously hopped IPA with citrusy hop character." },
+      { name: "Lagunitas IPA", brewery: "Lagunitas", style: "IPA", abv: 6.2, ibu: 51, description: "Well-balanced IPA with citrus and pine notes." },
+      { name: "Hazy Little Thing", brewery: "Sierra Nevada", style: "IPA", abv: 6.7, ibu: 35, description: "Juicy, hazy IPA with tropical fruit flavors and a smooth finish." },
+      { name: "Brewdog Punk IPA", brewery: "Brewdog", style: "IPA", abv: 5.6, ibu: 65, description: "Scottish punk IPA now brewed in Australia." },
+      { name: "Pilsner Urquell", brewery: "Pilsner Urquell", style: "Pilsner", abv: 4.4, ibu: 40, description: "Original pilsner with Saaz hop character." },
+      { name: "Carlsberg", brewery: "Carlsberg", style: "Lager", abv: 5.0, ibu: 20, description: "Danish lager probably the best in the world." },
+      { name: "Peroni Nastro Azzurro", brewery: "Peroni", style: "Lager", abv: 5.1, ibu: 24, description: "Premium Italian lager popular in Australian restaurants." },
+      { name: "Deschutes Black Butte Porter", brewery: "Deschutes", style: "Porter", abv: 5.2, ibu: 30, description: "Smooth porter with chocolate and coffee flavors." },
+      { name: "Anchor Porter", brewery: "Anchor", style: "Porter", abv: 5.6, ibu: 30, description: "Classic American porter with chocolate malt character." },
+      { name: "Gose Gone Wild", brewery: "Anderson Valley", style: "Sour", abv: 4.2, ibu: 15, description: "Traditional German sour beer with salt and coriander." },
+      { name: "SeaQuench Ale", brewery: "Dogfish Head", style: "Sour", abv: 4.9, ibu: 14, description: "Session sour with lime juice, black limes, and sea salt." },
+      { name: "Dos Equis", brewery: "Dos Equis", style: "Lager", abv: 4.2, ibu: 15, description: "Mexican lager with smooth, refreshing taste." },
+      { name: "Tecate", brewery: "Tecate", style: "Lager", abv: 4.5, ibu: 14, description: "Mexican lager often served with lime and salt." }
+    ];
     
-    console.log(`📊 Total beers fetched from API: ${allBeers.length}`);
-    
-    if (allBeers.length === 0) {
-      return res.status(400).json({ 
-        message: 'No beers found from Punk API',
-        error: 'The API returned no data'
-      });
-    }
-    
-    // Transform Punk API data to our beer format
-    const beersToInsert = allBeers.map(beer => ({
-      name: beer.name,
-      brewery: 'BrewDog',
-      style: beer.tagline || 'Craft Beer',
-      abv: beer.abv || 0,
-      ibu: beer.ibu || null,
-      description: beer.description || 'No description available',
-      addedBy: req.user._id,
-      apiSource: 'punk',
-      apiId: beer.id
-    }));
+    console.log(`📋 Processing ${curatedBeers.length} curated beers...`);
     
     // Insert beers, handling duplicates
     const insertedBeers = [];
     const duplicates = [];
     let errors = 0;
     
-    console.log(`💾 Processing ${beersToInsert.length} beers...`);
-    
-    for (const beerData of beersToInsert) {
+    for (const beerData of curatedBeers) {
       try {
         // Check if beer already exists
         const existingBeer = await Beer.findOne({ 
@@ -347,7 +337,10 @@ router.post('/populate', async (req, res) => {
         if (existingBeer) {
           duplicates.push(beerData.name);
         } else {
-          const newBeer = await Beer.create(beerData);
+          const newBeer = await Beer.create({
+            ...beerData,
+            addedBy: req.user._id
+          });
           insertedBeers.push(newBeer);
         }
       } catch (error) {
@@ -360,14 +353,14 @@ router.post('/populate', async (req, res) => {
     console.log(`📈 Stats: ${insertedBeers.length} added, ${duplicates.length} duplicates, ${errors} errors`);
     
     res.json({
-      message: 'Beer import completed successfully',
-      source: 'Punk API (BrewDog)',
-      fetched: allBeers.length,
+      message: 'Beer database populated successfully',
+      source: 'Curated Australian & International Beer Collection',
+      processed: curatedBeers.length,
       inserted: insertedBeers.length,
       duplicates: duplicates.length,
       errors: errors,
       duplicateNames: duplicates.slice(0, 10),
-      sampleBeers: insertedBeers.slice(0, 5).map(b => ({ 
+      sampleBeers: insertedBeers.slice(0, 10).map(b => ({ 
         name: b.name, 
         brewery: b.brewery,
         abv: b.abv, 
@@ -376,23 +369,10 @@ router.post('/populate', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Punk API import failed:', error.message);
-    
-    // Provide specific error messages based on error type
-    let errorMessage = 'Failed to import beers from Punk API';
-    
-    if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
-      errorMessage = 'Cannot connect to Punk API. Please check your internet connection or try again later.';
-    } else if (error.code === 'ETIMEDOUT') {
-      errorMessage = 'Request to Punk API timed out. Please try again.';
-    } else if (error.response) {
-      errorMessage = `Punk API returned error: ${error.response.status} ${error.response.statusText}`;
-    }
-    
+    console.error('❌ Import failed:', error);
     res.status(500).json({ 
-      message: errorMessage,
-      error: error.message,
-      suggestion: 'Try again in a few minutes, or check if the Punk API is currently available.'
+      message: 'Server error during beer import',
+      error: error.message 
     });
   }
 });

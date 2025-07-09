@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Clock } from 'lucide-react';
 import StarRating from './StarRating';
 
 const BeerCard = ({ beer, onClick }) => (
@@ -8,24 +8,30 @@ const BeerCard = ({ beer, onClick }) => (
     onClick={() => onClick(beer)}
   >
     <div className="p-6 bg-white">
-      <h3 className="font-bold text-2xl text-black mb-3 font-serif select-none">{beer.name}</h3>
+      <div className="flex justify-between items-start mb-3">
+        <h3 className="font-bold text-2xl text-black font-serif select-none flex-1">{beer.name}</h3>
+        {beer.sessionable && (
+          <div className="ml-2 flex-shrink-0">
+            <div className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              SESSIONABLE
+            </div>
+          </div>
+        )}
+      </div>
+      
       <p className="text-red-600 font-semibold mb-4 text-xl select-none">{beer.brewery}</p>
       
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+          <div className="text-xs text-gray-600 mb-1">Style</div>
           <span className="text-sm font-bold text-white bg-gradient-to-r from-black to-gray-800 px-3 py-1 rounded-full select-none">{beer.style}</span>
         </div>
         <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
+          <div className="text-xs text-gray-600 mb-1">Alcohol</div>
           <span className="text-lg font-bold text-black select-none">{beer.abv}% ABV</span>
         </div>
       </div>
-
-      {beer.ibu && (
-        <div className="bg-gray-50 p-3 rounded-lg mb-4 text-center border border-gray-200">
-          <span className="text-sm text-gray-600 select-none">IBU: </span>
-          <span className="text-lg font-bold text-black select-none">{beer.ibu}</span>
-        </div>
-      )}
       
       <div className="border-t border-gray-300 pt-4">
         <div className="flex items-center justify-between mb-2">

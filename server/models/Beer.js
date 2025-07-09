@@ -22,11 +22,10 @@ const beerSchema = new mongoose.Schema({
     min: 0,
     max: 20
   },
-  ibu: {
-    type: Number,
-    min: 0,
-    max: 120
-  },
+  sessionable: {
+  type: Boolean,
+  default: false
+},
   description: {
     type: String,
     maxlength: 500

@@ -120,100 +120,102 @@ const handleLogin = async (credentials) => {
   };
 
   const renderPage = () => {
-    switch (currentPage) {
-      case 'home':
-        return (
-          <HomePage 
-            beers={beers}
-            handleBeerSelect={handleBeerSelect}
-            isLoggedIn={isLoggedIn}
-          />
-        );
-      case 'beers':
-        return (
-          <BeersPage 
-            beers={beers}
-            handleBeerSelect={handleBeerSelect}
-            isLoggedIn={isLoggedIn}
-          />
-        );
-      case 'friends':
-        return (
-          <FriendsPage 
-            isLoggedIn={isLoggedIn}
-            handleNavigation={handleNavigation}
-            handleUserSelect={handleUserSelect}
-          />
-        );
-      case 'add-beer':
-        return (
-          <AddBeerPage 
-            isLoggedIn={isLoggedIn}
-            handleNavigation={handleNavigation}
-            handleLogout={handleLogout}
-            refreshBeers={loadBeers}
-          />
-        );
-      case 'profile':
-        return (
-          <ProfilePage 
-            isLoggedIn={isLoggedIn}
-            user={user}
-            handleNavigation={handleNavigation}
-            handleBeerSelect={handleBeerSelect}
-          />
-        );
-      case 'login':
-        return (
-          <LoginPage 
-            handleLogin={handleLogin}
-            handleNavigation={handleNavigation}
-          />
-        );
-      case 'register':
-        return (
-          <RegisterPage 
-            handleRegister={handleRegister}
-            handleNavigation={handleNavigation}
-          />
-        );
-      case 'beer-detail':
-        return (
-          <BeerDetailPage 
-            selectedBeer={selectedBeer}
-            beerReviews={beerReviews}
-            isLoggedIn={isLoggedIn}
-            user={user}
-            handleNavigation={handleNavigation}
-            handleLogout={handleLogout}
-            loadBeerReviews={loadBeerReviews}
-            refreshBeers={loadBeers}
-          />
-        );
-      case 'user-profile':
-        return (
-          <UserProfilePage 
-            selectedUser={selectedUser}
-          />
-        );
-      case 'admin':  // NEW: Admin dashboard case
-        return (
-          <AdminDashboard 
-            user={user}
-            isLoggedIn={isLoggedIn}
-            handleNavigation={handleNavigation}
-          />
-        );
-      default:
-        return (
-          <HomePage 
-            beers={beers} 
-            handleBeerSelect={handleBeerSelect} 
-            isLoggedIn={isLoggedIn}
-          />
-        );
-    }
-  };
+  switch (currentPage) {
+    case 'home':
+      return (
+        <HomePage 
+          beers={beers}
+          handleBeerSelect={handleBeerSelect}
+          isLoggedIn={isLoggedIn}
+          handleNavigation={handleNavigation}  // ADDED
+        />
+      );
+    case 'beers':
+      return (
+        <BeersPage 
+          beers={beers}
+          handleBeerSelect={handleBeerSelect}
+          isLoggedIn={isLoggedIn}
+        />
+      );
+    case 'friends':
+      return (
+        <FriendsPage 
+          isLoggedIn={isLoggedIn}
+          handleNavigation={handleNavigation}
+          handleUserSelect={handleUserSelect}
+        />
+      );
+    case 'add-beer':
+      return (
+        <AddBeerPage 
+          isLoggedIn={isLoggedIn}
+          handleNavigation={handleNavigation}
+          handleLogout={handleLogout}
+          refreshBeers={loadBeers}
+        />
+      );
+    case 'profile':
+      return (
+        <ProfilePage 
+          isLoggedIn={isLoggedIn}
+          user={user}
+          handleNavigation={handleNavigation}
+          handleBeerSelect={handleBeerSelect}
+        />
+      );
+    case 'login':
+      return (
+        <LoginPage 
+          handleLogin={handleLogin}
+          handleNavigation={handleNavigation}
+        />
+      );
+    case 'register':
+      return (
+        <RegisterPage 
+          handleRegister={handleRegister}
+          handleNavigation={handleNavigation}
+        />
+      );
+    case 'beer-detail':
+      return (
+        <BeerDetailPage 
+          selectedBeer={selectedBeer}
+          beerReviews={beerReviews}
+          isLoggedIn={isLoggedIn}
+          user={user}
+          handleNavigation={handleNavigation}
+          handleLogout={handleLogout}
+          loadBeerReviews={loadBeerReviews}
+          refreshBeers={loadBeers}
+        />
+      );
+    case 'user-profile':
+      return (
+        <UserProfilePage 
+          selectedUser={selectedUser}
+        />
+      );
+    case 'admin':
+      return (
+        <AdminDashboard 
+          user={user}
+          isLoggedIn={isLoggedIn}
+          handleNavigation={handleNavigation}
+        />
+      );
+    default:
+      return (
+        <HomePage 
+          beers={beers} 
+          handleBeerSelect={handleBeerSelect} 
+          isLoggedIn={isLoggedIn}
+          handleNavigation={handleNavigation}  // ADDED
+        />
+      );
+  }
+};
 
   return (
     <div className="App">

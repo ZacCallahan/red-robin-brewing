@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Clock } from 'lucide-react';
 import { api } from '../services/api';
 import StarRating from '../components/StarRating';
 
@@ -15,10 +16,8 @@ const BeerDetailPage = ({
   const [reviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState(null);
   const [submittingReview, setSubmittingReview] = useState(false);
-  // Local state for this component only - changed back to 'notes' to match API
   const [localUserReview, setLocalUserReview] = useState({ rating: 0, notes: '', username: '' });
 
-  // Reset local review state when component mounts or beer changes
   useEffect(() => {
     if (isLoggedIn && user) {
       setLocalUserReview({ 
@@ -56,23 +55,19 @@ const BeerDetailPage = ({
       const reviewData = {
         beerId: selectedBeer._id,
         rating: localUserReview.rating,
-        notes: localUserReview.notes // Changed back to 'notes' to match API
+        notes: localUserReview.notes
       };
 
       console.log('Submitting review:', reviewData);
       await api.reviews.create(reviewData);
       
-      // Reset local form
       setLocalUserReview({ 
         rating: 0, 
         notes: '', 
         username: user?.username || '' 
       });
       
-      // Reload reviews manually
       await loadBeerReviews(selectedBeer._id);
-      
-      // Reload beer data to get updated ratings
       await refreshBeers();
       
     } catch (error) {
@@ -105,24 +100,31 @@ const BeerDetailPage = ({
 
         {/* Beer Information */}
         <div className="bg-white rounded-xl shadow-xl p-8 mb-8 border-4 border-gray-200">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2 font-serif">{selectedBeer.name}</h1>
-          <h2 className="text-2xl text-red-600 font-semibold mb-6">{selectedBeer.brewery}</h2>
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2 font-serif">{selectedBeer.name}</h1>
+              <h2 className="text-2xl text-red-600 font-semibold">{selectedBeer.brewery}</h2>
+            </div>
+            {selectedBeer.sessionable && (
+              <div className="ml-4 flex-shrink-0">
+                <div className="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  SESSIONABLE
+                </div>
+                <p className="text-xs text-gray-600 mt-1 text-center">Perfect for long sessions</p>
+              </div>
+            )}
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="bg-red-50 p-4 rounded-lg text-center">
               <div className="text-sm text-gray-600 mb-1">Style</div>
               <div className="text-lg font-bold text-red-600">{selectedBeer.style}</div>
             </div>
             <div className="bg-red-50 p-4 rounded-lg text-center">
-              <div className="text-sm text-gray-600 mb-1">ABV</div>
-              <div className="text-lg font-bold text-gray-900">{selectedBeer.abv}%</div>
+              <div className="text-sm text-gray-600 mb-1">Alcohol Content</div>
+              <div className="text-lg font-bold text-gray-900">{selectedBeer.abv}% ABV</div>
             </div>
-            {selectedBeer.ibu && (
-              <div className="bg-red-50 p-4 rounded-lg text-center">
-                <div className="text-sm text-gray-600 mb-1">IBU</div>
-                <div className="text-lg font-bold text-gray-900">{selectedBeer.ibu}</div>
-              </div>
-            )}
             <div className="bg-red-50 p-4 rounded-lg text-center">
               <div className="text-sm text-gray-600 mb-1">Community Rating</div>
               <div className="flex items-center justify-center gap-2">
@@ -245,7 +247,6 @@ const BeerDetailPage = ({
                       {new Date(review.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  {/* Changed from review.comment back to review.notes */}
                   {review.notes && (
                     <p className="text-gray-700 leading-relaxed italic">"{review.notes}"</p>
                   )}

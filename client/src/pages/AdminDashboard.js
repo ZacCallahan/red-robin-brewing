@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Beer, MessageSquare, Database, Trash2, Edit, Plus, AlertTriangle, Check, X } from 'lucide-react';
+import { Users, Beer, MessageSquare, Database, Trash2, Edit, Plus, AlertTriangle, Check, X, Clock } from 'lucide-react';
 import { api } from '../services/api';
 
 const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
@@ -104,6 +104,22 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
     }
   };
 
+  // Simple sessionable toggle - just flip the boolean
+  const handleToggleSessionable = async (beerId, currentSessionable) => {
+    try {
+      const newSessionable = !currentSessionable;
+      await api.admin.updateBeer(beerId, { sessionable: newSessionable });
+      
+      // Update the local state immediately
+      setBeers(beers.map(beer => 
+        beer._id === beerId ? { ...beer, sessionable: newSessionable } : beer
+      ));
+    } catch (error) {
+      console.error('Error updating sessionable status:', error);
+      setError('Failed to update sessionable status');
+    }
+  };
+
   // Batch operations
   const handleBatchDeleteUsers = async () => {
     if (selectedUsers.length === 0) return;
@@ -166,7 +182,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
   };
 
   const handlePopulateDatabase = async () => {
-    if (!window.confirm('This will import all available beers from the Punk API (BrewDog catalog). This should only be done once or after purging the database. Continue?')) {
+    if (!window.confirm('This will import 50 curated popular beers (Australian and international favorites). This should only be done once or after purging the database. Continue?')) {
       return;
     }
 
@@ -176,18 +192,24 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
       
       let message = `🍺 Beer Import Complete!\n\n`;
       message += `Source: ${result.source}\n`;
-      message += `Fetched: ${result.fetched} beers from API\n`;
+      message += `Total processed: ${result.processed} beers\n`;
       message += `Successfully imported: ${result.inserted} new beers\n`;
       
-      if (result.duplicates > 0) {
-        message += `Skipped duplicates: ${result.duplicates}\n`;
+      if (result.exactDuplicates > 0) {
+        message += `Skipped exact duplicates: ${result.exactDuplicates}\n`;
+      }
+      
+      if (result.similarDuplicates > 0) {
+        message += `Skipped similar beers: ${result.similarDuplicates}\n`;
       }
       
       if (result.errors > 0) {
         message += `Import errors: ${result.errors}\n`;
       }
       
-      if (result.sampleBeers?.length > 0) {
+      if (result.inserted === 0) {
+        message += `\nAll beers already exist in the database!`;
+      } else if (result.sampleBeers?.length > 0) {
         message += `\nSample imported beers:\n`;
         result.sampleBeers.forEach(beer => {
           message += `• ${beer.name} (${beer.brewery}, ${beer.abv}% ABV)\n`;
@@ -198,15 +220,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
       loadDashboardData();
     } catch (error) {
       console.error('Error importing beers:', error);
-      
-      let errorMessage = 'Failed to import beers from Punk API';
-      if (error.message.includes('connection') || error.message.includes('network')) {
-        errorMessage = 'Network error: Cannot connect to Punk API. Please check your internet connection and try again.';
-      } else if (error.message.includes('timeout')) {
-        errorMessage = 'Request timed out. The API may be slow or unavailable. Please try again.';
-      }
-      
-      setError(errorMessage);
+      setError('Failed to import curated beer collection: ' + (error.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }
@@ -326,7 +340,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50"
               >
                 <Database className="w-4 h-4" />
-                {loading ? 'Importing Beers...' : 'Import Beers from API'}
+                {loading ? 'Importing Beers...' : 'Import Curated Beers'}
               </button>
               <button
                 onClick={() => handleNavigation('home')}
@@ -520,6 +534,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
                     </button>
                   </div>
                 </div>
+                
                 <div className="overflow-x-auto">
                   <table className="min-w-full border-collapse border border-gray-200">
                     <thead>
@@ -536,6 +551,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
                         <th className="border border-gray-200 px-4 py-2 text-left">Brewery</th>
                         <th className="border border-gray-200 px-4 py-2 text-left">Style</th>
                         <th className="border border-gray-200 px-4 py-2 text-left">ABV</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left">Sessionable</th>
                         <th className="border border-gray-200 px-4 py-2 text-left">Reviews</th>
                         <th className="border border-gray-200 px-4 py-2 text-left">Rating</th>
                         <th className="border border-gray-200 px-4 py-2 text-left">Actions</th>
@@ -556,6 +572,20 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
                           <td className="border border-gray-200 px-4 py-2">{beer.brewery}</td>
                           <td className="border border-gray-200 px-4 py-2">{beer.style}</td>
                           <td className="border border-gray-200 px-4 py-2">{beer.abv}%</td>
+                          <td className="border border-gray-200 px-4 py-2">
+                            <button
+                              onClick={() => handleToggleSessionable(beer._id, beer.sessionable)}
+                              className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                                beer.sessionable
+                                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              }`}
+                              title="Click to toggle sessionable status"
+                            >
+                              <Clock className="w-3 h-3" />
+                              {beer.sessionable ? 'Yes' : 'No'}
+                            </button>
+                          </td>
                           <td className="border border-gray-200 px-4 py-2">{beer.totalReviews || 0}</td>
                           <td className="border border-gray-200 px-4 py-2">
                             {beer.averageRating ? beer.averageRating.toFixed(1) : 'N/A'}
