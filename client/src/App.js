@@ -67,6 +67,16 @@ function App() {
     setCurrentPage(page);
   };
 
+// In App.js, add this function
+const reloadBeers = async () => {
+try {
+  const beersData = await api.beers.getAll();
+  setBeers(beersData || []);
+} catch (error) {
+  console.error('Error reloading beers:', error);
+}
+};
+
 const handleLogin = async (credentials) => {
   try {
     console.log('🔑 Starting login with credentials:', credentials);
@@ -203,6 +213,7 @@ const handleLogin = async (credentials) => {
           user={user}
           isLoggedIn={isLoggedIn}
           handleNavigation={handleNavigation}
+          reloadBeers={reloadBeers} 
         />
       );
     default:

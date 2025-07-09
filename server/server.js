@@ -40,10 +40,13 @@ app.get('/api/beers', async (req, res) => {
   }
 });
 
-// Add beer endpoint (now requires authentication)
+// Add beer endpoint (now requires authentication) - UPDATED WITH SESSIONABLE
 app.post('/api/beers', auth, async (req, res) => {
   try {
-    const { name, brewery, style, abv, ibu, description } = req.body;
+    const { name, brewery, style, abv, description, sessionable } = req.body; // ADDED sessionable and description
+    
+    console.log('🔍 Backend: Raw request body:', req.body);
+    console.log('🔍 Backend: Sessionable value:', sessionable, 'type:', typeof sessionable);
     
     // Validate required fields
     if (!name || !brewery || !style || !abv) {
@@ -57,9 +60,14 @@ app.post('/api/beers', auth, async (req, res) => {
       brewery,
       style,
       abv: parseFloat(abv),
-      ibu: ibu ? parseInt(ibu) : undefined,
       description,
-      addedBy: req.user._id // Use the actual authenticated user
+      sessionable: sessionable === true, // ADDED THIS
+      addedBy: req.user._id
+    });
+    
+    console.log('🔍 Backend: Beer before save:', {
+      name: newBeer.name,
+      sessionable: newBeer.sessionable
     });
     
     const beer = await newBeer.save();
@@ -67,7 +75,7 @@ app.post('/api/beers', auth, async (req, res) => {
     // Populate the addedBy field for the response
     await beer.populate('addedBy', 'username firstName lastName');
     
-    console.log('✅ New beer added by', req.user.username, ':', beer.name);
+    console.log('✅ New beer added by', req.user.username, ':', beer.name, 'sessionable:', beer.sessionable);
     res.status(201).json(beer);
   } catch (error) {
     console.error('Error adding beer:', error);
@@ -106,10 +114,10 @@ app.get('/api/beers/:id', async (req, res) => {
   }
 });
 
-// Update beer (requires authentication and ownership or admin)
+// Update beer (requires authentication and ownership or admin) - UPDATED WITH SESSIONABLE
 app.put('/api/beers/:id', auth, async (req, res) => {
   try {
-    const { name, brewery, style, abv, ibu, description } = req.body;
+    const { name, brewery, style, abv, description, sessionable } = req.body; // ADDED sessionable and description
     
     // Find the beer first to check ownership
     const existingBeer = await Beer.findById(req.params.id);
@@ -118,25 +126,33 @@ app.put('/api/beers/:id', auth, async (req, res) => {
       return res.status(404).json({ message: 'Beer not found' });
     }
     
-    // Check if user owns this beer (you can add admin role check here later)
-    if (existingBeer.addedBy.toString() !== req.user._id.toString()) {
+    // Check if user owns this beer or is admin
+    if (existingBeer.addedBy.toString() !== req.user._id.toString() && !req.user.isAdmin && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorized to update this beer' });
+    }
+    
+    console.log('🔄 Updating beer:', req.params.id, 'sessionable:', sessionable);
+    
+    const updateData = {
+      name, 
+      brewery, 
+      style, 
+      abv: parseFloat(abv), 
+      description
+    };
+    
+    // Only update sessionable if provided
+    if (sessionable !== undefined) {
+      updateData.sessionable = sessionable;
     }
     
     const beer = await Beer.findByIdAndUpdate(
       req.params.id,
-      { 
-        name, 
-        brewery, 
-        style, 
-        abv: parseFloat(abv), 
-        ibu: ibu ? parseInt(ibu) : undefined, 
-        description 
-      },
+      updateData,
       { new: true, runValidators: true }
     ).populate('addedBy', 'username firstName lastName');
     
-    console.log('✅ Beer updated by', req.user.username, ':', beer.name);
+    console.log('✅ Beer updated by', req.user.username, ':', beer.name, 'sessionable:', beer.sessionable);
     res.json(beer);
   } catch (error) {
     console.error('Error updating beer:', error);
@@ -159,8 +175,8 @@ app.delete('/api/beers/:id', auth, async (req, res) => {
       return res.status(404).json({ message: 'Beer not found' });
     }
     
-    // Check if user owns this beer (you can add admin role check here later)
-    if (beer.addedBy.toString() !== req.user._id.toString()) {
+    // Check if user owns this beer or is admin
+    if (beer.addedBy.toString() !== req.user._id.toString() && !req.user.isAdmin && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorized to delete this beer' });
     }
     
@@ -284,7 +300,7 @@ app.get('/api/users/:userId', async (req, res) => {
 // Routes
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/admin', require('./routes/admin')); // NEW: Admin routes
+app.use('/api/admin', require('./routes/admin'));
 
 // Global error handler
 app.use((error, req, res, next) => {
@@ -320,7 +336,7 @@ mongoose.connect(process.env.MONGODB_URI)
     console.log('🍺 MongoDB connected successfully!');
     console.log('🔐 Authentication system enabled');
     console.log('📊 User profiles and friend system ready');
-    console.log('🛡️ Admin system ready'); // NEW: Admin system log
+    console.log('🛡️ Admin system ready');
   })
   .catch(err => {
     console.log('❌ MongoDB connection error:', err);
@@ -343,5 +359,5 @@ app.listen(PORT, () => {
   console.log(`   Beers: GET /api/beers, POST /api/beers (auth required)`);
   console.log(`   Reviews: GET /api/reviews/beer/:id, POST /api/reviews (auth required)`);
   console.log(`   Users: GET /api/users/profile (auth required)`);
-  console.log(`   Admin: /api/admin/* (admin auth required)`); // NEW: Admin endpoints log
+  console.log(`   Admin: /api/admin/* (admin auth required)`);
 });

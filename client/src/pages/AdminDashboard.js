@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, Beer, MessageSquare, Database, Trash2, Edit, Plus, AlertTriangle, Check, X, Clock } from 'lucide-react';
 import { api } from '../services/api';
 
-const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
+const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -104,21 +104,30 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation }) => {
     }
   };
 
-  // Simple sessionable toggle - just flip the boolean
-  const handleToggleSessionable = async (beerId, currentSessionable) => {
-    try {
-      const newSessionable = !currentSessionable;
-      await api.admin.updateBeer(beerId, { sessionable: newSessionable });
-      
-      // Update the local state immediately
-      setBeers(beers.map(beer => 
-        beer._id === beerId ? { ...beer, sessionable: newSessionable } : beer
-      ));
-    } catch (error) {
-      console.error('Error updating sessionable status:', error);
-      setError('Failed to update sessionable status');
+// In AdminDashboard, update the handleToggleSessionable function
+const handleToggleSessionable = async (beerId, currentSessionable) => {
+  try {
+    const newSessionable = !currentSessionable;
+    await api.admin.updateBeer(beerId, { sessionable: newSessionable });
+    
+    // Update the local state immediately
+    setBeers(beers.map(beer => 
+      beer._id === beerId ? { ...beer, sessionable: newSessionable } : beer
+    ));
+    
+    // Refresh all dashboard data to ensure consistency
+    await loadDashboardData();
+    
+    // Reload beers on main pages
+    if (reloadBeers) {
+      await reloadBeers();
     }
-  };
+    
+  } catch (error) {
+    console.error('Error updating sessionable status:', error);
+    setError('Failed to update sessionable status');
+  }
+};
 
   // Batch operations
   const handleBatchDeleteUsers = async () => {

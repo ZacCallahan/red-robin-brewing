@@ -237,17 +237,29 @@ router.put('/users/:id', async (req, res) => {
 router.put('/beers/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, brewery, style, abv, ibu, description } = req.body;
+    const { name, brewery, style, abv, description, sessionable } = req.body; // ADDED sessionable here!
+    
+    console.log('🔄 Updating beer:', id, 'with sessionable:', sessionable); // Debug log
+    
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (brewery !== undefined) updateData.brewery = brewery;
+    if (style !== undefined) updateData.style = style;
+    if (abv !== undefined) updateData.abv = abv;
+    if (description !== undefined) updateData.description = description;
+    if (sessionable !== undefined) updateData.sessionable = sessionable; // ADDED this line!
     
     const updatedBeer = await Beer.findByIdAndUpdate(
       id,
-      { name, brewery, style, abv, ibu, description },
+      updateData,
       { new: true, runValidators: true }
     );
     
     if (!updatedBeer) {
       return res.status(404).json({ message: 'Beer not found' });
     }
+    
+    console.log('✅ Beer updated successfully:', updatedBeer.name, 'sessionable:', updatedBeer.sessionable); // Debug log
     
     res.json(updatedBeer);
   } catch (error) {
@@ -401,6 +413,7 @@ async function updateBeerRating(beerId) {
   }
 }
 
+
 async function updateUserStats(userId) {
   try {
     const reviews = await Review.find({ user: userId });
@@ -423,5 +436,34 @@ async function updateUserStats(userId) {
     console.error('Error updating user stats:', error);
   }
 }
+
+// @route   POST /api/admin/fix-sessionable
+// @desc    Add sessionable field to existing beers (sets to false by default)
+router.post('/fix-sessionable', async (req, res) => {
+  try {
+    console.log('🔧 Adding sessionable field to existing beers...');
+    
+    // Update all beers that don't have the sessionable field
+    const result = await Beer.updateMany(
+      { sessionable: { $exists: false } }, // Find beers without sessionable field
+      { $set: { sessionable: false } }      // Set sessionable to false (not sessionable)
+    );
+    
+    console.log(`✅ Updated ${result.modifiedCount} beers with sessionable: false`);
+    
+    res.json({
+      message: 'Successfully added sessionable field to existing beers',
+      modifiedCount: result.modifiedCount,
+      note: 'All beers set to non-sessionable by default. Use admin dashboard to mark specific beers as sessionable.'
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fixing sessionable field:', error);
+    res.status(500).json({ 
+      message: 'Error fixing sessionable field',
+      error: error.message 
+    });
+  }
+});
 
 module.exports = router;

@@ -19,34 +19,10 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers }) => {
   const beerStyles = ['IPA', 'Stout', 'Wheat', 'Lager', 'Ale', 'Pilsner', 'Sour', 'Porter', 'Other'];
 
   const handleInputChange = (field, value) => {
-    setBeerData(prev => ({
-      ...prev,
-      [field]: value
+  setBeerData(prev => ({
+    ...prev,
+    [field]: value
     }));
-    
-    // Auto-suggest sessionable based on ABV and style
-    if (field === 'abv' || field === 'style') {
-      const newAbv = field === 'abv' ? parseFloat(value) : parseFloat(beerData.abv);
-      const newStyle = field === 'style' ? value : beerData.style;
-      
-      if (!isNaN(newAbv)) {
-        const sessionableStyles = ['Lager', 'Wheat', 'Pilsner', 'Ale'];
-        const autoSessionable = (newAbv <= 4.5) || (newAbv <= 5.0 && sessionableStyles.includes(newStyle));
-        
-        if (autoSessionable && !beerData.sessionable) {
-          setBeerData(prev => ({
-            ...prev,
-            [field]: value,
-            sessionable: true
-          }));
-        } else {
-          setBeerData(prev => ({
-            ...prev,
-            [field]: value
-          }));
-        }
-      }
-    }
   };
 
   const handleSessionableToggle = () => {
@@ -81,6 +57,9 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers }) => {
         ...beerData,
         abv: parseFloat(beerData.abv)
       };
+console.log('🔍 Frontend: beerData state:', beerData);
+    console.log('🔍 Frontend: submitData being sent:', submitData);
+    console.log('🔍 Frontend: sessionable value:', submitData.sessionable, 'type:', typeof submitData.sessionable);
 
       await api.beers.create(submitData);
       
