@@ -121,7 +121,7 @@ router.post('/register', async (req, res) => {
       password,
       firstName,
       lastName,
-      isEmailVerified: false // Important: starts as false
+      isEmailVerified: false
     });
     
     // Generate verification token
@@ -130,19 +130,23 @@ router.post('/register', async (req, res) => {
     // Save user
     await user.save();
     
-    // Send verification email
+    // Try to send verification email
     const emailSent = await sendVerificationEmail(user, verificationToken);
     
     if (!emailSent) {
-      // If email fails, still create account but warn user
-      console.error('Failed to send verification email');
+      console.error('Failed to send verification email to:', user.email);
+      // Still return success but mention email issue
+      return res.status(201).json({
+        message: 'Account created! However, there was an issue sending the verification email. Please contact support.',
+        email: user.email,
+        emailError: true
+      });
     }
     
-    // DON'T send JWT token - user must verify first
+    // Success - email sent
     res.status(201).json({
       message: 'Account created! Please check your email for verification link.',
-      email: user.email,
-      // No token or user data sent
+      email: user.email
     });
     
   } catch (error) {
