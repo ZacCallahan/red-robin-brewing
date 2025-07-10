@@ -10,7 +10,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import BeerDetailPage from './pages/BeerDetailPage';
 import UserProfilePage from './pages/UserProfilePage';
-import AdminDashboard from './pages/AdminDashboard'; // NEW: Admin dashboard import
+import AdminDashboard from './pages/AdminDashboard';
+import EmailVerificationPage from './pages/EmailVerificationPage'; // NEW: Email verification import
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -36,6 +37,14 @@ function App() {
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
       }
+    }
+  }, []);
+
+  // Check for email verification route on load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('token') && urlParams.get('email')) {
+      setCurrentPage('verify-email');
     }
   }, []);
 
@@ -67,47 +76,56 @@ function App() {
     setCurrentPage(page);
   };
 
-// In App.js, add this function
-const reloadBeers = async () => {
-try {
-  const beersData = await api.beers.getAll();
-  setBeers(beersData || []);
-} catch (error) {
-  console.error('Error reloading beers:', error);
-}
-};
+  // Reload beers function for admin dashboard
+  const reloadBeers = async () => {
+    try {
+      const beersData = await api.beers.getAll();
+      setBeers(beersData || []);
+    } catch (error) {
+      console.error('Error reloading beers:', error);
+    }
+  };
 
-const handleLogin = async (credentials) => {
-  try {
-    console.log('🔑 Starting login with credentials:', credentials);
-    
-    const response = await api.auth.login(credentials);
-    console.log('✅ Login API response:', response);
-    
-    console.log('👤 Setting user:', response.user);
-    setUser(response.user);
-    
-    console.log('🔐 Setting logged in to true');
-    setIsLoggedIn(true);
-    
-    console.log('🏠 Navigating to home');
-    setCurrentPage('home');
-    
-    console.log('✅ Login completed successfully');
-  } catch (error) {
-    console.error('❌ Login error in handleLogin:', error);
-    throw error;
-  }
-};
+  const handleLogin = async (credentials) => {
+    try {
+      console.log('🔑 Starting login with credentials:', credentials);
+      
+      const response = await api.auth.login(credentials);
+      console.log('✅ Login API response:', response);
+      
+      console.log('👤 Setting user:', response.user);
+      setUser(response.user);
+      
+      console.log('🔐 Setting logged in to true');
+      setIsLoggedIn(true);
+      
+      console.log('🏠 Navigating to home');
+      setCurrentPage('home');
+      
+      console.log('✅ Login completed successfully');
+    } catch (error) {
+      console.error('❌ Login error in handleLogin:', error);
+      throw error;
+    }
+  };
 
+  // UPDATED: Registration now requires email verification
   const handleRegister = async (userData) => {
     try {
       const response = await api.auth.register(userData);
-      setUser(response.user);
-      setIsLoggedIn(true);
-      setCurrentPage('home');
+      
+      // Show success message instead of logging in automatically
+      alert(`Account created successfully! 
+
+Please check your email (${userData.email}) for a verification link to activate your account.
+
+You'll need to verify your email before you can log in.`);
+      
+      // Redirect to login page instead of logging in
+      setCurrentPage('login');
+      
     } catch (error) {
-      throw error;
+      throw error; // Let RegisterPage handle the error display
     }
   };
 
@@ -130,103 +148,110 @@ const handleLogin = async (credentials) => {
   };
 
   const renderPage = () => {
-  switch (currentPage) {
-    case 'home':
-      return (
-        <HomePage 
-          beers={beers}
-          handleBeerSelect={handleBeerSelect}
-          isLoggedIn={isLoggedIn}
-          handleNavigation={handleNavigation}  // ADDED
-        />
-      );
-    case 'beers':
-      return (
-        <BeersPage 
-          beers={beers}
-          handleBeerSelect={handleBeerSelect}
-          isLoggedIn={isLoggedIn}
-        />
-      );
-    case 'friends':
-      return (
-        <FriendsPage 
-          isLoggedIn={isLoggedIn}
-          handleNavigation={handleNavigation}
-          handleUserSelect={handleUserSelect}
-        />
-      );
-    case 'add-beer':
-      return (
-        <AddBeerPage 
-          isLoggedIn={isLoggedIn}
-          handleNavigation={handleNavigation}
-          handleLogout={handleLogout}
-          refreshBeers={loadBeers}
-        />
-      );
-    case 'profile':
-      return (
-        <ProfilePage 
-          isLoggedIn={isLoggedIn}
-          user={user}
-          handleNavigation={handleNavigation}
-          handleBeerSelect={handleBeerSelect}
-        />
-      );
-    case 'login':
-      return (
-        <LoginPage 
-          handleLogin={handleLogin}
-          handleNavigation={handleNavigation}
-        />
-      );
-    case 'register':
-      return (
-        <RegisterPage 
-          handleRegister={handleRegister}
-          handleNavigation={handleNavigation}
-        />
-      );
-    case 'beer-detail':
-      return (
-        <BeerDetailPage 
-          selectedBeer={selectedBeer}
-          beerReviews={beerReviews}
-          isLoggedIn={isLoggedIn}
-          user={user}
-          handleNavigation={handleNavigation}
-          handleLogout={handleLogout}
-          loadBeerReviews={loadBeerReviews}
-          refreshBeers={loadBeers}
-        />
-      );
-    case 'user-profile':
-      return (
-        <UserProfilePage 
-          selectedUser={selectedUser}
-        />
-      );
-    case 'admin':
-      return (
-        <AdminDashboard 
-          user={user}
-          isLoggedIn={isLoggedIn}
-          handleNavigation={handleNavigation}
-          reloadBeers={reloadBeers} 
-        />
-      );
-    default:
-      return (
-        <HomePage 
-          beers={beers} 
-          handleBeerSelect={handleBeerSelect} 
-          isLoggedIn={isLoggedIn}
-          handleNavigation={handleNavigation}  // ADDED
-        />
-      );
-  }
-};
+    switch (currentPage) {
+      case 'home':
+        return (
+          <HomePage 
+            beers={beers}
+            handleBeerSelect={handleBeerSelect}
+            isLoggedIn={isLoggedIn}
+            handleNavigation={handleNavigation}
+          />
+        );
+      case 'beers':
+        return (
+          <BeersPage 
+            beers={beers}
+            handleBeerSelect={handleBeerSelect}
+            isLoggedIn={isLoggedIn}
+          />
+        );
+      case 'friends':
+        return (
+          <FriendsPage 
+            isLoggedIn={isLoggedIn}
+            handleNavigation={handleNavigation}
+            handleUserSelect={handleUserSelect}
+          />
+        );
+      case 'add-beer':
+        return (
+          <AddBeerPage 
+            isLoggedIn={isLoggedIn}
+            handleNavigation={handleNavigation}
+            handleLogout={handleLogout}
+            refreshBeers={loadBeers}
+            beers={beers}
+          />
+        );
+      case 'profile':
+        return (
+          <ProfilePage 
+            isLoggedIn={isLoggedIn}
+            user={user}
+            handleNavigation={handleNavigation}
+            handleBeerSelect={handleBeerSelect}
+          />
+        );
+      case 'login':
+        return (
+          <LoginPage 
+            handleLogin={handleLogin}
+            handleNavigation={handleNavigation}
+          />
+        );
+      case 'register':
+        return (
+          <RegisterPage 
+            handleRegister={handleRegister}
+            handleNavigation={handleNavigation}
+          />
+        );
+      case 'beer-detail':
+        return (
+          <BeerDetailPage 
+            selectedBeer={selectedBeer}
+            beerReviews={beerReviews}
+            isLoggedIn={isLoggedIn}
+            user={user}
+            handleNavigation={handleNavigation}
+            handleLogout={handleLogout}
+            loadBeerReviews={loadBeerReviews}
+            refreshBeers={loadBeers}
+          />
+        );
+      case 'user-profile':
+        return (
+          <UserProfilePage 
+            selectedUser={selectedUser}
+          />
+        );
+      case 'admin':
+        return (
+          <AdminDashboard 
+            user={user}
+            isLoggedIn={isLoggedIn}
+            handleNavigation={handleNavigation}
+            reloadBeers={reloadBeers} 
+          />
+        );
+      case 'verify-email': // NEW: Email verification page
+        return (
+          <EmailVerificationPage 
+            handleNavigation={handleNavigation}
+          />
+        );
+      default:
+        return (
+          <HomePage 
+            beers={beers} 
+            handleBeerSelect={handleBeerSelect} 
+            isLoggedIn={isLoggedIn}
+            handleNavigation={handleNavigation}
+          />
+        );
+    }
+  };
 
   return (
     <div className="App">

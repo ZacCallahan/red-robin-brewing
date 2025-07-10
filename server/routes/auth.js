@@ -3,6 +3,8 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const authenticateToken = require('../middleware/auth');
+const { sendVerificationEmail, sendWelcomeEmail } = require('../services/emailService');
+
 
 // @route   GET /api/auth/users/search
 // @desc    Search users (excluding current user)
@@ -94,44 +96,53 @@ router.get('/users/:userId/reviews', authenticateToken, async (req, res) => {
 });
 
 // @route   POST /api/auth/register
-// @desc    Register a new user
+// @desc    Register user and send verification email
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password, firstName, lastName } = req.body;
     
-    // Check if user already exists
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }]
+    // Check if user exists
+    const existingUser = await User.findOne({ 
+      $or: [{ email }, { username }] 
     });
     
     if (existingUser) {
-      return res.status(400).json({
-        message: existingUser.email === email ? 'Email already registered' : 'Username already taken'
+      return res.status(400).json({ 
+        message: existingUser.email === email 
+          ? 'Email already registered' 
+          : 'Username already taken' 
       });
     }
     
-    // Create new user
+    // Create new user (unverified)
     const user = new User({
       username,
       email,
       password,
       firstName,
-      lastName
+      lastName,
+      isEmailVerified: false // Important: starts as false
     });
     
+    // Generate verification token
+    const verificationToken = user.generateEmailVerificationToken();
+    
+    // Save user
     await user.save();
     
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '7d' }
-    );
+    // Send verification email
+    const emailSent = await sendVerificationEmail(user, verificationToken);
     
+    if (!emailSent) {
+      // If email fails, still create account but warn user
+      console.error('Failed to send verification email');
+    }
+    
+    // DON'T send JWT token - user must verify first
     res.status(201).json({
-      message: 'User created successfully',
-      token,
-      user: user.getPublicProfile()
+      message: 'Account created! Please check your email for verification link.',
+      email: user.email,
+      // No token or user data sent
     });
     
   } catch (error) {
@@ -140,8 +151,51 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// @route   GET /api/auth/verify-email
+// @desc    Verify email with token
+router.get('/verify-email', async (req, res) => {
+  try {
+    const { token, email } = req.query;
+    
+    if (!token || !email) {
+      return res.status(400).json({ message: 'Missing verification token or email' });
+    }
+    
+    // Find user with matching token and email
+    const user = await User.findOne({
+      email: decodeURIComponent(email),
+      emailVerificationToken: token,
+      emailVerificationExpires: { $gt: new Date() }
+    });
+    
+    if (!user) {
+      return res.status(400).json({ 
+        message: 'Invalid or expired verification token' 
+      });
+    }
+    
+    // Verify the user
+    user.isEmailVerified = true;
+    user.emailVerificationToken = null;
+    user.emailVerificationExpires = null;
+    await user.save();
+    
+    // Send welcome email
+    await sendWelcomeEmail(user);
+    
+    res.json({ 
+      message: 'Email verified successfully! You can now log in.',
+      verified: true
+    });
+    
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ message: 'Server error during verification' });
+  }
+});
+
 // @route   POST /api/auth/login
-// @desc    Login user
+// @desc    Login user (only if email verified)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -156,6 +210,15 @@ router.post('/login', async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
+    }
+    
+    // CHECK EMAIL VERIFICATION - NEW!
+    if (!user.isEmailVerified) {
+      return res.status(400).json({ 
+        message: 'Please verify your email before logging in. Check your inbox for the verification link.',
+        emailNotVerified: true,
+        email: user.email
+      });
     }
     
     // Generate JWT token

@@ -6,21 +6,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true,
-    minlength: 3,
-    maxlength: 20
+    trim: true
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    lowercase: true,
-    trim: true
+    trim: true,
+    lowercase: true
   },
   password: {
     type: String,
-    required: true,
-    minlength: 6
+    required: true
   },
   firstName: {
     type: String,
@@ -32,36 +29,20 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  bio: {
+  // NEW: Email verification fields
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
+  emailVerificationToken: {
     type: String,
-    maxlength: 500,
-    default: ''
+    default: null
   },
-  favoriteStyles: [{
-    type: String
-  }],
-  friends: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-  friendRequests: [{
-    from: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-  totalReviews: {
-    type: Number,
-    default: 0
+  emailVerificationExpires: {
+    type: Date,
+    default: null
   },
-  averageRating: {
-    type: Number,
-    default: 0
-  },
+  // Existing fields
   isAdmin: {
     type: Boolean,
     default: false
@@ -70,6 +51,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
+  },
+  totalReviews: {
+    type: Number,
+    default: 0
+  },
+  averageRating: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
@@ -77,31 +66,49 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) return next();
   
   try {
-    // Hash password with cost of 12
-    const hashedPassword = await bcrypt.hash(this.password, 12);
-    this.password = hashedPassword;
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {
     next(error);
   }
 });
 
-// Instance method to check password
+// Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Instance method to get public profile
+// Generate email verification token
+userSchema.methods.generateEmailVerificationToken = function() {
+  const crypto = require('crypto');
+  const token = crypto.randomBytes(32).toString('hex');
+  
+  this.emailVerificationToken = token;
+  this.emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  
+  return token;
+};
+
+// Get public profile (safe data for client)
 userSchema.methods.getPublicProfile = function() {
-  const userObject = this.toObject();
-  delete userObject.password;
-  delete userObject.__v;
-  // Keep isAdmin and role for admin functionality
-  return userObject;
+  return {
+    _id: this._id,
+    username: this.username,
+    email: this.email,
+    firstName: this.firstName,
+    lastName: this.lastName,
+    isEmailVerified: this.isEmailVerified,
+    isAdmin: this.isAdmin,
+    role: this.role,
+    totalReviews: this.totalReviews,
+    averageRating: this.averageRating,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt
+  };
 };
 
 module.exports = mongoose.model('User', userSchema);
