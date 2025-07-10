@@ -13,7 +13,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in to find friends</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in to find users</h2>
           <button 
             onClick={() => handleNavigation('login')}
             className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
@@ -72,7 +72,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <div className="max-w-4xl mx-auto p-6">
-        <h2 className="text-3xl font-bold text-gray-900 mb-6 font-serif">Find Beer Friends</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-6 font-serif">Find Beer Enthusiasts</h2>
         
         {/* Search Section */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-4 border-gray-200">

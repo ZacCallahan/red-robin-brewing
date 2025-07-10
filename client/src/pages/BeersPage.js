@@ -51,17 +51,19 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-black to-gray-800 rounded-xl p-2 mb-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-2 font-serif select-none">All Beers ({beers.length})</h2>
-          <p className="text-gray-300 select-none">Explore our complete craft beer collection</p>
-          {sessionableCount > 0 && (
-            <div className="mt-2">
-              <span className="inline-flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                <Clock className="w-3 h-3" />
-                {sessionableCount} Sessionable Beers
-              </span>
+        <div className="bg-gradient-to-r from-black to-gray-800 rounded-xl p-6 mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between max-w-5xl mx-auto">
+            <div className="text-center md:text-left mb-4 md:mb-0">
+              <h2 className="text-4xl font-bold text-white mb-2 font-serif select-none">All Beers</h2>
+              <p className="text-gray-300 text-lg select-none">Explore our full beer database</p>
             </div>
-          )}
+            <div className="flex flex-col items-center md:items-end gap-2">
+              <div className="bg-red-600 text-white px-6 py-3 rounded-full text-sm font-semibold select-none">
+                <div>Total: {beers.length}</div>
+                <div>Sessionable: {sessionableCount}</div>
+              </div>
+            </div>
+          </div>
         </div>
         
         {/* Search and Filters */}

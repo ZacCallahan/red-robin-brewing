@@ -289,10 +289,10 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 select-none">Please log in</h2>
           <button 
             onClick={() => handleNavigation('login')}
-            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors select-none"
           >
             Login
           </button>
@@ -306,11 +306,11 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
           <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
-          <p className="text-gray-600 mb-6">You don't have permission to access the admin dashboard.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 select-none">Access Denied</h2>
+          <p className="text-gray-600 mb-6 select-none">You don't have permission to access the admin dashboard.</p>
           <button 
             onClick={() => handleNavigation('home')}
-            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors select-none"
           >
             Back to Home
           </button>
@@ -326,7 +326,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
           <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
             <Database className="w-8 h-8 text-white" />
           </div>
-          <p className="text-gray-600">Loading admin dashboard...</p>
+          <p className="text-gray-600 select-none">Loading admin dashboard...</p>
         </div>
       </div>
     );
@@ -339,21 +339,21 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
         <div className="bg-white rounded-xl shadow-xl p-6 mb-8 border-4 border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 font-serif">Admin Dashboard</h1>
-              <p className="text-gray-600">Welcome back, {user?.firstName}!</p>
+              <h1 className="text-3xl font-bold text-gray-900 font-serif select-none">Admin Dashboard</h1>
+              <p className="text-gray-600 select-none">Welcome back, {user?.firstName}!</p>
             </div>
             <div className="flex items-center gap-4">
               <button
                 onClick={handlePopulateDatabase}
                 disabled={loading}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 select-none"
               >
                 <Database className="w-4 h-4" />
                 {loading ? 'Importing Beers...' : 'Import Curated Beers'}
               </button>
               <button
                 onClick={() => handleNavigation('home')}
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors select-none"
               >
                 Back to Site
               </button>
@@ -362,7 +362,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg select-none">
             {error}
           </div>
         )}
@@ -379,7 +379,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${
+                className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors select-none ${
                   activeTab === tab.id
                     ? 'text-red-600 border-b-2 border-red-600'
                     : 'text-gray-600 hover:text-gray-800'
@@ -399,36 +399,36 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                   <div className="bg-blue-50 p-6 rounded-lg">
                     <div className="flex items-center gap-3 mb-2">
                       <Users className="w-8 h-8 text-blue-600" />
-                      <h3 className="text-lg font-semibold text-gray-900">Total Users</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 select-none">Total Users</h3>
                     </div>
-                    <p className="text-3xl font-bold text-blue-600">{stats.totalUsers}</p>
+                    <p className="text-3xl font-bold text-blue-600 select-none">{stats.totalUsers}</p>
                   </div>
                   <div className="bg-green-50 p-6 rounded-lg">
                     <div className="flex items-center gap-3 mb-2">
                       <Beer className="w-8 h-8 text-green-600" />
-                      <h3 className="text-lg font-semibold text-gray-900">Total Beers</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 select-none">Total Beers</h3>
                     </div>
-                    <p className="text-3xl font-bold text-green-600">{stats.totalBeers}</p>
+                    <p className="text-3xl font-bold text-green-600 select-none">{stats.totalBeers}</p>
                   </div>
                   <div className="bg-purple-50 p-6 rounded-lg">
                     <div className="flex items-center gap-3 mb-2">
                       <MessageSquare className="w-8 h-8 text-purple-600" />
-                      <h3 className="text-lg font-semibold text-gray-900">Total Reviews</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 select-none">Total Reviews</h3>
                     </div>
-                    <p className="text-3xl font-bold text-purple-600">{stats.totalReviews}</p>
+                    <p className="text-3xl font-bold text-purple-600 select-none">{stats.totalReviews}</p>
                   </div>
                 </div>
 
                 <div className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Users</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 select-none">Recent Users</h3>
                   <div className="space-y-2">
                     {stats.recentUsers?.slice(0, 5).map(user => (
                       <div key={user._id} className="flex items-center justify-between p-3 bg-white rounded border">
                         <div>
-                          <span className="font-medium">{user.firstName} {user.lastName}</span>
-                          <span className="text-gray-500 ml-2">@{user.username}</span>
+                          <span className="font-medium select-none">{user.firstName} {user.lastName}</span>
+                          <span className="text-gray-500 ml-2 select-none">@{user.username}</span>
                         </div>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 select-none">
                           {new Date(user.createdAt).toLocaleDateString()}
                         </span>
                       </div>
@@ -442,13 +442,13 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
             {activeTab === 'users' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Manage Users ({users.length})</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 select-none">Manage Users ({users.length})</h3>
                   <div className="flex items-center gap-2">
                     {selectedUsers.length > 0 && (
                       <button
                         onClick={handleBatchDeleteUsers}
                         disabled={batchDeleting}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50 select-none"
                       >
                         <Trash2 className="w-4 h-4" />
                         Delete Selected ({selectedUsers.length})
@@ -456,7 +456,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                     )}
                     <button
                       onClick={handleSelectAllUsers}
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors select-none"
                     >
                       {selectedUsers.length === users.length ? 'Deselect All' : 'Select All'}
                     </button>
@@ -474,12 +474,12 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                             className="rounded"
                           />
                         </th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Name</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Username</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Email</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Reviews</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Joined</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Actions</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Name</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Username</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Email</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Reviews</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Joined</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -493,13 +493,13 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                               className="rounded"
                             />
                           </td>
-                          <td className="border border-gray-200 px-4 py-2">
+                          <td className="border border-gray-200 px-4 py-2 select-none">
                             {user.firstName} {user.lastName}
                           </td>
-                          <td className="border border-gray-200 px-4 py-2">@{user.username}</td>
-                          <td className="border border-gray-200 px-4 py-2">{user.email}</td>
-                          <td className="border border-gray-200 px-4 py-2">{user.totalReviews || 0}</td>
-                          <td className="border border-gray-200 px-4 py-2">
+                          <td className="border border-gray-200 px-4 py-2 select-none">@{user.username}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{user.email}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{user.totalReviews || 0}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">
                             {new Date(user.createdAt).toLocaleDateString()}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
@@ -523,13 +523,13 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
             {activeTab === 'beers' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Manage Beers ({beers.length})</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 select-none">Manage Beers ({beers.length})</h3>
                   <div className="flex items-center gap-2">
                     {selectedBeers.length > 0 && (
                       <button
                         onClick={handleBatchDeleteBeers}
                         disabled={batchDeleting}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50 select-none"
                       >
                         <Trash2 className="w-4 h-4" />
                         Delete Selected ({selectedBeers.length})
@@ -537,7 +537,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                     )}
                     <button
                       onClick={handleSelectAllBeers}
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors select-none"
                     >
                       {selectedBeers.length === beers.length ? 'Deselect All' : 'Select All'}
                     </button>
@@ -556,14 +556,14 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                             className="rounded"
                           />
                         </th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Name</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Brewery</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Style</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">ABV</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Sessionable</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Reviews</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Rating</th>
-                        <th className="border border-gray-200 px-4 py-2 text-left">Actions</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Name</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Brewery</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Style</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">ABV</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Sessionable</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Reviews</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Rating</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -577,14 +577,14 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                               className="rounded"
                             />
                           </td>
-                          <td className="border border-gray-200 px-4 py-2 font-medium">{beer.name}</td>
-                          <td className="border border-gray-200 px-4 py-2">{beer.brewery}</td>
-                          <td className="border border-gray-200 px-4 py-2">{beer.style}</td>
-                          <td className="border border-gray-200 px-4 py-2">{beer.abv}%</td>
+                          <td className="border border-gray-200 px-4 py-2 font-medium select-none">{beer.name}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{beer.brewery}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{beer.style}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{beer.abv}%</td>
                           <td className="border border-gray-200 px-4 py-2">
                             <button
                               onClick={() => handleToggleSessionable(beer._id, beer.sessionable)}
-                              className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                              className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-colors select-none ${
                                 beer.sessionable
                                   ? 'bg-green-100 text-green-800 hover:bg-green-200'
                                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -595,8 +595,8 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                               {beer.sessionable ? 'Yes' : 'No'}
                             </button>
                           </td>
-                          <td className="border border-gray-200 px-4 py-2">{beer.totalReviews || 0}</td>
-                          <td className="border border-gray-200 px-4 py-2">
+                          <td className="border border-gray-200 px-4 py-2 select-none">{beer.totalReviews || 0}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">
                             {beer.averageRating ? beer.averageRating.toFixed(1) : 'N/A'}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
@@ -620,13 +620,13 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
             {activeTab === 'reviews' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Manage Reviews ({reviews.length})</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 select-none">Manage Reviews ({reviews.length})</h3>
                   <div className="flex items-center gap-2">
                     {selectedReviews.length > 0 && (
                       <button
                         onClick={handleBatchDeleteReviews}
                         disabled={batchDeleting}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50 select-none"
                       >
                         <Trash2 className="w-4 h-4" />
                         Delete Selected ({selectedReviews.length})
@@ -634,7 +634,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                     )}
                     <button
                       onClick={handleSelectAllReviews}
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors select-none"
                     >
                       {selectedReviews.length === reviews.length ? 'Deselect All' : 'Select All'}
                     </button>
@@ -651,17 +651,17 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                             onChange={() => handleSelectReview(review._id)}
                             className="rounded"
                           />
-                          <span className="font-medium">{review.username}</span>
-                          <span className="text-sm text-gray-500">
+                          <span className="font-medium select-none">{review.username}</span>
+                          <span className="text-sm text-gray-500 select-none">
                             reviewed {review.beer?.name || 'Unknown Beer'}
                           </span>
                           <div className="flex items-center gap-1">
-                            {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
-                            <span className="text-sm text-gray-500">({review.rating}/5)</span>
+                            <span className="select-none">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+                            <span className="text-sm text-gray-500 select-none">({review.rating}/5)</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-gray-500 select-none">
                             {new Date(review.createdAt).toLocaleDateString()}
                           </span>
                           <button
@@ -674,7 +674,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
                         </div>
                       </div>
                       {review.notes && (
-                        <p className="text-gray-700 text-sm italic ml-7">"{review.notes}"</p>
+                        <p className="text-gray-700 text-sm italic ml-7 select-none">"{review.notes}"</p>
                       )}
                     </div>
                   ))}

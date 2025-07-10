@@ -10,8 +10,16 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ message: 'No token, authorization denied' });
     }
     
+    // Use environment variable for JWT secret
+    const jwtSecret = process.env.JWT_SECRET;
+    
+    if (!jwtSecret) {
+      console.error('❌ JWT_SECRET not found in environment variables');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
+    
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    const decoded = jwt.verify(token, jwtSecret);
     
     // Get user from database
     const user = await User.findById(decoded.userId).select('-password');
@@ -24,7 +32,7 @@ const auth = async (req, res, next) => {
     next();
     
   } catch (error) {
-    console.error('Auth middleware error:', error);
+    console.error('Auth middleware error:', error.message);
     res.status(401).json({ message: 'Token is not valid' });
   }
 };

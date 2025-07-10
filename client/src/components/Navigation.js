@@ -42,25 +42,27 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
           <div className="flex items-center justify-between h-16">
             {/* Logo Section */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg">
                 <img 
                   src="/logo.png" 
                   alt="Red Robin Brewing Co. Logo" 
-                  className="w-10 h-10 rounded-full object-cover border-2 border-red-500"
+                  className="w-14 h-14 rounded-full object-cover border-2 border-red-500"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
                 />
-                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center border-2 border-red-500" style={{display: 'none'}}>
-                  <span className="text-white font-bold text-sm">RR</span>
+                <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center border-2 border-red-500" style={{display: 'none'}}>
+                  <span className="text-white font-bold text-base">RR</span>
                 </div>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-xl font-bold text-white tracking-tight">
+                <h1 className="text-xl font-bold text-white tracking-tight select-none">
                   Red Robin Brewing
                 </h1>
-                <p className="text-xs text-gray-300 -mt-1">Craft Beer Reviews</p>
+                <p className="text-xs text-gray-300 -mt-1 select-none pointer-events-none">
+                  Craft Beer Reviews
+                </p>
               </div>
             </div>
 
@@ -68,9 +70,9 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
             <div className="hidden md:flex items-center gap-1">
               <NavButton page="home" icon={Home}>Home</NavButton>
               <NavButton page="beers" icon={Beer}>Beers</NavButton>
-              <NavButton page="friends" icon={Users}>Friends</NavButton>
+              <NavButton page="friends" icon={Users}>Users</NavButton>
               <NavButton page="add-beer" icon={Plus}>Add Beer</NavButton>
-              {/* NEW: Admin link - only show for admin users */}
+              {/* Admin link - only show for admin users */}
               {isLoggedIn && user?.isAdmin && (
                 <NavButton page="admin" icon={Settings}>Admin</NavButton>
               )}
@@ -118,7 +120,7 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
               <NavButton page="friends" icon={Users} mobile>Friends</NavButton>
               <NavButton page="add-beer" icon={Plus} mobile>Add Beer</NavButton>
               
-              {/* NEW: Admin link for mobile - only show for admin users */}
+              {/* Admin link for mobile - only show for admin users */}
               {isLoggedIn && user?.isAdmin && (
                 <NavButton page="admin" icon={Settings} mobile>Admin</NavButton>
               )}

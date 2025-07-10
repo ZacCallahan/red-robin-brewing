@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Beer, Clock, CheckCircle } from 'lucide-react';
 import { api } from '../services/api';
 
-const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers }) => {
+const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers, beers = [] }) => {
   const [beerData, setBeerData] = useState({
     name: '',
     brewery: '',
+    customBrewery: '',
     style: '',
     abv: '',
     description: '',
@@ -14,14 +15,53 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [allBeers, setAllBeers] = useState(beers);
 
   // Beer styles available
   const beerStyles = ['IPA', 'Stout', 'Wheat', 'Lager', 'Ale', 'Pilsner', 'Sour', 'Porter', 'Other'];
 
+  // Load beers if not provided as prop
+  useEffect(() => {
+    const loadBeers = async () => {
+      if (!allBeers || allBeers.length === 0) {
+        try {
+          const beersData = await api.beers.getAll();
+          setAllBeers(beersData || []);
+        } catch (error) {
+          console.error('Error loading beers for brewery list:', error);
+        }
+      }
+    };
+    
+    loadBeers();
+  }, []);
+
+  // Update allBeers when beers prop changes
+  useEffect(() => {
+    if (beers && beers.length > 0) {
+      setAllBeers(beers);
+    }
+  }, [beers]);
+
+  // Get unique breweries from existing beers, sorted alphabetically
+  const existingBreweries = allBeers && allBeers.length > 0 
+    ? [...new Set(allBeers.map(beer => beer.brewery?.trim()).filter(Boolean))].sort()
+    : [];
+
+  console.log('🍺 Available breweries:', existingBreweries.length, existingBreweries);
+
   const handleInputChange = (field, value) => {
-  setBeerData(prev => ({
-    ...prev,
-    [field]: value
+    setBeerData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleBreweryChange = (value) => {
+    setBeerData(prev => ({
+      ...prev,
+      brewery: value,
+      customBrewery: value === 'Other' ? prev.customBrewery : ''
     }));
   };
 
@@ -42,31 +82,80 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers }) => {
       setIsSubmitting(true);
       setError(null);
 
-      // Validation
-      if (!beerData.name || !beerData.brewery || !beerData.style || !beerData.abv) {
-        setError('Please fill in all required fields');
+      // Determine final brewery name
+      const finalBrewery = beerData.brewery === 'Other' 
+        ? beerData.customBrewery.trim() 
+        : beerData.brewery;
+
+      console.log('🔍 Brewery selection:', {
+        selected: beerData.brewery,
+        custom: beerData.customBrewery,
+        final: finalBrewery
+      });
+
+      // Enhanced validation
+      if (!beerData.name?.trim()) {
+        setError('Please enter a beer name');
         return;
       }
 
-      if (isNaN(parseFloat(beerData.abv)) || parseFloat(beerData.abv) < 0 || parseFloat(beerData.abv) > 20) {
+      if (!beerData.brewery) {
+        setError('Please select a brewery');
+        return;
+      }
+
+      if (beerData.brewery === 'Other' && !beerData.customBrewery?.trim()) {
+        setError('Please enter a brewery name');
+        return;
+      }
+
+      if (!finalBrewery) {
+        setError('Please provide a brewery name');
+        return;
+      }
+
+      if (!beerData.style) {
+        setError('Please select a beer style');
+        return;
+      }
+
+      if (!beerData.abv) {
+        setError('Please enter ABV');
+        return;
+      }
+
+      const abvValue = parseFloat(beerData.abv);
+      if (isNaN(abvValue) || abvValue < 0 || abvValue > 20) {
         setError('ABV must be a number between 0 and 20');
         return;
       }
 
       const submitData = {
-        ...beerData,
-        abv: parseFloat(beerData.abv)
+        name: beerData.name.trim(),
+        brewery: finalBrewery,
+        style: beerData.style,
+        abv: abvValue,
+        description: beerData.description?.trim() || '',
+        sessionable: beerData.sessionable
       };
-console.log('🔍 Frontend: beerData state:', beerData);
-    console.log('🔍 Frontend: submitData being sent:', submitData);
-    console.log('🔍 Frontend: sessionable value:', submitData.sessionable, 'type:', typeof submitData.sessionable);
 
-      await api.beers.create(submitData);
+      console.log('🔍 Frontend: beerData state:', beerData);
+      console.log('🔍 Frontend: submitData being sent:', submitData);
+      console.log('🔍 Frontend: sessionable value:', submitData.sessionable, 'type:', typeof submitData.sessionable);
+
+      const result = await api.beers.create(submitData);
+      console.log('✅ Beer created successfully:', result);
       
       setSuccess(true);
+      
+      // Store the beer name for success message
+      const successBeerName = beerData.name;
+      
+      // Reset form
       setBeerData({
         name: '',
         brewery: '',
+        customBrewery: '',
         style: '',
         abv: '',
         description: '',
@@ -85,7 +174,7 @@ console.log('🔍 Frontend: beerData state:', beerData);
       }, 2000);
 
     } catch (error) {
-      console.error('Error adding beer:', error);
+      console.error('❌ Error adding beer:', error);
       setError(error.message || 'Failed to add beer. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -99,7 +188,7 @@ console.log('🔍 Frontend: beerData state:', beerData);
           <div className="bg-white rounded-xl shadow-xl p-8 border-4 border-gray-200 text-center">
             <Beer className="w-16 h-16 text-red-600 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-4 font-serif">Login Required</h2>
-            <p className="text-gray-600 mb-6">You need to be logged in to add beers to our collection.</p>
+            <p className="text-gray-600 mb-6 select-none">You need to be logged in to add beers to our collection.</p>
             <div className="space-y-3">
               <button 
                 onClick={() => handleNavigation('login')}
@@ -127,8 +216,8 @@ console.log('🔍 Frontend: beerData state:', beerData);
           <div className="bg-white rounded-xl shadow-xl p-8 border-4 border-green-200 text-center">
             <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-4 font-serif">Beer Added Successfully!</h2>
-            <p className="text-gray-600 mb-4">"{beerData.name}" has been added to our collection.</p>
-            <p className="text-sm text-gray-500">Redirecting to beers page...</p>
+            <p className="text-gray-600 mb-4 select-none">Your beer has been added to our collection.</p>
+            <p className="text-sm text-gray-500 select-none">Redirecting to beers page...</p>
           </div>
         </div>
       </div>
@@ -140,8 +229,8 @@ console.log('🔍 Frontend: beerData state:', beerData);
       <div className="max-w-2xl mx-auto p-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-black to-gray-800 rounded-xl p-2 mb-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-2 font-serif">Add New Beer</h2>
-          <p className="text-gray-300">Share a new brew with our community</p>
+          <h2 className="text-3xl font-bold text-white mb-2 font-serif select-none">Add New Beer</h2>
+          <p className="text-gray-300 select-none">Share a new beverage with our community</p>
         </div>
 
         {/* Form */}
@@ -171,16 +260,39 @@ console.log('🔍 Frontend: beerData state:', beerData);
             {/* Brewery */}
             <div>
               <label className="block text-sm font-medium text-gray-800 mb-2">
-                Brewery *
+                Brewery * {existingBreweries.length > 0 && (
+                  <span className="text-xs text-gray-500">({existingBreweries.length} breweries available)</span>
+                )}
               </label>
-              <input
-                type="text"
+              <select
                 value={beerData.brewery}
-                onChange={(e) => handleInputChange('brewery', e.target.value)}
+                onChange={(e) => handleBreweryChange(e.target.value)}
                 className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                placeholder="e.g., Stone Brewing, Little Creatures"
                 required
-              />
+              >
+                <option value="">
+                  {existingBreweries.length > 0 ? 'Select a brewery' : 'Loading breweries...'}
+                </option>
+                {existingBreweries.map(brewery => (
+                  <option key={brewery} value={brewery}>{brewery}</option>
+                ))}
+                <option value="Other">+ Add New Brewery</option>
+              </select>
+              
+              {/* Custom brewery input when "Other" is selected */}
+              {beerData.brewery === 'Other' && (
+                <div className="mt-2">
+                  <input
+                    type="text"
+                    value={beerData.customBrewery}
+                    onChange={(e) => handleInputChange('customBrewery', e.target.value)}
+                    className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    placeholder="Enter new brewery name"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">This brewery will be added to our database</p>
+                </div>
+              )}
             </div>
 
             {/* Style and ABV Grid */}
@@ -230,8 +342,8 @@ console.log('🔍 Frontend: beerData state:', beerData);
                     <Clock className="w-5 h-5 text-green-600" />
                     Sessionable Beer
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Perfect for drinking multiple over a session (typically low ABV, balanced flavor)
+                  <p className="text-sm text-gray-600 mt-1 select-none">
+                    Perfect for drinking multiple over a session  
                   </p>
                 </div>
                 <button

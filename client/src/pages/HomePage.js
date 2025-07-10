@@ -62,10 +62,10 @@ const HomePage = ({
       <div className="max-w-6xl mx-auto p-6">
         <div className="text-center mb-12">
           <div className="relative mb-8">
-            <h2 className="text-6xl font-bold text-black mb-4 font-serif tracking-wide drop-shadow-lg">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-black mb-4 font-serif tracking-wide drop-shadow-lg whitespace-nowrap">
               Welcome to Red Robin Brewing Co.
             </h2>
-            <div className="absolute -top-2 -left-2 w-full h-full text-6xl font-bold text-gray-200 font-serif tracking-wide -z-10 opacity-50">
+            <div className="absolute -top-2 -left-2 w-full h-full text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-200 font-serif tracking-wide -z-10 opacity-50 whitespace-nowrap">
               Welcome to Red Robin Brewing Co.
             </div>
           </div>
@@ -75,22 +75,19 @@ const HomePage = ({
               <img 
                 src="/pinup-logo.png" 
                 alt="Red Robin Brewing Co. - Vintage Pin-up Logo" 
-                className="w-48 h-48 object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+                className="w-96 h-96 object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'flex';
                 }}
               />
-              <div className="w-48 h-48 bg-gradient-to-br from-red-600 to-black rounded-full flex items-center justify-center drop-shadow-2xl hover:scale-105 transition-transform duration-300" style={{display: 'none'}}>
-                <span className="text-white font-bold text-6xl select-none">RR</span>
+              <div className="w-96 h-96 bg-gradient-to-br from-red-600 to-black rounded-full flex items-center justify-center drop-shadow-2xl hover:scale-105 transition-transform duration-300" style={{display: 'none'}}>
+                <span className="text-white font-bold text-9xl select-none">RR</span>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-full"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-full"></div> 
             </div>
           </div>
-          
-          <p className="text-2xl text-gray-800 mb-8 font-medium italic select-none">
-            "Premium craft brewing since 2019 - where tradition meets innovation"
-          </p>
+
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             <div className="bg-white rounded-xl p-8 shadow-xl border border-gray-200 hover:border-red-500 transition-all duration-300 transform hover:scale-105">
@@ -98,21 +95,21 @@ const HomePage = ({
                 <TrendingUp className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-black mb-4 font-serif select-none">Track Your Favorites</h3>
-              <p className="text-gray-700 text-lg leading-relaxed select-none">Rate and review beers to build your personal taste profile and discover what makes your palate sing</p>
+              <p className="text-gray-700 text-lg leading-relaxed select-none">Rate and review beers as you taste them to build a profile tailored to your preference</p>
             </div>
             <div className="bg-white rounded-xl p-8 shadow-xl border border-gray-200 hover:border-red-500 transition-all duration-300 transform hover:scale-105">
               <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-black mb-4 font-serif select-none">Connect with Friends</h3>
-              <p className="text-gray-700 text-lg leading-relaxed select-none">See what your crew is drinking and discover new favorites through curated recommendations</p>
+              <p className="text-gray-700 text-lg leading-relaxed select-none">See what your mates are drinking and discover new favorites through user recommendations</p>
             </div>
             <div className="bg-white rounded-xl p-8 shadow-xl border border-gray-200 hover:border-red-500 transition-all duration-300 transform hover:scale-105">
               <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Beer className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-black mb-4 font-serif select-none">Explore New Brews</h3>
-              <p className="text-gray-700 text-lg leading-relaxed select-none">Discover exceptional craft breweries and rare finds that elevate every tasting experience</p>
+              <p className="text-gray-700 text-lg leading-relaxed select-none">Discover exceptional craft breweries and rare finds that will make your day</p>
             </div>
           </div>
         </div>
@@ -125,7 +122,7 @@ const HomePage = ({
             <p className="text-gray-300 select-none">
               {hasRatedBeers 
                 ? "Discover our community's highest-rated craft beers" 
-                : "Explore our carefully curated beer selection"
+                : "Explore a selection of our user-sourced beer selection below"
               }
             </p>
           </div>

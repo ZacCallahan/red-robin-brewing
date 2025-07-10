@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, Clock } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import StarRating from './StarRating';
 
 const BeerCard = ({ beer, onClick }) => (
@@ -12,8 +12,7 @@ const BeerCard = ({ beer, onClick }) => (
         <h3 className="font-bold text-2xl text-black font-serif select-none flex-1">{beer.name}</h3>
         {beer.sessionable && (
           <div className="ml-2 flex-shrink-0">
-            <div className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-              <Clock className="w-3 h-3" />
+            <div className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
               SESSIONABLE
             </div>
           </div>
@@ -24,7 +23,7 @@ const BeerCard = ({ beer, onClick }) => (
       
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-          <div className="text-xs text-gray-600 mb-1">Style</div>
+          <div className="text-xs text-gray-600 mb-3">Style</div>
           <span className="text-sm font-bold text-white bg-gradient-to-r from-black to-gray-800 px-3 py-1 rounded-full select-none">{beer.style}</span>
         </div>
         <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">

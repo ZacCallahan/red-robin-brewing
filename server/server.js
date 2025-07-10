@@ -330,7 +330,7 @@ app.use('*', (req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-// Database connection
+// Database connection with enhanced error handling
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('🍺 MongoDB connected successfully!');
@@ -339,7 +339,9 @@ mongoose.connect(process.env.MONGODB_URI)
     console.log('🛡️ Admin system ready');
   })
   .catch(err => {
-    console.log('❌ MongoDB connection error:', err);
+    console.log('❌ MongoDB connection error:', err.message);
+    console.log('🔧 Please check your .env file configuration');
+    console.log('💡 Make sure MONGODB_URI is set correctly');
     process.exit(1);
   });
 
