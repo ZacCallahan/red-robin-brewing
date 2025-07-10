@@ -13,12 +13,14 @@ const HomePage = ({
   
   // Function to get top 6 beers for display
   const getFeaturedBeers = () => {
-    if (!beers || beers.length === 0) return [];
+    if (!beers || !Array.isArray(beers) || beers.length === 0) return [];
+
     
     // Filter beers that have reviews and ratings
-    const beersWithReviews = beers.filter(beer => 
-      beer.totalReviews > 0 && beer.averageRating > 0
-    );
+    // To this:
+const beersWithReviews = (beers || []).filter(beer => 
+  beer.totalReviews > 0 && beer.averageRating > 0
+);
     
     if (beersWithReviews.length >= 6) {
       // Sort by average rating (descending), then by total reviews (descending)
