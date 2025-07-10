@@ -4,11 +4,19 @@ const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendVerificationEmail = async (user, verificationToken) => {
+  // Debug logging
+  console.log('🔍 Email service debug:');
+  console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY ? 'SET' : 'NOT SET');
+  console.log('FROM_EMAIL:', process.env.FROM_EMAIL);
+  console.log('CLIENT_URL:', process.env.CLIENT_URL);
+  
   const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}&email=${encodeURIComponent(user.email)}`;
+  
+  console.log('🔗 Verification URL:', verificationUrl);
   
   const msg = {
     to: user.email,
-    from: process.env.FROM_EMAIL || 'noreply@rrbc.com.au', // Use your verified sender
+    from: process.env.FROM_EMAIL,
     subject: 'Welcome to Red Robin Brewing Co. - Verify Your Email',
     html: `
       <!DOCTYPE html>
@@ -20,7 +28,6 @@ const sendVerificationEmail = async (user, verificationToken) => {
             .header { background: linear-gradient(135deg, #dc2626, #991b1b); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
             .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
             .button { display: inline-block; background: #dc2626; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
-            .button:hover { background: #991b1b; }
             .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
             .logo { font-size: 28px; font-weight: bold; margin-bottom: 10px; }
           </style>
@@ -35,76 +42,44 @@ const sendVerificationEmail = async (user, verificationToken) => {
             <div class="content">
               <h2>Hello ${user.firstName}!</h2>
               
-              <p>Thanks for joining Red Robin Brewing Co.! We're excited to have you in our community of craft beer enthusiasts.</p>
-              
-              <p>To get started, please verify your email address by clicking the button below:</p>
+              <p>Thanks for joining Red Robin Brewing Co.! Please verify your email address by clicking the button below:</p>
               
               <div style="text-align: center;">
                 <a href="${verificationUrl}" class="button">Verify My Email</a>
               </div>
               
-              <p><strong>What you can do once verified:</strong></p>
-              <ul>
-                <li>✅ Add and review craft beers</li>
-                <li>✅ Track your favorite sessionable beers</li>
-                <li>✅ Connect with fellow beer enthusiasts</li>
-                <li>✅ Discover new breweries and styles</li>
-              </ul>
-              
-              <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+              <p>Or copy and paste this link:</p>
               <p style="word-break: break-all; color: #dc2626;">${verificationUrl}</p>
               
-              <p><strong>This verification link will expire in 24 hours.</strong></p>
-              
-              <p>If you didn't create an account with Red Robin Brewing Co., you can safely ignore this email.</p>
+              <p><strong>This link expires in 24 hours.</strong></p>
             </div>
             
             <div class="footer">
-              <p>Cheers! 🍻<br>
-              The Red Robin Brewing Co. Team</p>
-              <p>© 2025 Red Robin Brewing Co. All rights reserved.</p>
+              <p>Cheers! 🍻<br>Red Robin Brewing Co.</p>
             </div>
           </div>
         </body>
       </html>
     `,
-    text: `
-Welcome to Red Robin Brewing Co.!
-
-Hello ${user.firstName},
-
-Thanks for joining our craft beer community! To get started, please verify your email address by visiting:
-
-${verificationUrl}
-
-This link will expire in 24 hours.
-
-Once verified, you can:
-- Add and review craft beers
-- Track your favorite sessionable beers  
-- Connect with fellow beer enthusiasts
-- Discover new breweries and styles
-
-If you didn't create this account, you can safely ignore this email.
-
-Cheers!
-The Red Robin Brewing Co. Team
-    `
+    text: `Welcome to Red Robin Brewing Co.! Please verify your email: ${verificationUrl}`
   };
 
+  console.log('📧 Sending email to:', user.email, 'from:', process.env.FROM_EMAIL);
+
   try {
-    await sgMail.send(msg);
-    console.log(`✅ Verification email sent to ${user.email}`);
+    const result = await sgMail.send(msg);
+    console.log(`✅ Verification email sent successfully to ${user.email}`);
+    console.log('SendGrid response:', result[0].statusCode);
     return true;
   } catch (error) {
     console.error('❌ SendGrid email error:', error);
     if (error.response) {
-      console.error('SendGrid response:', error.response.body);
+      console.error('SendGrid response body:', error.response.body);
+      console.error('SendGrid response status:', error.response.status);
     }
     return false;
   }
 };
-
 const sendWelcomeEmail = async (user) => {
   const msg = {
     to: user.email,
