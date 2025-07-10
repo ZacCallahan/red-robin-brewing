@@ -7,40 +7,53 @@ const EmailVerificationPage = ({ handleNavigation }) => {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const verifyEmail = async () => {
-      try {
-        // Get token and email from URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        const email = urlParams.get('email');
+  const verifyEmail = async () => {
+    try {
+      // Get token and email from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const email = urlParams.get('email');
 
-        if (!token || !email) {
-          setStatus('error');
-          setMessage('Invalid verification link');
-          return;
-        }
+      console.log('🔍 Verification debug:', { token, email });
+      console.log('🔍 Current URL:', window.location.href);
 
-        // Call verification API
-        const response = await fetch(`${api.baseURL}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`);
-        const data = await response.json();
-
-        if (response.ok) {
-          setStatus('success');
-          setMessage(data.message);
-        } else {
-          setStatus('error');
-          setMessage(data.message || 'Verification failed');
-        }
-
-      } catch (error) {
-        console.error('Verification error:', error);
+      if (!token || !email) {
+        console.log('❌ Missing token or email');
         setStatus('error');
-        setMessage('Something went wrong during verification');
+        setMessage('Invalid verification link - missing token or email');
+        return;
       }
-    };
 
-    verifyEmail();
-  }, []);
+      // Call verification API
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const fullUrl = `${apiUrl}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+      
+      console.log('🔍 Making request to:', fullUrl);
+      
+      const response = await fetch(fullUrl);
+      const data = await response.json();
+
+      console.log('🔍 Response:', { status: response.status, data });
+
+      if (response.ok) {
+        console.log('✅ Verification successful');
+        setStatus('success');
+        setMessage(data.message);
+      } else {
+        console.log('❌ Verification failed');
+        setStatus('error');
+        setMessage(data.message || 'Verification failed');
+      }
+
+    } catch (error) {
+      console.error('❌ Verification error:', error);
+      setStatus('error');
+      setMessage('Something went wrong during verification');
+    }
+  };
+
+  verifyEmail();
+}, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">

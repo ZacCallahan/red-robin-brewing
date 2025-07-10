@@ -15,6 +15,7 @@ const getAuthHeaders = () => {
 };
 
 export const api = {
+  baseURL: API_BASE_URL,
   // Test connection
   test: async () => {
     try {
