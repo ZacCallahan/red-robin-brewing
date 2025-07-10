@@ -58,7 +58,7 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-xl font-bold text-white tracking-tight select-none">
-                  Red Robin Brewing
+                  Red Robin Rating
                 </h1>
                 <p className="text-xs text-gray-300 -mt-1 select-none pointer-events-none">
                   Craft Beer Reviews
