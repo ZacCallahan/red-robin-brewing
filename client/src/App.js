@@ -119,17 +119,8 @@ const handleRegister = async (userData) => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     
-    console.log('Registration response:', response); // Debug log
-    
-    // Show success message
-    alert(`Account created successfully! 
-
-Please check your email (${userData.email}) for a verification link to activate your account.
-
-You'll need to verify your email before you can log in.`);
-    
-    // Redirect to login page
-    setCurrentPage('login');
+    // NO MORE ALERT - RegisterPage will handle the success state
+    // The RegisterPage will show its own success message
     
   } catch (error) {
     // Make sure we don't accidentally log in on error either

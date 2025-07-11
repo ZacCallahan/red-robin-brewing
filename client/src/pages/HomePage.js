@@ -64,11 +64,13 @@ const beersWithReviews = (beers || []).filter(beer =>
       <div className="max-w-6xl mx-auto p-6">
         <div className="text-center mb-12">
           <div className="relative mb-8">
-            <h5 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-black mb-4 font-serif tracking-wide drop-shadow-lg whitespace-nowrap">
-              Welcome to Red Robin Rating, the official beer review site from Red Robin Brewing Co.
+            <h5 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-black mb-4 font-serif tracking-wide drop-shadow-lg text-center leading-tight select-none">
+              Welcome to Red Robin Rating,<br />
+              <span className="text-xl md:text-2xl lg:text-3xl xl:text-4xl">the official beer review site from Red Robin Brewing Co.</span>
             </h5>
-            <div className="absolute -top-2 -left-2 w-full h-full text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-200 font-serif tracking-wide -z-10 opacity-50 whitespace-nowrap">
-              Welcome to Red Robin Rating, the official beer review site from Red Robin Brewing Co.
+            <div className="absolute -top-2 -left-2 w-full h-full text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-200 font-serif tracking-wide -z-10 opacity-50 text-center leading-tight">
+              Welcome to Red Robin Rating,<br />
+              <span className="text-xl md:text-2xl lg:text-3xl xl:text-4xl">the official beer review site from Red Robin Brewing Co.</span>
             </div>
           </div>
           

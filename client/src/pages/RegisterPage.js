@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Mail, CheckCircle } from 'lucide-react';
 
 const RegisterPage = ({ handleNavigation, handleRegister }) => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,8 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState(null);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -46,6 +49,10 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
       const { confirmPassword, ...registrationData } = formData;
       await handleRegister(registrationData);
       
+      // If successful, show success message instead of alert
+      setRegisteredEmail(formData.email);
+      setRegistrationSuccess(true);
+      
     } catch (error) {
       console.error('❌ Registration failed:', error);
       setFormError(error.message || 'Registration failed. Please try again.');
@@ -54,16 +61,72 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
     }
   };
 
+  // Show success page after registration
+  if (registrationSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center py-12">
+        <div className="max-w-md w-full mx-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 border-4 border-green-200 text-center">
+            <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 font-serif mb-4 select-none">Account Created Successfully!</h2>
+            
+            <div className="bg-green-50 p-4 rounded-lg mb-6 border border-green-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Mail className="w-5 h-5 text-green-600" />
+                <span className="font-semibold text-green-800 select-none">Check Your Email</span>
+              </div>
+              <p className="text-sm text-green-700 select-none">
+                We've sent a verification link to:
+              </p>
+              <p className="font-medium text-green-800 select-none">{registeredEmail}</p>
+            </div>
+
+            <div className="text-left space-y-2 mb-6">
+              <h3 className="font-semibold text-gray-900 select-none">Next Steps:</h3>
+              <div className="space-y-1 text-sm text-gray-600">
+                <p className="select-none">1. 📧 Check your email inbox</p>
+                <p className="select-none">2. 🔗 Click the verification link</p>
+                <p className="select-none">3. 🍺 Start exploring craft beers!</p>
+              </div>
+            </div>
+
+            <div className="bg-yellow-50 p-3 rounded-lg mb-6 border border-yellow-200">
+              <p className="text-xs text-yellow-700 select-none">
+                <strong>Important:</strong> You must verify your email before you can log in.
+                The verification link expires in 24 hours.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <button 
+                onClick={() => handleNavigation('login')}
+                className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white py-3 px-6 rounded-lg hover:from-red-700 hover:to-red-900 transition-all duration-300 font-semibold select-none"
+              >
+                Go to Login Page
+              </button>
+              <button 
+                onClick={() => setRegistrationSuccess(false)}
+                className="w-full border-2 border-gray-300 text-gray-600 py-2 px-6 rounded-lg hover:bg-gray-50 transition-colors text-sm select-none"
+              >
+                ← Register Another Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center py-12">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-lg shadow-lg p-8 border-4 border-gray-200">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg border-2 border-gray-300">
-              <span className="text-white font-bold text-2xl">RR</span>
+              <span className="text-white font-bold text-2xl select-none">RR</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 font-serif">Join Red Robin</h2>
-            <p className="text-gray-700">Create your beer reviewer account</p>
+            <h2 className="text-2xl font-bold text-gray-900 font-serif select-none">Join Red Robin</h2>
+            <p className="text-gray-700 select-none">Create your beer reviewer account</p>
           </div>
           
           {formError && (
@@ -149,14 +212,14 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
             <button
               type="submit"
               disabled={formLoading}
-              className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white py-4 px-6 rounded-full hover:from-red-700 hover:to-red-900 transition-all duration-300 font-bold text-lg shadow-xl border-2 border-gray-300 hover:border-white transform hover:scale-105 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white py-4 px-6 rounded-full hover:from-red-700 hover:to-red-900 transition-all duration-300 font-bold text-lg shadow-xl border-2 border-gray-300 hover:border-white transform hover:scale-105 disabled:opacity-50 select-none"
             >
               {formLoading ? 'Creating Account...' : 'Create Account'}
             </button>
           </form>
           
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-700">
+            <p className="text-sm text-gray-700 select-none">
               Already have an account? 
               <button 
                 onClick={() => handleNavigation('login')}
