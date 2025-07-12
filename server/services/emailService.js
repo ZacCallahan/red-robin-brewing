@@ -28,7 +28,26 @@ const sendVerificationEmail = async (user, verificationToken) => {
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
             .header { background: linear-gradient(135deg, #dc2626, #991b1b); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
             .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
-            .button { display: inline-block; background: #dc2626; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+            .button { 
+              display: inline-block; 
+              background: #dc2626; 
+              color: white !important; 
+              padding: 15px 30px; 
+              text-decoration: none !important; 
+              border-radius: 8px; 
+              font-weight: bold; 
+              margin: 20px 0; 
+            }
+            .button:hover { 
+              background: #991b1b !important; 
+              color: white !important; 
+            }
+            .button:visited { 
+              color: white !important; 
+            }
+            .button:link { 
+              color: white !important; 
+            }
             .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
             .logo { font-size: 28px; font-weight: bold; margin-bottom: 10px; }
           </style>
@@ -46,7 +65,7 @@ const sendVerificationEmail = async (user, verificationToken) => {
               <p>Thanks for joining Red Robin Brewing Co.! Please verify your email address by clicking the button below:</p>
               
               <div style="text-align: center;">
-                <a href="${verificationUrl}" class="button">Verify My Email</a>
+                <a href="${verificationUrl}" class="button" style="color: white !important; text-decoration: none !important;">Verify My Email</a>
               </div>
               
               <p>Or copy and paste this link:</p>
