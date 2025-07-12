@@ -84,6 +84,15 @@ const LoginPage = ({ handleNavigation, handleLogin }) => {
                 placeholder="••••••••"
                 required
               />
+              <div className="text-right mt-2">
+                <button 
+                  type="button"
+                  onClick={() => handleNavigation('forgot-password')}
+                  className="text-sm text-red-600 hover:text-red-800 font-medium"
+                >
+                  Forgot password?
+                </button>
+              </div>
             </div>
             
             <button

@@ -12,6 +12,8 @@ import BeerDetailPage from './pages/BeerDetailPage';
 import UserProfilePage from './pages/UserProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import EmailVerificationPage from './pages/EmailVerificationPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -44,7 +46,12 @@ function App() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('token') && urlParams.get('email')) {
-      setCurrentPage('verify-email');
+      // Check if it's a password reset or email verification
+      if (window.location.pathname === '/reset-password') {
+        setCurrentPage('reset-password');
+      } else {
+        setCurrentPage('verify-email');
+      }
     }
   }, []);
 
@@ -250,6 +257,18 @@ function App() {
       case 'verify-email':
         return (
           <EmailVerificationPage 
+            handleNavigation={handleNavigation}
+          />
+        );
+      case 'forgot-password':
+        return (
+          <ForgotPasswordPage 
+            handleNavigation={handleNavigation}
+          />
+        );
+      case 'reset-password':
+        return (
+          <ResetPasswordPage 
             handleNavigation={handleNavigation}
           />
         );

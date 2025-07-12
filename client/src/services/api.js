@@ -132,6 +132,54 @@ export const api = {
         console.error('Error getting profile:', error);
         throw error;
       }
+    },
+
+    // Request password reset
+    forgotPassword: async (email) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to send reset email');
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error requesting password reset:', error);
+        throw error;
+      }
+    },
+
+    // Reset password with token
+    resetPassword: async (token, email, newPassword) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token, email, newPassword }),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to reset password');
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error resetting password:', error);
+        throw error;
+      }
     }
   },
 
