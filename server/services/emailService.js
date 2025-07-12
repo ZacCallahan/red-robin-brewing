@@ -1,20 +1,10 @@
 const sgMail = require('@sendgrid/mail');
 
-console.log('📧 Email service file loaded');
-
 // Initialize SendGrid with API key
-try {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  console.log('📧 SendGrid API key set:', process.env.SENDGRID_API_KEY ? 'YES' : 'NO');
-} catch (error) {
-  console.error('❌ Failed to set SendGrid API key:', error);
-}
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Send email verification message to new users
 const sendVerificationEmail = async (user, verificationToken) => {
-  console.log('📧 sendVerificationEmail function called');
-  console.log('📧 User:', user.email, 'Token:', verificationToken ? 'exists' : 'missing');
-  
   // Debug logging for troubleshooting
   console.log('🔍 Email service debug:');
   console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY ? 'SET' : 'NOT SET');
@@ -131,7 +121,7 @@ The Red Robin Brewing Co. Team
     `
   };
 
-  console.log('📧 Attempting to send email to:', user.email, 'from:', process.env.FROM_EMAIL);
+  console.log('📧 Sending email to:', user.email, 'from:', process.env.FROM_EMAIL);
 
   try {
     const result = await sgMail.send(msg);
@@ -150,8 +140,6 @@ The Red Robin Brewing Co. Team
 
 // Send welcome email after successful verification
 const sendWelcomeEmail = async (user) => {
-  console.log('📧 sendWelcomeEmail function called for:', user.email);
-  
   const msg = {
     to: user.email,
     from: process.env.FROM_EMAIL || 'noreply@rrbc.com.au',
@@ -239,8 +227,6 @@ const sendWelcomeEmail = async (user) => {
 
 // Send password reset email
 const sendPasswordResetEmail = async (user, resetToken) => {
-  console.log('📧 sendPasswordResetEmail function called for:', user.email);
-  
   const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}&email=${encodeURIComponent(user.email)}`;
   
   console.log('🔗 Password reset URL:', resetUrl);
@@ -357,12 +343,8 @@ The Red Robin Brewing Co. Team
   }
 };
 
-console.log('📧 Email service functions defined');
-
 module.exports = {
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail
 };
-
-console.log('📧 Email service module exported');
