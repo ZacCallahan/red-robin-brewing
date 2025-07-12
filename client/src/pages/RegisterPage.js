@@ -95,7 +95,7 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
             <div className="bg-yellow-50 p-3 rounded-lg mb-6 border border-yellow-200">
               <p className="text-xs text-yellow-700 select-none">
                 <strong>Important:</strong> You must verify your email before you can log in.
-                The verification link expires in 24 hours.
+                The verification link expires in 24 hours. Ensure to check your spam folder!
               </p>
             </div>
 
