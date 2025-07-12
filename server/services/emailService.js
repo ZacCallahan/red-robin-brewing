@@ -62,26 +62,63 @@ const sendVerificationEmail = async (user, verificationToken) => {
             <div class="content">
               <h2>Hello ${user.firstName}!</h2>
               
-              <p>Thanks for joining Red Robin Brewing Co.! Please verify your email address by clicking the button below:</p>
+              <p>Thanks for joining Red Robin Brewing Co.! We're excited to have you in our community of craft beer enthusiasts.</p>
+              
+              <p>To get started, please verify your email address by clicking the button below:</p>
               
               <div style="text-align: center;">
                 <a href="${verificationUrl}" class="button" style="color: white !important; text-decoration: none !important;">Verify My Email</a>
               </div>
               
-              <p>Or copy and paste this link:</p>
+              <p><strong>What you can do once verified:</strong></p>
+              <ul>
+                <li>✅ Add and review craft beers</li>
+                <li>✅ Track your favorite sessionable beers</li>
+                <li>✅ Connect with fellow beer enthusiasts</li>
+                <li>✅ Discover new breweries and styles</li>
+              </ul>
+              
+              <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
               <p style="word-break: break-all; color: #dc2626;">${verificationUrl}</p>
               
-              <p><strong>This link expires in 24 hours.</strong></p>
+              <p><strong>This verification link will expire in 24 hours.</strong></p>
+              
+              <p><strong>📧 Can't find this email?</strong> Please check your spam/junk folder. Sometimes our emails end up there!</p>
+              
+              <p>If you didn't create an account with Red Robin Brewing Co., you can safely ignore this email.</p>
             </div>
             
             <div class="footer">
-              <p>Cheers! 🍻<br>Red Robin Brewing Co.</p>
+              <p>Cheers! 🍻<br>
+              The Red Robin Brewing Co. Team</p>
+              <p>© 2025 Red Robin Brewing Co. All rights reserved.</p>
             </div>
           </div>
         </body>
       </html>
     `,
-    text: `Welcome to Red Robin Brewing Co.! Please verify your email: ${verificationUrl}`
+    text: `
+Welcome to Red Robin Brewing Co.!
+
+Hello ${user.firstName},
+
+Thanks for joining our craft beer community! To get started, please verify your email address by visiting:
+
+${verificationUrl}
+
+This link will expire in 24 hours.
+
+Once verified, you can:
+- Add and review craft beers
+- Track your favorite sessionable beers  
+- Connect with fellow beer enthusiasts
+- Discover new breweries and styles
+
+If you didn't create this account, you can safely ignore this email.
+
+Cheers!
+The Red Robin Brewing Co. Team
+    `
   };
 
   console.log('📧 Sending email to:', user.email, 'from:', process.env.FROM_EMAIL);
@@ -155,7 +192,7 @@ const sendWelcomeEmail = async (user) => {
               <p><strong>Ready to get started? Here's what you can do:</strong></p>
               
               <div style="text-align: center;">
-                <a href="${process.env.CLIENT_URL}" class="button">Explore Craft Beers</a>
+                <a href="${process.env.CLIENT_URL}" class="button" style="color: white !important; text-decoration: none !important;">Explore Craft Beers</a>
               </div>
               
               <ul>
