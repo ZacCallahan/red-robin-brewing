@@ -1,10 +1,11 @@
 const sgMail = require('@sendgrid/mail');
 
-// Set API key from environment variable
+// Initialize SendGrid with API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// Send email verification message to new users
 const sendVerificationEmail = async (user, verificationToken) => {
-  // Debug logging
+  // Debug logging for troubleshooting
   console.log('🔍 Email service debug:');
   console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY ? 'SET' : 'NOT SET');
   console.log('FROM_EMAIL:', process.env.FROM_EMAIL);
@@ -80,6 +81,8 @@ const sendVerificationEmail = async (user, verificationToken) => {
     return false;
   }
 };
+
+// Send welcome email after successful verification
 const sendWelcomeEmail = async (user) => {
   const msg = {
     to: user.email,

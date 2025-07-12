@@ -31,6 +31,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   }, [isLoggedIn, isAdmin]);
 
+  // Load all admin dashboard data
   const loadDashboardData = async () => {
     try {
       setLoading(true);
@@ -56,6 +57,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
+  // Delete individual user
   const handleDeleteUser = async (userId) => {
     if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone and will delete all their reviews and beers.')) {
       return;
@@ -64,7 +66,6 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     try {
       await api.admin.deleteUser(userId);
       setUsers(users.filter(u => u._id !== userId));
-      // Refresh data to update stats
       await loadDashboardData();
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -72,6 +73,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
+  // Delete individual beer
   const handleDeleteBeer = async (beerId) => {
     if (!window.confirm('Are you sure you want to delete this beer? This will also delete all associated reviews.')) {
       return;
@@ -80,7 +82,6 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     try {
       await api.admin.deleteBeer(beerId);
       setBeers(beers.filter(b => b._id !== beerId));
-      // Refresh data to update stats and remove associated reviews
       await loadDashboardData();
     } catch (error) {
       console.error('Error deleting beer:', error);
@@ -88,6 +89,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
+  // Delete individual review
   const handleDeleteReview = async (reviewId) => {
     if (!window.confirm('Are you sure you want to delete this review?')) {
       return;
@@ -96,7 +98,6 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     try {
       await api.admin.deleteReview(reviewId);
       setReviews(reviews.filter(r => r._id !== reviewId));
-      // Refresh data to update stats
       await loadDashboardData();
     } catch (error) {
       console.error('Error deleting review:', error);
@@ -104,32 +105,31 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
-// In AdminDashboard, update the handleToggleSessionable function
-const handleToggleSessionable = async (beerId, currentSessionable) => {
-  try {
-    const newSessionable = !currentSessionable;
-    await api.admin.updateBeer(beerId, { sessionable: newSessionable });
-    
-    // Update the local state immediately
-    setBeers(beers.map(beer => 
-      beer._id === beerId ? { ...beer, sessionable: newSessionable } : beer
-    ));
-    
-    // Refresh all dashboard data to ensure consistency
-    await loadDashboardData();
-    
-    // Reload beers on main pages
-    if (reloadBeers) {
-      await reloadBeers();
+  // Toggle beer sessionable status
+  const handleToggleSessionable = async (beerId, currentSessionable) => {
+    try {
+      const newSessionable = !currentSessionable;
+      await api.admin.updateBeer(beerId, { sessionable: newSessionable });
+      
+      // Update the local state immediately
+      setBeers(beers.map(beer => 
+        beer._id === beerId ? { ...beer, sessionable: newSessionable } : beer
+      ));
+      
+      await loadDashboardData();
+      
+      // Reload beers on main pages
+      if (reloadBeers) {
+        await reloadBeers();
+      }
+      
+    } catch (error) {
+      console.error('Error updating sessionable status:', error);
+      setError('Failed to update sessionable status');
     }
-    
-  } catch (error) {
-    console.error('Error updating sessionable status:', error);
-    setError('Failed to update sessionable status');
-  }
-};
+  };
 
-  // Batch operations
+  // Batch delete users
   const handleBatchDeleteUsers = async () => {
     if (selectedUsers.length === 0) return;
     
@@ -150,6 +150,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     }
   };
 
+  // Batch delete beers
   const handleBatchDeleteBeers = async () => {
     if (selectedBeers.length === 0) return;
     
@@ -170,6 +171,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     }
   };
 
+  // Batch delete reviews
   const handleBatchDeleteReviews = async () => {
     if (selectedReviews.length === 0) return;
     
@@ -190,6 +192,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     }
   };
 
+  // Import curated beer collection
   const handlePopulateDatabase = async () => {
     if (!window.confirm('This will import 50 curated popular beers (Australian and international favorites). This should only be done once or after purging the database. Continue?')) {
       return;
@@ -235,7 +238,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     }
   };
 
-  // Selection handlers
+  // Handle user selection for batch operations
   const handleSelectUser = (userId) => {
     setSelectedUsers(prev => 
       prev.includes(userId) 
@@ -244,6 +247,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     );
   };
 
+  // Handle beer selection for batch operations
   const handleSelectBeer = (beerId) => {
     setSelectedBeers(prev => 
       prev.includes(beerId) 
@@ -252,6 +256,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     );
   };
 
+  // Handle review selection for batch operations
   const handleSelectReview = (reviewId) => {
     setSelectedReviews(prev => 
       prev.includes(reviewId) 
@@ -260,6 +265,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     );
   };
 
+  // Select or deselect all users
   const handleSelectAllUsers = () => {
     if (selectedUsers.length === users.length) {
       setSelectedUsers([]);
@@ -268,6 +274,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     }
   };
 
+  // Select or deselect all beers
   const handleSelectAllBeers = () => {
     if (selectedBeers.length === beers.length) {
       setSelectedBeers([]);
@@ -276,6 +283,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     }
   };
 
+  // Select or deselect all reviews
   const handleSelectAllReviews = () => {
     if (selectedReviews.length === reviews.length) {
       setSelectedReviews([]);
@@ -284,7 +292,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     }
   };
 
-  // Redirect if not admin
+  // Not logged in state
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
@@ -301,6 +309,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     );
   }
 
+  // Access denied state
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
@@ -319,6 +328,7 @@ const handleToggleSessionable = async (beerId, currentSessionable) => {
     );
   }
 
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">

@@ -3,8 +3,7 @@ const router = express.Router();
 const Beer = require('../models/Beer');
 const authenticateToken = require('../middleware/auth');
 
-// @route   GET /api/beers
-// @desc    Get all beers
+// Get all beers with creator information
 router.get('/', async (req, res) => {
   try {
     const beers = await Beer.find()
@@ -18,8 +17,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// @route   GET /api/beers/:id
-// @desc    Get single beer
+// Get single beer by ID
 router.get('/:id', async (req, res) => {
   try {
     const beer = await Beer.findById(req.params.id)
@@ -36,8 +34,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// @route   POST /api/beers
-// @desc    Add new beer (requires authentication)
+// Create new beer
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { name, brewery, style, abv, description, sessionable } = req.body;
@@ -45,22 +42,24 @@ router.post('/', authenticateToken, async (req, res) => {
     console.log('🔍 Backend: Raw request body:', req.body);
     console.log('🔍 Backend: Sessionable value:', sessionable, 'type:', typeof sessionable);
     
-    // Validation
+    // Validate required fields
     if (!name || !brewery || !style || !abv) {
       return res.status(400).json({ message: 'Please provide name, brewery, style, and ABV' });
     }
     
+    // Validate ABV range
     if (isNaN(parseFloat(abv)) || parseFloat(abv) < 0 || parseFloat(abv) > 20) {
       return res.status(400).json({ message: 'ABV must be a number between 0 and 20' });
     }
     
+    // Create new beer instance
     const newBeer = new Beer({
       name: name.trim(),
       brewery: brewery.trim(),
       style,
       abv: parseFloat(abv),
       description: description ? description.trim() : '',
-      sessionable: sessionable === true, // EXPLICIT BOOLEAN CONVERSION
+      sessionable: sessionable === true,
       addedBy: req.user._id
     });
     
@@ -71,7 +70,7 @@ router.post('/', authenticateToken, async (req, res) => {
     
     const beer = await newBeer.save();
     
-    // Populate the addedBy field for the response
+    // Populate creator information for response
     await beer.populate('addedBy', 'username firstName lastName');
     
     console.log('✅ Backend: Beer created successfully:', beer.name, 'sessionable:', beer.sessionable);
@@ -83,8 +82,7 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
-// @route   PUT /api/beers/:id
-// @desc    Update beer (requires authentication)
+// Update existing beer
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { name, brewery, style, abv, description, sessionable } = req.body;
@@ -95,13 +93,14 @@ router.put('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Beer not found' });
     }
     
-    // Check if user owns this beer or is admin
+    // Check authorization - user must own beer or be admin
     if (beer.addedBy.toString() !== req.user._id.toString() && !req.user.isAdmin && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorized to update this beer' });
     }
     
     console.log('🔄 Updating beer:', req.params.id, 'sessionable:', sessionable);
     
+    // Build update data object
     const updateData = {};
     if (name !== undefined) updateData.name = name.trim();
     if (brewery !== undefined) updateData.brewery = brewery.trim();
@@ -116,6 +115,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     if (description !== undefined) updateData.description = description ? description.trim() : '';
     if (sessionable !== undefined) updateData.sessionable = sessionable;
     
+    // Update beer and return with populated creator info
     beer = await Beer.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -131,8 +131,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// @route   DELETE /api/beers/:id
-// @desc    Delete beer (requires authentication)
+// Delete beer
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const beer = await Beer.findById(req.params.id);
@@ -141,7 +140,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Beer not found' });
     }
     
-    // Check if user owns this beer or is admin
+    // Check authorization - user must own beer or be admin
     if (beer.addedBy.toString() !== req.user._id.toString() && !req.user.isAdmin && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorized to delete this beer' });
     }

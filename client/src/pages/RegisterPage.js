@@ -15,6 +15,7 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
 
+  // Handle form input changes
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -22,6 +23,7 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
     }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -29,7 +31,7 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
       setFormLoading(true);
       setFormError(null);
 
-      // Validation
+      // Form validation
       if (!formData.username || !formData.email || !formData.password || !formData.firstName || !formData.lastName) {
         setFormError('Please fill in all fields');
         return;
@@ -45,11 +47,11 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
         return;
       }
 
-      // Create account - just call handleRegister, it will handle the API call
+      // Create account using parent handler
       const { confirmPassword, ...registrationData } = formData;
       await handleRegister(registrationData);
       
-      // If successful, show success message instead of alert
+      // Show success message
       setRegisteredEmail(formData.email);
       setRegistrationSuccess(true);
       
@@ -61,7 +63,7 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
     }
   };
 
-  // Show success page after registration
+  // Success page after registration
   if (registrationSuccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center py-12">
@@ -117,10 +119,12 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
     );
   }
 
+  // Registration form
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center py-12">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-lg shadow-lg p-8 border-4 border-gray-200">
+          {/* Header */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg border-2 border-gray-300">
               <span className="text-white font-bold text-2xl select-none">RR</span>
@@ -129,12 +133,14 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
             <p className="text-gray-700 select-none">Create your beer reviewer account</p>
           </div>
           
+          {/* Error message */}
           {formError && (
             <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
               {formError}
             </div>
           )}
           
+          {/* Registration form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -218,6 +224,7 @@ const RegisterPage = ({ handleNavigation, handleRegister }) => {
             </button>
           </form>
           
+          {/* Login link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-700 select-none">
               Already have an account? 

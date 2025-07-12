@@ -7,8 +7,9 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
-  const [hasSearched, setHasSearched] = useState(false); // Track if user has searched yet
+  const [hasSearched, setHasSearched] = useState(false);
 
+  // Redirect if not logged in
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
@@ -25,6 +26,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
     );
   }
 
+  // Search for users by username or name
   const handleSearch = async () => {
     if (!searchTerm.trim() || searchTerm.length < 2) {
       setSearchError('Please enter at least 2 characters');
@@ -34,7 +36,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
     try {
       setSearching(true);
       setSearchError(null);
-      setHasSearched(true); // Mark that a search has been performed
+      setHasSearched(true);
       const results = await api.users.search(searchTerm);
       setSearchResults(results || []);
     } catch (error) {
@@ -46,13 +48,14 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
     }
   };
 
+  // Handle Enter key press for search
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
   };
 
-  // Handle input changes - don't clear results immediately
+  // Handle search input changes
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -106,7 +109,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
           )}
         </div>
 
-        {/* Search Results */}
+        {/* Loading state during search */}
         {searching && (
           <div className="bg-white rounded-xl shadow-lg p-8 border-4 border-gray-200 text-center">
             <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
@@ -117,6 +120,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
           </div>
         )}
 
+        {/* Search Results */}
         {!searching && hasSearched && searchResults.length > 0 && (
           <div className="bg-white rounded-xl shadow-lg p-6 border-4 border-gray-200">
             <h3 className="text-xl font-bold text-gray-900 mb-4 font-serif">
@@ -155,7 +159,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
           </div>
         )}
 
-        {/* No Results - Only show after a search has been performed */}
+        {/* No Results state */}
         {!searching && hasSearched && searchResults.length === 0 && !searchError && (
           <div className="bg-white rounded-xl shadow-lg p-8 border-4 border-gray-200 text-center">
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -167,7 +171,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
           </div>
         )}
 
-        {/* Getting Started - Show when no search has been performed */}
+        {/* Initial state with instructions */}
         {!hasSearched && !searching && (
           <div className="bg-white rounded-xl shadow-lg p-8 border-4 border-gray-200 text-center">
             <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6">

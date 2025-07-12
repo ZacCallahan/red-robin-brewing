@@ -3,10 +3,9 @@ const router = express.Router();
 const Review = require('../models/Review');
 const Beer = require('../models/Beer');
 const User = require('../models/User');
-const auth = require('../middleware/auth'); // Import auth middleware
+const auth = require('../middleware/auth');
 
-// @route   GET /api/reviews/beer/:beerId
-// @desc    Get all reviews for a specific beer
+// Get all reviews for a specific beer
 router.get('/beer/:beerId', async (req, res) => {
   try {
     const reviews = await Review.find({ beer: req.params.beerId })
@@ -20,8 +19,7 @@ router.get('/beer/:beerId', async (req, res) => {
   }
 });
 
-// @route   POST /api/reviews
-// @desc    Add or update a review (requires authentication)
+// Create or update a review
 router.post('/', auth, async (req, res) => {
   try {
     const { beerId, rating, notes } = req.body;
@@ -51,10 +49,10 @@ router.post('/', auth, async (req, res) => {
       await review.save();
     }
     
-    // Update beer's average rating
+    // Update beer statistics
     await updateBeerRating(beerId);
     
-    // Update user's review stats
+    // Update user statistics
     await updateUserStats(userId);
     
     res.status(201).json(review);
@@ -64,7 +62,7 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// Helper function to update user statistics
+// Update user review statistics
 async function updateUserStats(userId) {
   try {
     const reviews = await Review.find({ user: userId });
@@ -83,7 +81,7 @@ async function updateUserStats(userId) {
   }
 }
 
-// Keep your existing updateBeerRating function
+// Update beer rating statistics
 async function updateBeerRating(beerId) {
   try {
     const reviews = await Review.find({ beer: beerId });

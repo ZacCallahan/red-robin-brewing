@@ -11,19 +11,17 @@ const HomePage = ({
   refreshBeers 
 }) => {
   
-  // Function to get top 6 beers for display
+  // Get featured beers for homepage display
   const getFeaturedBeers = () => {
     if (!beers || !Array.isArray(beers) || beers.length === 0) return [];
 
-    
     // Filter beers that have reviews and ratings
-    // To this:
-const beersWithReviews = (beers || []).filter(beer => 
-  beer.totalReviews > 0 && beer.averageRating > 0
-);
+    const beersWithReviews = (beers || []).filter(beer => 
+      beer.totalReviews > 0 && beer.averageRating > 0
+    );
     
     if (beersWithReviews.length >= 6) {
-      // Sort by average rating (descending), then by total reviews (descending)
+      // Sort by average rating then by total reviews
       return beersWithReviews
         .sort((a, b) => {
           if (b.averageRating !== a.averageRating) {
@@ -33,7 +31,7 @@ const beersWithReviews = (beers || []).filter(beer =>
         })
         .slice(0, 6);
     } else {
-      // Not enough rated beers, mix rated beers with random unrated ones
+      // Mix rated beers with random unrated ones
       const unratedBeers = beers.filter(beer => 
         !beer.totalReviews || beer.totalReviews === 0
       );
@@ -41,7 +39,7 @@ const beersWithReviews = (beers || []).filter(beer =>
       // Shuffle unrated beers for randomness
       const shuffledUnrated = [...unratedBeers].sort(() => Math.random() - 0.5);
       
-      // Combine rated beers (sorted by rating) with random unrated beers
+      // Combine rated beers with random unrated beers
       const featuredBeers = [
         ...beersWithReviews.sort((a, b) => {
           if (b.averageRating !== a.averageRating) {
@@ -63,17 +61,19 @@ const beersWithReviews = (beers || []).filter(beer =>
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50">
       <div className="max-w-6xl mx-auto p-6">
         <div className="text-center mb-12">
+          {/* Hero Title */}
           <div className="relative mb-8">
             <h5 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-black mb-4 font-serif tracking-wide drop-shadow-lg text-center leading-tight select-none">
-              Welcome to Red Robin Rating,<br />
+              Welcome to Red Robin Rating<br />
               <span className="text-xl md:text-2xl lg:text-3xl xl:text-4xl">the official beer review site from Red Robin Brewing Co.</span>
             </h5>
             <div className="absolute -top-2 -left-2 w-full h-full text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-200 font-serif tracking-wide -z-10 opacity-50 text-center leading-tight">
-              Welcome to Red Robin Rating,<br />
+              Welcome to Red Robin Rating<br />
               <span className="text-xl md:text-2xl lg:text-3xl xl:text-4xl">the official beer review site from Red Robin Brewing Co.</span>
             </div>
           </div>
           
+          {/* Logo Section */}
           <div className="flex justify-center mb-8">
             <div className="relative">
               <img 
@@ -92,7 +92,7 @@ const beersWithReviews = (beers || []).filter(beer =>
             </div>
           </div>
 
-          
+          {/* Feature Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             <div className="bg-white rounded-xl p-8 shadow-xl border border-gray-200 hover:border-red-500 transition-all duration-300 transform hover:scale-105">
               <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -118,6 +118,7 @@ const beersWithReviews = (beers || []).filter(beer =>
           </div>
         </div>
 
+        {/* Featured Beers Section */}
         <div className="mb-8">
           <div className="bg-gradient-to-r from-black to-gray-800 rounded-xl p-2 mb-8 text-center">
             <h3 className="text-3xl font-bold text-white mb-2 font-serif select-none">
@@ -131,12 +132,14 @@ const beersWithReviews = (beers || []).filter(beer =>
             </p>
           </div>
           
+          {/* Loading state */}
           {loading && (
             <div className="text-center py-8">
               <p className="text-gray-600 select-none">Loading beers...</p>
             </div>
           )}
           
+          {/* Error state */}
           {error && (
             <div className="text-center py-8">
               <div className="bg-red-50 border border-red-300 rounded-xl p-6 max-w-md mx-auto">
@@ -151,6 +154,7 @@ const beersWithReviews = (beers || []).filter(beer =>
             </div>
           )}
           
+          {/* Beer Display */}
           {!loading && !error && (
             <>
               {featuredBeers.length === 0 ? (

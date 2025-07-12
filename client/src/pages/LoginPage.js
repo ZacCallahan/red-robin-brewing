@@ -8,6 +8,7 @@ const LoginPage = ({ handleNavigation, handleLogin }) => {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState(null);
 
+  // Handle form input changes
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -15,6 +16,7 @@ const LoginPage = ({ handleNavigation, handleLogin }) => {
     }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -27,7 +29,7 @@ const LoginPage = ({ handleNavigation, handleLogin }) => {
         return;
       }
 
-      // Just call handleLogin with credentials - it will handle the API call
+      // Call parent login handler with credentials
       await handleLogin(formData);
       
     } catch (error) {
@@ -42,6 +44,7 @@ const LoginPage = ({ handleNavigation, handleLogin }) => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-lg shadow-lg p-8 border-4 border-gray-200">
+          {/* Header */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg border-2 border-gray-300">
               <span className="text-white font-bold text-2xl">RR</span>
@@ -50,12 +53,14 @@ const LoginPage = ({ handleNavigation, handleLogin }) => {
             <p className="text-gray-700">Sign in to your account</p>
           </div>
           
+          {/* Error message */}
           {formError && (
             <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
               {formError}
             </div>
           )}
           
+          {/* Login form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-800 mb-2">Email</label>
@@ -90,6 +95,7 @@ const LoginPage = ({ handleNavigation, handleLogin }) => {
             </button>
           </form>
           
+          {/* Sign up link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-700">
               Don't have an account? 

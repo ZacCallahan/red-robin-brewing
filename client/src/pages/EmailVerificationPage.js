@@ -3,63 +3,65 @@ import { CheckCircle, AlertTriangle, Mail } from 'lucide-react';
 import { api } from '../services/api';
 
 const EmailVerificationPage = ({ handleNavigation }) => {
-  const [status, setStatus] = useState('loading'); // loading, success, error
+  const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-  const verifyEmail = async () => {
-    try {
-      // Get token and email from URL parameters
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get('token');
-      const email = urlParams.get('email');
+    // Verify email using URL parameters
+    const verifyEmail = async () => {
+      try {
+        // Get token and email from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const email = urlParams.get('email');
 
-      console.log('🔍 Verification debug:', { token, email });
-      console.log('🔍 Current URL:', window.location.href);
+        console.log('🔍 Verification debug:', { token, email });
+        console.log('🔍 Current URL:', window.location.href);
 
-      if (!token || !email) {
-        console.log('❌ Missing token or email');
+        if (!token || !email) {
+          console.log('❌ Missing token or email');
+          setStatus('error');
+          setMessage('Invalid verification link - missing token or email');
+          return;
+        }
+
+        // Call verification API
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+        const fullUrl = `${apiUrl}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+        
+        console.log('🔍 Making request to:', fullUrl);
+        
+        const response = await fetch(fullUrl);
+        const data = await response.json();
+
+        console.log('🔍 Response:', { status: response.status, data });
+
+        if (response.ok) {
+          console.log('✅ Verification successful');
+          setStatus('success');
+          setMessage(data.message);
+        } else {
+          console.log('❌ Verification failed');
+          setStatus('error');
+          setMessage(data.message || 'Verification failed');
+        }
+
+      } catch (error) {
+        console.error('❌ Verification error:', error);
         setStatus('error');
-        setMessage('Invalid verification link - missing token or email');
-        return;
+        setMessage('Something went wrong during verification');
       }
+    };
 
-      // Call verification API
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-      const fullUrl = `${apiUrl}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
-      
-      console.log('🔍 Making request to:', fullUrl);
-      
-      const response = await fetch(fullUrl);
-      const data = await response.json();
-
-      console.log('🔍 Response:', { status: response.status, data });
-
-      if (response.ok) {
-        console.log('✅ Verification successful');
-        setStatus('success');
-        setMessage(data.message);
-      } else {
-        console.log('❌ Verification failed');
-        setStatus('error');
-        setMessage(data.message || 'Verification failed');
-      }
-
-    } catch (error) {
-      console.error('❌ Verification error:', error);
-      setStatus('error');
-      setMessage('Something went wrong during verification');
-    }
-  };
-
-  verifyEmail();
-}, []);
+    verifyEmail();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-xl shadow-xl p-8 border-4 border-gray-200 text-center">
           
+          {/* Loading state */}
           {status === 'loading' && (
             <>
               <Mail className="w-16 h-16 text-blue-600 mx-auto mb-4 animate-pulse" />
@@ -68,6 +70,7 @@ const EmailVerificationPage = ({ handleNavigation }) => {
             </>
           )}
 
+          {/* Success state */}
           {status === 'success' && (
             <>
               <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
@@ -82,6 +85,7 @@ const EmailVerificationPage = ({ handleNavigation }) => {
             </>
           )}
 
+          {/* Error state */}
           {status === 'error' && (
             <>
               <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />

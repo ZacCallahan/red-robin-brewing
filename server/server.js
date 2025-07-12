@@ -13,11 +13,11 @@ const auth = require('./middleware/auth');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Middleware configuration
 app.use(cors());
 app.use(express.json());
 
-// Basic routes
+// Basic health check routes
 app.get('/', (req, res) => {
   res.json({ message: 'Red Robin Brewing API is running!' });
 });
@@ -26,7 +26,7 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'API endpoint working!' });
 });
 
-// Real beers endpoint
+// Get all beers with creator information
 app.get('/api/beers', async (req, res) => {
   try {
     const beers = await Beer.find()
@@ -40,10 +40,10 @@ app.get('/api/beers', async (req, res) => {
   }
 });
 
-// Add beer endpoint (now requires authentication) - UPDATED WITH SESSIONABLE
+// Create new beer with authentication and sessionable support
 app.post('/api/beers', auth, async (req, res) => {
   try {
-    const { name, brewery, style, abv, description, sessionable } = req.body; // ADDED sessionable and description
+    const { name, brewery, style, abv, description, sessionable } = req.body;
     
     console.log('🔍 Backend: Raw request body:', req.body);
     console.log('🔍 Backend: Sessionable value:', sessionable, 'type:', typeof sessionable);
@@ -61,7 +61,7 @@ app.post('/api/beers', auth, async (req, res) => {
       style,
       abv: parseFloat(abv),
       description,
-      sessionable: sessionable === true, // ADDED THIS
+      sessionable: sessionable === true,
       addedBy: req.user._id
     });
     
@@ -72,7 +72,7 @@ app.post('/api/beers', auth, async (req, res) => {
     
     const beer = await newBeer.save();
     
-    // Populate the addedBy field for the response
+    // Populate creator information for response
     await beer.populate('addedBy', 'username firstName lastName');
     
     console.log('✅ New beer added by', req.user.username, ':', beer.name, 'sessionable:', beer.sessionable);
@@ -114,19 +114,19 @@ app.get('/api/beers/:id', async (req, res) => {
   }
 });
 
-// Update beer (requires authentication and ownership or admin) - UPDATED WITH SESSIONABLE
+// Update beer with authorization check and sessionable support
 app.put('/api/beers/:id', auth, async (req, res) => {
   try {
-    const { name, brewery, style, abv, description, sessionable } = req.body; // ADDED sessionable and description
+    const { name, brewery, style, abv, description, sessionable } = req.body;
     
-    // Find the beer first to check ownership
+    // Find beer and check ownership
     const existingBeer = await Beer.findById(req.params.id);
     
     if (!existingBeer) {
       return res.status(404).json({ message: 'Beer not found' });
     }
     
-    // Check if user owns this beer or is admin
+    // Check authorization - user must own beer or be admin
     if (existingBeer.addedBy.toString() !== req.user._id.toString() && !req.user.isAdmin && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorized to update this beer' });
     }
@@ -165,17 +165,17 @@ app.put('/api/beers/:id', auth, async (req, res) => {
   }
 });
 
-// Delete beer (requires authentication and ownership or admin)
+// Delete beer with authorization check
 app.delete('/api/beers/:id', auth, async (req, res) => {
   try {
-    // Find the beer first to check ownership
+    // Find beer and check ownership
     const beer = await Beer.findById(req.params.id);
     
     if (!beer) {
       return res.status(404).json({ message: 'Beer not found' });
     }
     
-    // Check if user owns this beer or is admin
+    // Check authorization - user must own beer or be admin
     if (beer.addedBy.toString() !== req.user._id.toString() && !req.user.isAdmin && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorized to delete this beer' });
     }
@@ -195,7 +195,7 @@ app.delete('/api/beers/:id', auth, async (req, res) => {
   }
 });
 
-// Get user profile (requires authentication)
+// Get user profile with authentication
 app.get('/api/users/profile', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
@@ -213,7 +213,7 @@ app.get('/api/users/profile', auth, async (req, res) => {
   }
 });
 
-// Get user's beers (requires authentication)
+// Get user's beers with authentication
 app.get('/api/users/my-beers', auth, async (req, res) => {
   try {
     const beers = await Beer.find({ addedBy: req.user._id })
@@ -227,7 +227,7 @@ app.get('/api/users/my-beers', auth, async (req, res) => {
   }
 });
 
-// Get user's reviews (requires authentication)
+// Get user's reviews with authentication
 app.get('/api/users/my-reviews', auth, async (req, res) => {
   try {
     const Review = require('./models/Review');
@@ -243,7 +243,7 @@ app.get('/api/users/my-reviews', auth, async (req, res) => {
   }
 });
 
-// Search users (for friend functionality)
+// Search users for friend functionality
 app.get('/api/users/search', auth, async (req, res) => {
   try {
     const { q } = req.query;
@@ -254,7 +254,7 @@ app.get('/api/users/search', auth, async (req, res) => {
     
     const users = await User.find({
       $and: [
-        { _id: { $ne: req.user._id } }, // Exclude current user
+        { _id: { $ne: req.user._id } },
         {
           $or: [
             { username: { $regex: q, $options: 'i' } },
@@ -274,7 +274,7 @@ app.get('/api/users/search', auth, async (req, res) => {
   }
 });
 
-// Get public user profile
+// Get public user profile by ID
 app.get('/api/users/:userId', async (req, res) => {
   try {
     const user = await User.findById(req.params.userId)
@@ -297,7 +297,7 @@ app.get('/api/users/:userId', async (req, res) => {
   }
 });
 
-// Routes
+// Route modules
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
@@ -345,7 +345,7 @@ mongoose.connect(process.env.MONGODB_URI)
     process.exit(1);
   });
 
-// Graceful shutdown
+// Graceful shutdown handling
 process.on('SIGTERM', () => {
   console.log('👋 SIGTERM received, shutting down gracefully');
   mongoose.connection.close(() => {
@@ -354,6 +354,7 @@ process.on('SIGTERM', () => {
   });
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`🍺 Red Robin Brewing API is running on port ${PORT}`);
   console.log(`📝 Available endpoints:`);

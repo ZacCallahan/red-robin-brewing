@@ -1,10 +1,8 @@
-// Create a new file: server/scripts/makeAdmin.js
-// Run this script to make a user an admin: node scripts/makeAdmin.js
-
 require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
+// Make a user an admin by username
 async function makeUserAdmin() {
   try {
     // Connect to MongoDB
@@ -27,7 +25,7 @@ async function makeUserAdmin() {
       process.exit(1);
     }
 
-    // Make user admin
+    // Grant admin privileges
     user.isAdmin = true;
     user.role = 'admin';
     await user.save();
@@ -43,7 +41,7 @@ async function makeUserAdmin() {
   }
 }
 
-// List all users if no username provided
+// List all users in the database
 async function listUsers() {
   try {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/beer-review-app');
@@ -64,7 +62,7 @@ async function listUsers() {
   }
 }
 
-// If no arguments, list users
+// Script execution logic
 if (process.argv.length === 2) {
   listUsers();
 } else {

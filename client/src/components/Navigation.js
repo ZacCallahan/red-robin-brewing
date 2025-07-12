@@ -4,15 +4,18 @@ import { Home, Beer, Users, Plus, User, LogIn, LogOut, Menu, X, Settings } from 
 const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Toggle mobile menu visibility
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // Handle navigation for mobile menu and close menu
   const handleMobileNavigation = (page) => {
     handleNavigation(page);
     setIsMobileMenuOpen(false);
   };
 
+  // Navigation button component
   const NavButton = ({ page, icon: Icon, children, mobile = false }) => {
     const isActive = currentPage === page;
     const baseClasses = mobile 

@@ -18,6 +18,7 @@ const BeerDetailPage = ({
   const [submittingReview, setSubmittingReview] = useState(false);
   const [localUserReview, setLocalUserReview] = useState({ rating: 0, notes: '', username: '' });
 
+  // Reset user review when beer or login state changes
   useEffect(() => {
     if (isLoggedIn && user) {
       setLocalUserReview({ 
@@ -30,6 +31,7 @@ const BeerDetailPage = ({
     }
   }, [selectedBeer?._id, isLoggedIn, user]);
 
+  // Handle review form field changes
   const handleReviewChange = (field, value) => {
     setLocalUserReview(prev => ({
       ...prev,
@@ -37,6 +39,7 @@ const BeerDetailPage = ({
     }));
   };
 
+  // Submit user review
   const submitReview = async () => {
     if (!isLoggedIn) {
       setReviewsError('You must be logged in to submit a review');
@@ -61,12 +64,14 @@ const BeerDetailPage = ({
       console.log('Submitting review:', reviewData);
       await api.reviews.create(reviewData);
       
+      // Reset form after successful submission
       setLocalUserReview({ 
         rating: 0, 
         notes: '', 
         username: user?.username || '' 
       });
       
+      // Refresh data
       await loadBeerReviews(selectedBeer._id);
       await refreshBeers();
       
@@ -116,6 +121,7 @@ const BeerDetailPage = ({
             )}
           </div>
           
+          {/* Beer details grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="bg-red-50 p-4 rounded-lg text-center">
               <div className="text-sm text-gray-600 mb-1">Style</div>
@@ -137,6 +143,7 @@ const BeerDetailPage = ({
             </div>
           </div>
 
+          {/* Beer description if available */}
           {selectedBeer.description && (
             <div className="border-t pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>

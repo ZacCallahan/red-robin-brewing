@@ -15,6 +15,7 @@ const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) =
     }
   }, [isLoggedIn]);
 
+  // Load user profile data
   const loadUserProfile = async () => {
     try {
       setLoading(true);
@@ -37,6 +38,7 @@ const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) =
     }
   };
 
+  // Redirect if not logged in
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
@@ -53,6 +55,7 @@ const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) =
     );
   }
 
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
@@ -61,6 +64,7 @@ const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) =
     );
   }
 
+  // Get user's top rated reviews for display
   const topRatedReviews = userReviews
     .filter(review => review.rating >= 4)
     .sort((a, b) => b.rating - a.rating)
@@ -88,6 +92,7 @@ const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) =
             </div>
           </div>
           
+          {/* Stats grid */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-red-50 p-4 rounded-lg text-center select-none">
               <div className="text-2xl font-bold text-red-600 select-none">{userReviews.length}</div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 
+// Star rating component with optional interactivity
 const StarRating = ({ rating, onRate, interactive = false, size = 'w-5 h-5' }) => {
   return (
     <div className="flex items-center gap-1">

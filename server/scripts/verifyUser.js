@@ -2,6 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
+// Manually verify a user's email address
 async function verifyUser() {
   try {
     // Connect to MongoDB
@@ -31,7 +32,7 @@ async function verifyUser() {
       process.exit(0);
     }
 
-    // Verify the user
+    // Verify the user's email
     user.isEmailVerified = true;
     user.emailVerificationToken = null;
     user.emailVerificationExpires = null;
@@ -49,7 +50,7 @@ async function verifyUser() {
   }
 }
 
-// List all users with verification status
+// List all users with their verification status
 async function listUsers() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
@@ -71,11 +72,13 @@ async function listUsers() {
   }
 }
 
-// If no arguments, list users
+// Script execution logic
 if (process.argv.length === 2) {
   listUsers();
 } else {
   verifyUser();
 }
 
-// node scripts/verifyUser.js username
+// Usage examples:
+// node scripts/verifyUser.js                 # List all users with verification status
+// node scripts/verifyUser.js username        # Manually verify specific user

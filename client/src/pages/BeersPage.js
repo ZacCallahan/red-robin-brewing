@@ -26,7 +26,7 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
     return matchesSearch && matchesStyle && matchesRating && matchesSessionable;
   });
 
-  // Sort beers
+  // Sort beers based on selected criteria
   const sortedBeers = [...filteredBeers].sort((a, b) => {
     switch (sortBy) {
       case 'rating':
@@ -45,6 +45,7 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
     }
   });
 
+  // Count sessionable beers for display
   const sessionableCount = beers.filter(beer => beer.sessionable).length;
     
   return (

@@ -17,7 +17,7 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers, beers = [] })
   const [success, setSuccess] = useState(false);
   const [allBeers, setAllBeers] = useState(beers);
 
-  // Beer styles available
+  // Available beer styles
   const beerStyles = ['IPA', 'Stout', 'Wheat', 'Lager', 'Ale', 'Pilsner', 'Sour', 'Porter', 'Other'];
 
   // Load beers if not provided as prop
@@ -50,6 +50,7 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers, beers = [] })
 
   console.log('🍺 Available breweries:', existingBreweries.length, existingBreweries);
 
+  // Handle input field changes
   const handleInputChange = (field, value) => {
     setBeerData(prev => ({
       ...prev,
@@ -57,6 +58,7 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers, beers = [] })
     }));
   };
 
+  // Handle brewery selection with custom brewery support
   const handleBreweryChange = (value) => {
     setBeerData(prev => ({
       ...prev,
@@ -65,6 +67,7 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers, beers = [] })
     }));
   };
 
+  // Toggle sessionable beer setting
   const handleSessionableToggle = () => {
     setBeerData(prev => ({
       ...prev,
@@ -72,6 +75,7 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers, beers = [] })
     }));
   };
 
+  // Submit form and create new beer
   const handleSubmit = async () => {
     if (!isLoggedIn) {
       setError('You must be logged in to add a beer');
@@ -93,7 +97,7 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers, beers = [] })
         final: finalBrewery
       });
 
-      // Enhanced validation
+      // Form validation
       if (!beerData.name?.trim()) {
         setError('Please enter a beer name');
         return;
@@ -181,6 +185,7 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers, beers = [] })
     }
   };
 
+  // Login required state
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
@@ -209,6 +214,7 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers, beers = [] })
     );
   }
 
+  // Success state
   if (success) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
@@ -224,6 +230,7 @@ const AddBeerPage = ({ isLoggedIn, handleNavigation, refreshBeers, beers = [] })
     );
   }
 
+  // Main form
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <div className="max-w-2xl mx-auto p-6">

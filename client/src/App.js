@@ -11,7 +11,7 @@ import RegisterPage from './pages/RegisterPage';
 import BeerDetailPage from './pages/BeerDetailPage';
 import UserProfilePage from './pages/UserProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
-import EmailVerificationPage from './pages/EmailVerificationPage'; // NEW: Email verification import
+import EmailVerificationPage from './pages/EmailVerificationPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -22,7 +22,7 @@ function App() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [beerReviews, setBeerReviews] = useState([]);
 
-  // Check if user is logged in on app load
+  // Check authentication status on app load
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const userData = localStorage.getItem('user');
@@ -53,6 +53,7 @@ function App() {
     loadBeers();
   }, []);
 
+  // Load all beers from API
   const loadBeers = async () => {
     try {
       const beersData = await api.beers.getAll();
@@ -62,6 +63,7 @@ function App() {
     }
   };
 
+  // Load reviews for specific beer
   const loadBeerReviews = async (beerId) => {
     try {
       const reviews = await api.reviews.getByBeerId(beerId);
@@ -72,11 +74,12 @@ function App() {
     }
   };
 
+  // Handle page navigation
   const handleNavigation = (page) => {
     setCurrentPage(page);
   };
 
-  // Reload beers function for admin dashboard
+  // Reload beers for admin dashboard
   const reloadBeers = async () => {
     try {
       const beersData = await api.beers.getAll();
@@ -86,6 +89,7 @@ function App() {
     }
   };
 
+  // Handle user login
   const handleLogin = async (credentials) => {
     try {
       console.log('🔑 Starting login with credentials:', credentials);
@@ -109,30 +113,31 @@ function App() {
     }
   };
 
-const handleRegister = async (userData) => {
-  try {
-    const response = await api.auth.register(userData);
-    
-    // Clear any existing user state immediately
-    setUser(null);
-    setIsLoggedIn(false);
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    
-    // NO MORE ALERT - RegisterPage will handle the success state
-    // The RegisterPage will show its own success message
-    
-  } catch (error) {
-    // Make sure we don't accidentally log in on error either
-    setUser(null);
-    setIsLoggedIn(false);
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    
-    throw error;
-  }
-};
+  // Handle user registration
+  const handleRegister = async (userData) => {
+    try {
+      const response = await api.auth.register(userData);
+      
+      // Clear any existing user state
+      setUser(null);
+      setIsLoggedIn(false);
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      
+      // RegisterPage will handle the success state display
+      
+    } catch (error) {
+      // Ensure no accidental login on error
+      setUser(null);
+      setIsLoggedIn(false);
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      
+      throw error;
+    }
+  };
 
+  // Handle user logout
   const handleLogout = () => {
     api.auth.logout();
     setUser(null);
@@ -140,17 +145,20 @@ const handleRegister = async (userData) => {
     setCurrentPage('home');
   };
 
+  // Handle beer selection and navigation
   const handleBeerSelect = (beer) => {
     setSelectedBeer(beer);
     loadBeerReviews(beer._id);
     setCurrentPage('beer-detail');
   };
 
+  // Handle user selection and navigation
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setCurrentPage('user-profile');
   };
 
+  // Render current page based on state
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
@@ -239,7 +247,7 @@ const handleRegister = async (userData) => {
             reloadBeers={reloadBeers} 
           />
         );
-      case 'verify-email': // NEW: Email verification page
+      case 'verify-email':
         return (
           <EmailVerificationPage 
             handleNavigation={handleNavigation}

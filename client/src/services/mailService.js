@@ -1,14 +1,15 @@
 const sgMail = require('@sendgrid/mail');
 
-// Set API key from environment variable
+// Initialize SendGrid with API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// Send email verification message to new users
 const sendVerificationEmail = async (user, verificationToken) => {
   const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}&email=${encodeURIComponent(user.email)}`;
   
   const msg = {
     to: user.email,
-    from: process.env.FROM_EMAIL || 'noreply@rrbc.com.au', // Use your verified sender
+    from: process.env.FROM_EMAIL || 'noreply@rrbc.com.au',
     subject: 'Welcome to Red Robin Brewing Co. - Verify Your Email',
     html: `
       <!DOCTYPE html>
@@ -20,19 +21,25 @@ const sendVerificationEmail = async (user, verificationToken) => {
             .header { background: linear-gradient(135deg, #dc2626, #991b1b); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
             .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
             .button { 
-  display: inline-block; 
-  background: #dc2626; 
-  color: white !important; 
-  padding: 15px 30px; 
-  text-decoration: none !important; 
-  border-radius: 8px; 
-  font-weight: bold; 
-  margin: 20px 0; 
-}
-.button:hover { 
-  background: #991b1b !important; 
-  color: white !important; 
-}
+              display: inline-block; 
+              background: #dc2626; 
+              color: white !important; 
+              padding: 15px 30px; 
+              text-decoration: none !important; 
+              border-radius: 8px; 
+              font-weight: bold; 
+              margin: 20px 0; 
+            }
+            .button:hover { 
+              background: #991b1b !important; 
+              color: white !important; 
+            }
+            .button:visited { 
+              color: white !important; 
+            }
+            .button:link { 
+              color: white !important; 
+            }
             .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
             .logo { font-size: 28px; font-weight: bold; margin-bottom: 10px; }
           </style>
@@ -117,6 +124,7 @@ The Red Robin Brewing Co. Team
   }
 };
 
+// Send welcome email after successful verification
 const sendWelcomeEmail = async (user) => {
   const msg = {
     to: user.email,

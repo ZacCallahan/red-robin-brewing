@@ -5,7 +5,7 @@ const Beer = require('../models/Beer');
 const Review = require('../models/Review');
 const authenticateToken = require('../middleware/auth');
 
-// Admin middleware to check if user is admin
+// Admin middleware to verify admin privileges
 const requireAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
@@ -18,12 +18,11 @@ const requireAdmin = async (req, res, next) => {
   }
 };
 
-// Apply auth middleware to all admin routes
+// Apply authentication and admin middleware to all routes
 router.use(authenticateToken);
 router.use(requireAdmin);
 
-// @route   GET /api/admin/stats
-// @desc    Get dashboard statistics
+// Get dashboard statistics
 router.get('/stats', async (req, res) => {
   try {
     const [totalUsers, totalBeers, totalReviews, recentUsers] = await Promise.all([
@@ -45,8 +44,7 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// @route   GET /api/admin/users
-// @desc    Get all users
+// Get all users for admin management
 router.get('/users', async (req, res) => {
   try {
     const users = await User.find()
@@ -60,8 +58,7 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// @route   GET /api/admin/beers
-// @desc    Get all beers
+// Get all beers for admin management
 router.get('/beers', async (req, res) => {
   try {
     const beers = await Beer.find()
@@ -75,8 +72,7 @@ router.get('/beers', async (req, res) => {
   }
 });
 
-// @route   GET /api/admin/reviews
-// @desc    Get all reviews
+// Get all reviews for admin management
 router.get('/reviews', async (req, res) => {
   try {
     const reviews = await Review.find()
@@ -91,13 +87,12 @@ router.get('/reviews', async (req, res) => {
   }
 });
 
-// @route   DELETE /api/admin/users/:id
-// @desc    Delete a user with proper cascade deletion
+// Delete user with cascade deletion
 router.delete('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Don't allow admin to delete themselves
+    // Prevent admin from deleting themselves
     if (id === req.user._id.toString()) {
       return res.status(400).json({ message: 'Cannot delete your own account' });
     }
@@ -106,7 +101,7 @@ router.delete('/users/:id', async (req, res) => {
     const userBeers = await Beer.find({ addedBy: id });
     const userBeerIds = userBeers.map(beer => beer._id);
     
-    // Find all reviews for user's beers (by other users)
+    // Find all reviews for user's beers by other users
     const reviewsOnUserBeers = await Review.find({ 
       beer: { $in: userBeerIds },
       user: { $ne: id }
@@ -137,8 +132,7 @@ router.delete('/users/:id', async (req, res) => {
   }
 });
 
-// @route   DELETE /api/admin/beers/:id
-// @desc    Delete a beer with proper cascade deletion
+// Delete beer with cascade deletion
 router.delete('/beers/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -163,8 +157,7 @@ router.delete('/beers/:id', async (req, res) => {
   }
 });
 
-// @route   DELETE /api/admin/reviews/:id
-// @desc    Delete a review with proper stats update
+// Delete review with stats update
 router.delete('/reviews/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -194,14 +187,13 @@ router.delete('/reviews/:id', async (req, res) => {
   }
 });
 
-// @route   PUT /api/admin/users/:id
-// @desc    Update a user
+// Update user information
 router.put('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { firstName, lastName, email, username, isAdmin } = req.body;
     
-    // Check if email or username already exists (excluding current user)
+    // Check if email or username already exists
     const existingUser = await User.findOne({
       $and: [
         { _id: { $ne: id } },
@@ -232,14 +224,13 @@ router.put('/users/:id', async (req, res) => {
   }
 });
 
-// @route   PUT /api/admin/beers/:id
-// @desc    Update a beer
+// Update beer information
 router.put('/beers/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, brewery, style, abv, description, sessionable } = req.body; // ADDED sessionable here!
+    const { name, brewery, style, abv, description, sessionable } = req.body;
     
-    console.log('🔄 Updating beer:', id, 'with sessionable:', sessionable); // Debug log
+    console.log('🔄 Updating beer:', id, 'with sessionable:', sessionable);
     
     const updateData = {};
     if (name !== undefined) updateData.name = name;
@@ -247,7 +238,7 @@ router.put('/beers/:id', async (req, res) => {
     if (style !== undefined) updateData.style = style;
     if (abv !== undefined) updateData.abv = abv;
     if (description !== undefined) updateData.description = description;
-    if (sessionable !== undefined) updateData.sessionable = sessionable; // ADDED this line!
+    if (sessionable !== undefined) updateData.sessionable = sessionable;
     
     const updatedBeer = await Beer.findByIdAndUpdate(
       id,
@@ -259,7 +250,7 @@ router.put('/beers/:id', async (req, res) => {
       return res.status(404).json({ message: 'Beer not found' });
     }
     
-    console.log('✅ Beer updated successfully:', updatedBeer.name, 'sessionable:', updatedBeer.sessionable); // Debug log
+    console.log('✅ Beer updated successfully:', updatedBeer.name, 'sessionable:', updatedBeer.sessionable);
     
     res.json(updatedBeer);
   } catch (error) {
@@ -268,8 +259,7 @@ router.put('/beers/:id', async (req, res) => {
   }
 });
 
-// @route   POST /api/admin/populate
-// @desc    Populate database with curated Australian and international beers
+// Populate database with curated beer collection
 router.post('/populate', async (req, res) => {
   try {
     console.log('🍺 Starting curated beer import...');
@@ -333,7 +323,7 @@ router.post('/populate', async (req, res) => {
     
     console.log(`📋 Processing ${curatedBeers.length} curated beers...`);
     
-    // Insert beers, handling duplicates
+    // Insert beers and handle duplicates
     const insertedBeers = [];
     const duplicates = [];
     let errors = 0;
@@ -389,7 +379,35 @@ router.post('/populate', async (req, res) => {
   }
 });
 
-// Helper functions
+// Fix sessionable field for existing beers
+router.post('/fix-sessionable', async (req, res) => {
+  try {
+    console.log('🔧 Adding sessionable field to existing beers...');
+    
+    // Update all beers that don't have the sessionable field
+    const result = await Beer.updateMany(
+      { sessionable: { $exists: false } },
+      { $set: { sessionable: false } }
+    );
+    
+    console.log(`✅ Updated ${result.modifiedCount} beers with sessionable: false`);
+    
+    res.json({
+      message: 'Successfully added sessionable field to existing beers',
+      modifiedCount: result.modifiedCount,
+      note: 'All beers set to non-sessionable by default. Use admin dashboard to mark specific beers as sessionable.'
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fixing sessionable field:', error);
+    res.status(500).json({ 
+      message: 'Error fixing sessionable field',
+      error: error.message 
+    });
+  }
+});
+
+// Helper function to update beer rating statistics
 async function updateBeerRating(beerId) {
   try {
     const reviews = await Review.find({ beer: beerId });
@@ -413,7 +431,7 @@ async function updateBeerRating(beerId) {
   }
 }
 
-
+// Helper function to update user statistics
 async function updateUserStats(userId) {
   try {
     const reviews = await Review.find({ user: userId });
@@ -436,34 +454,5 @@ async function updateUserStats(userId) {
     console.error('Error updating user stats:', error);
   }
 }
-
-// @route   POST /api/admin/fix-sessionable
-// @desc    Add sessionable field to existing beers (sets to false by default)
-router.post('/fix-sessionable', async (req, res) => {
-  try {
-    console.log('🔧 Adding sessionable field to existing beers...');
-    
-    // Update all beers that don't have the sessionable field
-    const result = await Beer.updateMany(
-      { sessionable: { $exists: false } }, // Find beers without sessionable field
-      { $set: { sessionable: false } }      // Set sessionable to false (not sessionable)
-    );
-    
-    console.log(`✅ Updated ${result.modifiedCount} beers with sessionable: false`);
-    
-    res.json({
-      message: 'Successfully added sessionable field to existing beers',
-      modifiedCount: result.modifiedCount,
-      note: 'All beers set to non-sessionable by default. Use admin dashboard to mark specific beers as sessionable.'
-    });
-    
-  } catch (error) {
-    console.error('❌ Error fixing sessionable field:', error);
-    res.status(500).json({ 
-      message: 'Error fixing sessionable field',
-      error: error.message 
-    });
-  }
-});
 
 module.exports = router;
