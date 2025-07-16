@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Beer = require('../models/Beer');
+const Wine = require('../models/Wine');
+const Spirit = require('../models/Spirit');
 const Review = require('../models/Review');
 const authenticateToken = require('../middleware/auth');
 
@@ -25,9 +27,11 @@ router.use(requireAdmin);
 // Get dashboard statistics
 router.get('/stats', async (req, res) => {
   try {
-    const [totalUsers, totalBeers, totalReviews, recentUsers] = await Promise.all([
+    const [totalUsers, totalBeers, totalWines, totalSpirits, totalReviews, recentUsers] = await Promise.all([
       User.countDocuments(),
       Beer.countDocuments(),
+      Wine.countDocuments(),
+      Spirit.countDocuments(),
       Review.countDocuments(),
       User.find().sort({ createdAt: -1 }).limit(10).select('firstName lastName username createdAt')
     ]);
@@ -35,6 +39,8 @@ router.get('/stats', async (req, res) => {
     res.json({
       totalUsers,
       totalBeers,
+      totalWines,
+      totalSpirits,
       totalReviews,
       recentUsers
     });
@@ -72,12 +78,42 @@ router.get('/beers', async (req, res) => {
   }
 });
 
+// Get all wines for admin management
+router.get('/wines', async (req, res) => {
+  try {
+    const wines = await Wine.find()
+      .populate('addedBy', 'username firstName lastName')
+      .sort({ createdAt: -1 });
+    
+    res.json(wines);
+  } catch (error) {
+    console.error('Error getting wines:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get all spirits for admin management
+router.get('/spirits', async (req, res) => {
+  try {
+    const spirits = await Spirit.find()
+      .populate('addedBy', 'username firstName lastName')
+      .sort({ createdAt: -1 });
+    
+    res.json(spirits);
+  } catch (error) {
+    console.error('Error getting spirits:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Get all reviews for admin management
 router.get('/reviews', async (req, res) => {
   try {
     const reviews = await Review.find()
       .populate('user', 'username firstName lastName')
       .populate('beer', 'name brewery')
+      .populate('wine', 'name winery')
+      .populate('spirit', 'name distillery')
       .sort({ createdAt: -1 });
     
     res.json(reviews);
@@ -97,27 +133,44 @@ router.delete('/users/:id', async (req, res) => {
       return res.status(400).json({ message: 'Cannot delete your own account' });
     }
     
-    // Get user's beers to update other users' review stats
+    // Get user's beverages to update other users' review stats
     const userBeers = await Beer.find({ addedBy: id });
-    const userBeerIds = userBeers.map(beer => beer._id);
+    const userWines = await Wine.find({ addedBy: id });
+    const userSpirits = await Spirit.find({ addedBy: id });
     
-    // Find all reviews for user's beers by other users
-    const reviewsOnUserBeers = await Review.find({ 
-      beer: { $in: userBeerIds },
+    const userBeerIds = userBeers.map(beer => beer._id);
+    const userWineIds = userWines.map(wine => wine._id);
+    const userSpiritIds = userSpirits.map(spirit => spirit._id);
+    
+    // Find all reviews for user's beverages by other users
+    const reviewsOnUserItems = await Review.find({
+      $or: [
+        { beer: { $in: userBeerIds } },
+        { wine: { $in: userWineIds } },
+        { spirit: { $in: userSpiritIds } }
+      ],
       user: { $ne: id }
     });
     
-    // Get unique user IDs who reviewed this user's beers
-    const affectedUserIds = [...new Set(reviewsOnUserBeers.map(review => review.user.toString()))];
+    // Get unique user IDs who reviewed this user's beverages
+    const affectedUserIds = [...new Set(reviewsOnUserItems.map(review => review.user.toString()))];
     
     // Delete user's reviews first
     await Review.deleteMany({ user: id });
     
-    // Delete reviews on user's beers
-    await Review.deleteMany({ beer: { $in: userBeerIds } });
+    // Delete reviews on user's beverages
+    await Review.deleteMany({
+      $or: [
+        { beer: { $in: userBeerIds } },
+        { wine: { $in: userWineIds } },
+        { spirit: { $in: userSpiritIds } }
+      ]
+    });
     
-    // Delete user's beers
+    // Delete user's beverages
     await Beer.deleteMany({ addedBy: id });
+    await Wine.deleteMany({ addedBy: id });
+    await Spirit.deleteMany({ addedBy: id });
     
     // Delete the user
     await User.findByIdAndDelete(id);
@@ -157,6 +210,56 @@ router.delete('/beers/:id', async (req, res) => {
   }
 });
 
+// Delete wine with cascade deletion
+router.delete('/wines/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find all users who reviewed this wine
+    const reviewsForWine = await Review.find({ wine: id });
+    const affectedUserIds = [...new Set(reviewsForWine.map(review => review.user.toString()))];
+    
+    // Delete all reviews for this wine
+    await Review.deleteMany({ wine: id });
+    
+    // Delete the wine
+    await Wine.findByIdAndDelete(id);
+    
+    // Update stats for affected users
+    await Promise.all(affectedUserIds.map(userId => updateUserStats(userId)));
+    
+    res.json({ message: 'Wine deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting wine:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete spirit with cascade deletion
+router.delete('/spirits/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find all users who reviewed this spirit
+    const reviewsForSpirit = await Review.find({ spirit: id });
+    const affectedUserIds = [...new Set(reviewsForSpirit.map(review => review.user.toString()))];
+    
+    // Delete all reviews for this spirit
+    await Review.deleteMany({ spirit: id });
+    
+    // Delete the spirit
+    await Spirit.findByIdAndDelete(id);
+    
+    // Update stats for affected users
+    await Promise.all(affectedUserIds.map(userId => updateUserStats(userId)));
+    
+    res.json({ message: 'Spirit deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting spirit:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Delete review with stats update
 router.delete('/reviews/:id', async (req, res) => {
   try {
@@ -167,15 +270,19 @@ router.delete('/reviews/:id', async (req, res) => {
       return res.status(404).json({ message: 'Review not found' });
     }
     
-    // Store beer and user IDs for updating stats
+    // Store beverage and user IDs for updating stats
     const beerId = review.beer;
+    const wineId = review.wine;
+    const spiritId = review.spirit;
     const userId = review.user;
     
     // Delete the review
     await Review.findByIdAndDelete(id);
     
-    // Update beer statistics
-    await updateBeerRating(beerId);
+    // Update beverage statistics
+    if (beerId) await updateBeerRating(beerId);
+    if (wineId) await updateWineRating(wineId);
+    if (spiritId) await updateSpiritRating(spiritId);
     
     // Update user statistics
     await updateUserStats(userId);
@@ -255,6 +362,52 @@ router.put('/beers/:id', async (req, res) => {
     res.json(updatedBeer);
   } catch (error) {
     console.error('Error updating beer:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update wine information
+router.put('/wines/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    const updatedWine = await Wine.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate('addedBy', 'username firstName lastName');
+    
+    if (!updatedWine) {
+      return res.status(404).json({ message: 'Wine not found' });
+    }
+    
+    res.json(updatedWine);
+  } catch (error) {
+    console.error('Error updating wine:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update spirit information
+router.put('/spirits/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    const updatedSpirit = await Spirit.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate('addedBy', 'username firstName lastName');
+    
+    if (!updatedSpirit) {
+      return res.status(404).json({ message: 'Spirit not found' });
+    }
+    
+    res.json(updatedSpirit);
+  } catch (error) {
+    console.error('Error updating spirit:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -428,6 +581,54 @@ async function updateBeerRating(beerId) {
     }
   } catch (error) {
     console.error('Error updating beer rating:', error);
+  }
+}
+
+// Helper function to update wine rating statistics
+async function updateWineRating(wineId) {
+  try {
+    const reviews = await Review.find({ wine: wineId });
+    
+    if (reviews.length > 0) {
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = totalRating / reviews.length;
+      
+      await Wine.findByIdAndUpdate(wineId, {
+        averageRating: Math.round(averageRating * 10) / 10,
+        totalReviews: reviews.length
+      });
+    } else {
+      await Wine.findByIdAndUpdate(wineId, {
+        averageRating: 0,
+        totalReviews: 0
+      });
+    }
+  } catch (error) {
+    console.error('Error updating wine rating:', error);
+  }
+}
+
+// Helper function to update spirit rating statistics
+async function updateSpiritRating(spiritId) {
+  try {
+    const reviews = await Review.find({ spirit: spiritId });
+    
+    if (reviews.length > 0) {
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = totalRating / reviews.length;
+      
+      await Spirit.findByIdAndUpdate(spiritId, {
+        averageRating: Math.round(averageRating * 10) / 10,
+        totalReviews: reviews.length
+      });
+    } else {
+      await Spirit.findByIdAndUpdate(spiritId, {
+        averageRating: 0,
+        totalReviews: 0
+      });
+    }
+  } catch (error) {
+    console.error('Error updating spirit rating:', error);
   }
 }
 

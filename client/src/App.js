@@ -3,12 +3,16 @@ import { api } from './services/api';
 import Navigation from './components/Navigation';
 import HomePage from './pages/HomePage';
 import BeersPage from './pages/BeersPage';
+import WinesPage from './pages/WinesPage';
+import SpiritsPage from './pages/SpiritsPage';
 import FriendsPage from './pages/FriendsPage';
-import AddBeerPage from './pages/AddBeerPage';
+import AddBeveragePage from './pages/AddBeveragePage';
 import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import BeerDetailPage from './pages/BeerDetailPage';
+import WineDetailPage from './pages/WineDetailPage';
+import SpiritDetailPage from './pages/SpiritDetailPage';
 import UserProfilePage from './pages/UserProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import EmailVerificationPage from './pages/EmailVerificationPage';
@@ -19,10 +23,22 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  
+  // Beverage states
   const [beers, setBeers] = useState([]);
+  const [wines, setWines] = useState([]);
+  const [spirits, setSpirits] = useState([]);
+  
+  // Selected items
   const [selectedBeer, setSelectedBeer] = useState(null);
+  const [selectedWine, setSelectedWine] = useState(null);
+  const [selectedSpirit, setSelectedSpirit] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  
+  // Reviews
   const [beerReviews, setBeerReviews] = useState([]);
+  const [wineReviews, setWineReviews] = useState([]);
+  const [spiritReviews, setSpiritReviews] = useState([]);
 
   // Check authentication status on app load
   useEffect(() => {
@@ -55,9 +71,11 @@ function App() {
     }
   }, []);
 
-  // Load beers on app start
+  // Load all beverages on app start
   useEffect(() => {
     loadBeers();
+    loadWines();
+    loadSpirits();
   }, []);
 
   // Load all beers from API
@@ -67,6 +85,29 @@ function App() {
       setBeers(beersData || []);
     } catch (error) {
       console.error('Error loading beers:', error);
+      setBeers([]);
+    }
+  };
+
+  // Load all wines from API
+  const loadWines = async () => {
+    try {
+      const winesData = await api.wines.getAll();
+      setWines(winesData || []);
+    } catch (error) {
+      console.error('Error loading wines:', error);
+      setWines([]);
+    }
+  };
+
+  // Load all spirits from API
+  const loadSpirits = async () => {
+    try {
+      const spiritsData = await api.spirits.getAll();
+      setSpirits(spiritsData || []);
+    } catch (error) {
+      console.error('Error loading spirits:', error);
+      setSpirits([]);
     }
   };
 
@@ -81,18 +122,58 @@ function App() {
     }
   };
 
+  // Load reviews for specific wine
+  const loadWineReviews = async (wineId) => {
+    try {
+      const reviews = await api.reviews.getByWineId(wineId);
+      setWineReviews(reviews || []);
+    } catch (error) {
+      console.error('Error loading wine reviews:', error);
+      setWineReviews([]);
+    }
+  };
+
+  // Load reviews for specific spirit
+  const loadSpiritReviews = async (spiritId) => {
+    try {
+      const reviews = await api.reviews.getBySpiritId(spiritId);
+      setSpiritReviews(reviews || []);
+    } catch (error) {
+      console.error('Error loading spirit reviews:', error);
+      setSpiritReviews([]);
+    }
+  };
+
   // Handle page navigation
   const handleNavigation = (page) => {
     setCurrentPage(page);
   };
 
-  // Reload beers for admin dashboard
+  // Reload beverages for admin dashboard
   const reloadBeers = async () => {
     try {
       const beersData = await api.beers.getAll();
       setBeers(beersData || []);
     } catch (error) {
       console.error('Error reloading beers:', error);
+    }
+  };
+
+  const reloadWines = async () => {
+    try {
+      const winesData = await api.wines.getAll();
+      setWines(winesData || []);
+    } catch (error) {
+      console.error('Error reloading wines:', error);
+    }
+  };
+
+  const reloadSpirits = async () => {
+    try {
+      const spiritsData = await api.spirits.getAll();
+      setSpirits(spiritsData || []);
+    } catch (error) {
+      console.error('Error reloading spirits:', error);
     }
   };
 
@@ -152,11 +233,23 @@ function App() {
     setCurrentPage('home');
   };
 
-  // Handle beer selection and navigation
+  // Handle beverage selection and navigation
   const handleBeerSelect = (beer) => {
     setSelectedBeer(beer);
     loadBeerReviews(beer._id);
     setCurrentPage('beer-detail');
+  };
+
+  const handleWineSelect = (wine) => {
+    setSelectedWine(wine);
+    loadWineReviews(wine._id);
+    setCurrentPage('wine-detail');
+  };
+
+  const handleSpiritSelect = (spirit) => {
+    setSelectedSpirit(spirit);
+    loadSpiritReviews(spirit._id);
+    setCurrentPage('spirit-detail');
   };
 
   // Handle user selection and navigation
@@ -172,9 +265,14 @@ function App() {
         return (
           <HomePage 
             beers={beers}
+            wines={wines}
+            spirits={spirits}
             handleBeerSelect={handleBeerSelect}
+            handleWineSelect={handleWineSelect}
+            handleSpiritSelect={handleSpiritSelect}
             isLoggedIn={isLoggedIn}
             handleNavigation={handleNavigation}
+            refreshBeers={loadBeers}
           />
         );
       case 'beers':
@@ -182,6 +280,22 @@ function App() {
           <BeersPage 
             beers={beers}
             handleBeerSelect={handleBeerSelect}
+            isLoggedIn={isLoggedIn}
+          />
+        );
+      case 'wines':
+        return (
+          <WinesPage 
+            wines={wines}
+            handleWineSelect={handleWineSelect}
+            isLoggedIn={isLoggedIn}
+          />
+        );
+      case 'spirits':
+        return (
+          <SpiritsPage 
+            spirits={spirits}
+            handleSpiritSelect={handleSpiritSelect}
             isLoggedIn={isLoggedIn}
           />
         );
@@ -193,14 +307,18 @@ function App() {
             handleUserSelect={handleUserSelect}
           />
         );
-      case 'add-beer':
+      case 'add-beverage':
         return (
-          <AddBeerPage 
+          <AddBeveragePage 
             isLoggedIn={isLoggedIn}
             handleNavigation={handleNavigation}
             handleLogout={handleLogout}
             refreshBeers={loadBeers}
+            refreshWines={loadWines}
+            refreshSpirits={loadSpirits}
             beers={beers}
+            wines={wines}
+            spirits={spirits}
           />
         );
       case 'profile':
@@ -210,6 +328,8 @@ function App() {
             user={user}
             handleNavigation={handleNavigation}
             handleBeerSelect={handleBeerSelect}
+            handleWineSelect={handleWineSelect}
+            handleSpiritSelect={handleSpiritSelect}
           />
         );
       case 'login':
@@ -239,6 +359,32 @@ function App() {
             refreshBeers={loadBeers}
           />
         );
+      case 'wine-detail':
+        return (
+          <WineDetailPage 
+            selectedWine={selectedWine}
+            wineReviews={wineReviews}
+            isLoggedIn={isLoggedIn}
+            user={user}
+            handleNavigation={handleNavigation}
+            handleLogout={handleLogout}
+            loadWineReviews={loadWineReviews}
+            refreshWines={loadWines}
+          />
+        );
+      case 'spirit-detail':
+        return (
+          <SpiritDetailPage 
+            selectedSpirit={selectedSpirit}
+            spiritReviews={spiritReviews}
+            isLoggedIn={isLoggedIn}
+            user={user}
+            handleNavigation={handleNavigation}
+            handleLogout={handleLogout}
+            loadSpiritReviews={loadSpiritReviews}
+            refreshSpirits={loadSpirits}
+          />
+        );
       case 'user-profile':
         return (
           <UserProfilePage 
@@ -251,7 +397,9 @@ function App() {
             user={user}
             isLoggedIn={isLoggedIn}
             handleNavigation={handleNavigation}
-            reloadBeers={reloadBeers} 
+            reloadBeers={reloadBeers}
+            reloadWines={reloadWines}
+            reloadSpirits={reloadSpirits}
           />
         );
       case 'verify-email':
@@ -275,10 +423,15 @@ function App() {
       default:
         return (
           <HomePage 
-            beers={beers} 
-            handleBeerSelect={handleBeerSelect} 
+            beers={beers}
+            wines={wines}
+            spirits={spirits}
+            handleBeerSelect={handleBeerSelect}
+            handleWineSelect={handleWineSelect}
+            handleSpiritSelect={handleSpiritSelect}
             isLoggedIn={isLoggedIn}
             handleNavigation={handleNavigation}
+            refreshBeers={loadBeers}
           />
         );
     }

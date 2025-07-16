@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Beer, Users, Plus, User, LogIn, LogOut, Menu, X, Settings } from 'lucide-react';
+import { Home, Beer, Wine, Martini, Users, Plus, User, LogIn, LogOut, Menu, X, Settings } from 'lucide-react';
 
 const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -64,7 +64,7 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
                   Red Robin Rating
                 </h1>
                 <p className="text-xs text-gray-300 -mt-1 select-none pointer-events-none">
-                  Craft Beer Reviews
+                  Alcoholic Beverage Reviews
                 </p>
               </div>
             </div>
@@ -73,8 +73,11 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
             <div className="hidden md:flex items-center gap-1">
               <NavButton page="home" icon={Home}>Home</NavButton>
               <NavButton page="beers" icon={Beer}>Beers</NavButton>
+              <NavButton page="wines" icon={Wine}>Wines</NavButton>
+              <NavButton page="spirits" icon={Martini}>Spirits</NavButton>
               <NavButton page="friends" icon={Users}>Users</NavButton>
-              <NavButton page="add-beer" icon={Plus}>Add Beer</NavButton>
+              <NavButton page="add-beverage" icon={Plus}>Add Beverage</NavButton>
+              
               {/* Admin link - only show for admin users */}
               {isLoggedIn && user?.isAdmin && (
                 <NavButton page="admin" icon={Settings}>Admin</NavButton>
@@ -120,8 +123,10 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
             <div className="px-4 py-3 space-y-1">
               <NavButton page="home" icon={Home} mobile>Home</NavButton>
               <NavButton page="beers" icon={Beer} mobile>Beers</NavButton>
-              <NavButton page="friends" icon={Users} mobile>Friends</NavButton>
-              <NavButton page="add-beer" icon={Plus} mobile>Add Beer</NavButton>
+              <NavButton page="wines" icon={Wine} mobile>Wines</NavButton>
+              <NavButton page="spirits" icon={Martini} mobile>Spirits</NavButton>
+              <NavButton page="friends" icon={Users} mobile>Users</NavButton>
+              <NavButton page="add-beverage" icon={Plus} mobile>Add Beverage</NavButton>
               
               {/* Admin link for mobile - only show for admin users */}
               {isLoggedIn && user?.isAdmin && (

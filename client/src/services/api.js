@@ -273,6 +273,186 @@ export const api = {
     }
   },
 
+  // Wine management endpoints - MOVED TO TOP LEVEL
+  wines: {
+    // Get all wines
+    getAll: async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/wines`);
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching wines:', error);
+        throw error;
+      }
+    },
+    
+    // Get single wine by ID
+    getById: async (id) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/wines/${id}`);
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching wine:', error);
+        throw error;
+      }
+    },
+    
+    // Create new wine
+    create: async (wineData) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/wines`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(wineData),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error creating wine:', error);
+        throw error;
+      }
+    },
+    
+    // Update wine
+    update: async (id, wineData) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/wines/${id}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(wineData),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to update wine');
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error updating wine:', error);
+        throw error;
+      }
+    },
+    
+    // Delete wine
+    delete: async (id) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/wines/${id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to delete wine');
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error deleting wine:', error);
+        throw error;
+      }
+    }
+  },
+
+  // Spirit management endpoints - MOVED TO TOP LEVEL
+  spirits: {
+    // Get all spirits
+    getAll: async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/spirits`);
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching spirits:', error);
+        throw error;
+      }
+    },
+    
+    // Get single spirit by ID
+    getById: async (id) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/spirits/${id}`);
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching spirit:', error);
+        throw error;
+      }
+    },
+    
+    // Create new spirit
+    create: async (spiritData) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/spirits`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(spiritData),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error creating spirit:', error);
+        throw error;
+      }
+    },
+    
+    // Update spirit
+    update: async (id, spiritData) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/spirits/${id}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(spiritData),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to update spirit');
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error updating spirit:', error);
+        throw error;
+      }
+    },
+    
+    // Delete spirit
+    delete: async (id) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/spirits/${id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to delete spirit');
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Error deleting spirit:', error);
+        throw error;
+      }
+    }
+  },
+
   // Review management endpoints
   reviews: {
     // Get all reviews for a beer
@@ -282,6 +462,28 @@ export const api = {
         return await response.json();
       } catch (error) {
         console.error('Error fetching reviews:', error);
+        throw error;
+      }
+    },
+
+    // Get all reviews for a wine
+    getByWineId: async (wineId) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/reviews/wine/${wineId}`);
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching wine reviews:', error);
+        throw error;
+      }
+    },
+
+    // Get all reviews for a spirit
+    getBySpiritId: async (spiritId) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/reviews/spirit/${spiritId}`);
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching spirit reviews:', error);
         throw error;
       }
     },
@@ -325,6 +527,42 @@ export const api = {
         return await response.json();
       } catch (error) {
         console.error('Error fetching user beers:', error);
+        throw error;
+      }
+    },
+
+    // Get current user's wines
+    getMyWines: async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/users/my-wines`, {
+          headers: getAuthHeaders(),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to get user wines');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching user wines:', error);
+        throw error;
+      }
+    },
+
+    // Get current user's spirits
+    getMySpirits: async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/users/my-spirits`, {
+          headers: getAuthHeaders(),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to get user spirits');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching user spirits:', error);
         throw error;
       }
     },
@@ -440,6 +678,42 @@ export const api = {
       }
     },
 
+    // Get all wines for admin
+    getAllWines: async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/wines`, {
+          headers: getAuthHeaders(),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to get wines');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error getting wines:', error);
+        throw error;
+      }
+    },
+
+    // Get all spirits for admin
+    getAllSpirits: async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/spirits`, {
+          headers: getAuthHeaders(),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to get spirits');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error getting spirits:', error);
+        throw error;
+      }
+    },
+
     // Get all reviews
     getAllReviews: async () => {
       try {
@@ -492,6 +766,44 @@ export const api = {
         return await response.json();
       } catch (error) {
         console.error('Error deleting beer:', error);
+        throw error;
+      }
+    },
+
+    // Delete wine
+    deleteWine: async (wineId) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/wines/${wineId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete wine');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error deleting wine:', error);
+        throw error;
+      }
+    },
+
+    // Delete spirit
+    deleteSpirit: async (spiritId) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/spirits/${spiritId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete spirit');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error deleting spirit:', error);
         throw error;
       }
     },
@@ -551,6 +863,46 @@ export const api = {
         return await response.json();
       } catch (error) {
         console.error('Error updating beer:', error);
+        throw error;
+      }
+    },
+
+    // Update wine
+    updateWine: async (wineId, wineData) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/wines/${wineId}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(wineData),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to update wine');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error updating wine:', error);
+        throw error;
+      }
+    },
+
+    // Update spirit
+    updateSpirit: async (spiritId, spiritData) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/spirits/${spiritId}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(spiritData),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to update spirit');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error updating spirit:', error);
         throw error;
       }
     },

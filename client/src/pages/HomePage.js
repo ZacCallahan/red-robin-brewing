@@ -65,11 +65,11 @@ const HomePage = ({
           <div className="relative mb-8">
             <h5 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-black mb-4 font-serif tracking-wide drop-shadow-lg text-center leading-tight select-none">
               Welcome to Red Robin Rating<br />
-              <span className="text-xl md:text-2xl lg:text-3xl xl:text-4xl">The official review site by Red Robin Brewing Co.</span>
+              <span className="text-lg md:text-xl lg:text-2xl xl:text-3xl">The official review site by Red Robin Brewing Co.</span>
             </h5>
             <div className="absolute -top-2 -left-2 w-full h-full text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-200 font-serif tracking-wide -z-10 opacity-50 text-center leading-tight">
               Welcome to Red Robin Rating<br />
-              <span className="text-xl md:text-2xl lg:text-3xl xl:text-4xl">The official review site by Red Robin Brewing Co.</span>
+              <span className="text-lg md:text-xl lg:text-2xl xl:text-3xl">The official review site by Red Robin Brewing Co.</span>
             </div>
           </div>
           
@@ -90,6 +90,16 @@ const HomePage = ({
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-full"></div> 
             </div>
+          </div>
+
+          {/* App Features Heading */}
+          <div className="mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-2 font-serif select-none">
+              App Features
+            </h2>
+            <p className="text-gray-600 text-lg select-none">
+              Discover what makes Red Robin Rating special
+            </p>
           </div>
 
           {/* Feature Cards */}

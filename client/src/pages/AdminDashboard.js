@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Beer, MessageSquare, Database, Trash2, Edit, Plus, AlertTriangle, Check, X, Clock } from 'lucide-react';
+import { Users, Beer, Wine, Martini, MessageSquare, Database, Trash2, Edit, Plus, AlertTriangle, Check, X, Clock } from 'lucide-react';
 import { api } from '../services/api';
 
-const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => {
+const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers, reloadWines, reloadSpirits }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalBeers: 0,
+    totalWines: 0,
+    totalSpirits: 0,
     totalReviews: 0,
     recentUsers: []
   });
   const [users, setUsers] = useState([]);
   const [beers, setBeers] = useState([]);
+  const [wines, setWines] = useState([]);
+  const [spirits, setSpirits] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,6 +23,8 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
   // Batch selection states
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedBeers, setSelectedBeers] = useState([]);
+  const [selectedWines, setSelectedWines] = useState([]);
+  const [selectedSpirits, setSelectedSpirits] = useState([]);
   const [selectedReviews, setSelectedReviews] = useState([]);
   const [batchDeleting, setBatchDeleting] = useState(false);
 
@@ -38,16 +44,20 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
       setError(null);
       
       // Load all admin data
-      const [statsData, usersData, beersData, reviewsData] = await Promise.all([
+      const [statsData, usersData, beersData, winesData, spiritsData, reviewsData] = await Promise.all([
         api.admin.getStats(),
         api.admin.getAllUsers(),
         api.admin.getAllBeers(),
+        api.admin.getAllWines(),
+        api.admin.getAllSpirits(),
         api.admin.getAllReviews()
       ]);
 
       setStats(statsData);
       setUsers(usersData);
       setBeers(beersData);
+      setWines(winesData);
+      setSpirits(spiritsData);
       setReviews(reviewsData);
     } catch (error) {
       console.error('Error loading admin data:', error);
@@ -59,7 +69,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
 
   // Delete individual user
   const handleDeleteUser = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone and will delete all their reviews and beers.')) {
+    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone and will delete all their reviews and beverages.')) {
       return;
     }
 
@@ -86,6 +96,38 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     } catch (error) {
       console.error('Error deleting beer:', error);
       setError('Failed to delete beer');
+    }
+  };
+
+  // Delete individual wine
+  const handleDeleteWine = async (wineId) => {
+    if (!window.confirm('Are you sure you want to delete this wine? This will also delete all associated reviews.')) {
+      return;
+    }
+
+    try {
+      await api.admin.deleteWine(wineId);
+      setWines(wines.filter(w => w._id !== wineId));
+      await loadDashboardData();
+    } catch (error) {
+      console.error('Error deleting wine:', error);
+      setError('Failed to delete wine');
+    }
+  };
+
+  // Delete individual spirit
+  const handleDeleteSpirit = async (spiritId) => {
+    if (!window.confirm('Are you sure you want to delete this spirit? This will also delete all associated reviews.')) {
+      return;
+    }
+
+    try {
+      await api.admin.deleteSpirit(spiritId);
+      setSpirits(spirits.filter(s => s._id !== spiritId));
+      await loadDashboardData();
+    } catch (error) {
+      console.error('Error deleting spirit:', error);
+      setError('Failed to delete spirit');
     }
   };
 
@@ -129,11 +171,11 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
-  // Batch delete users
+  // Batch delete functions
   const handleBatchDeleteUsers = async () => {
     if (selectedUsers.length === 0) return;
     
-    if (!window.confirm(`Are you sure you want to delete ${selectedUsers.length} users? This will also delete all their reviews and beers.`)) {
+    if (!window.confirm(`Are you sure you want to delete ${selectedUsers.length} users? This will also delete all their reviews and beverages.`)) {
       return;
     }
 
@@ -150,7 +192,6 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
-  // Batch delete beers
   const handleBatchDeleteBeers = async () => {
     if (selectedBeers.length === 0) return;
     
@@ -171,7 +212,46 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
-  // Batch delete reviews
+  const handleBatchDeleteWines = async () => {
+    if (selectedWines.length === 0) return;
+    
+    if (!window.confirm(`Are you sure you want to delete ${selectedWines.length} wines? This will also delete all associated reviews.`)) {
+      return;
+    }
+
+    try {
+      setBatchDeleting(true);
+      await Promise.all(selectedWines.map(wineId => api.admin.deleteWine(wineId)));
+      setSelectedWines([]);
+      await loadDashboardData();
+    } catch (error) {
+      console.error('Error batch deleting wines:', error);
+      setError('Failed to batch delete wines');
+    } finally {
+      setBatchDeleting(false);
+    }
+  };
+
+  const handleBatchDeleteSpirits = async () => {
+    if (selectedSpirits.length === 0) return;
+    
+    if (!window.confirm(`Are you sure you want to delete ${selectedSpirits.length} spirits? This will also delete all associated reviews.`)) {
+      return;
+    }
+
+    try {
+      setBatchDeleting(true);
+      await Promise.all(selectedSpirits.map(spiritId => api.admin.deleteSpirit(spiritId)));
+      setSelectedSpirits([]);
+      await loadDashboardData();
+    } catch (error) {
+      console.error('Error batch deleting spirits:', error);
+      setError('Failed to batch delete spirits');
+    } finally {
+      setBatchDeleting(false);
+    }
+  };
+
   const handleBatchDeleteReviews = async () => {
     if (selectedReviews.length === 0) return;
     
@@ -238,7 +318,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
-  // Handle user selection for batch operations
+  // Selection handlers
   const handleSelectUser = (userId) => {
     setSelectedUsers(prev => 
       prev.includes(userId) 
@@ -247,7 +327,6 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     );
   };
 
-  // Handle beer selection for batch operations
   const handleSelectBeer = (beerId) => {
     setSelectedBeers(prev => 
       prev.includes(beerId) 
@@ -256,7 +335,22 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     );
   };
 
-  // Handle review selection for batch operations
+  const handleSelectWine = (wineId) => {
+    setSelectedWines(prev => 
+      prev.includes(wineId) 
+        ? prev.filter(id => id !== wineId)
+        : [...prev, wineId]
+    );
+  };
+
+  const handleSelectSpirit = (spiritId) => {
+    setSelectedSpirits(prev => 
+      prev.includes(spiritId) 
+        ? prev.filter(id => id !== spiritId)
+        : [...prev, spiritId]
+    );
+  };
+
   const handleSelectReview = (reviewId) => {
     setSelectedReviews(prev => 
       prev.includes(reviewId) 
@@ -265,7 +359,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     );
   };
 
-  // Select or deselect all users
+  // Select all handlers
   const handleSelectAllUsers = () => {
     if (selectedUsers.length === users.length) {
       setSelectedUsers([]);
@@ -274,7 +368,6 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
-  // Select or deselect all beers
   const handleSelectAllBeers = () => {
     if (selectedBeers.length === beers.length) {
       setSelectedBeers([]);
@@ -283,7 +376,22 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
-  // Select or deselect all reviews
+  const handleSelectAllWines = () => {
+    if (selectedWines.length === wines.length) {
+      setSelectedWines([]);
+    } else {
+      setSelectedWines(wines.map(w => w._id));
+    }
+  };
+
+  const handleSelectAllSpirits = () => {
+    if (selectedSpirits.length === spirits.length) {
+      setSelectedSpirits([]);
+    } else {
+      setSelectedSpirits(spirits.map(s => s._id));
+    }
+  };
+
   const handleSelectAllReviews = () => {
     if (selectedReviews.length === reviews.length) {
       setSelectedReviews([]);
@@ -292,15 +400,31 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
     }
   };
 
+  // Get beverage name for review display
+  const getBeverageName = (review) => {
+    if (review.beer) return review.beer.name;
+    if (review.wine) return review.wine.name;
+    if (review.spirit) return review.spirit.name;
+    return 'Unknown Beverage';
+  };
+
+  // Get beverage type for review display
+  const getBeverageType = (review) => {
+    if (review.beer) return 'beer';
+    if (review.wine) return 'wine';
+    if (review.spirit) return 'spirit';
+    return 'beverage';
+  };
+
   // Not logged in state
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 select-none">Please log in</h2>
           <button 
             onClick={() => handleNavigation('login')}
-            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors select-none"
+            className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors select-none"
           >
             Login
           </button>
@@ -312,14 +436,14 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
   // Access denied state
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4 select-none">Access Denied</h2>
           <p className="text-gray-600 mb-6 select-none">You don't have permission to access the admin dashboard.</p>
           <button 
             onClick={() => handleNavigation('home')}
-            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors select-none"
+            className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors select-none"
           >
             Back to Home
           </button>
@@ -331,9 +455,9 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+          <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
             <Database className="w-8 h-8 text-white" />
           </div>
           <p className="text-gray-600 select-none">Loading admin dashboard...</p>
@@ -343,7 +467,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="bg-white rounded-xl shadow-xl p-6 mb-8 border-4 border-gray-200">
@@ -384,6 +508,8 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
               { id: 'overview', label: 'Overview', icon: Database },
               { id: 'users', label: 'Users', icon: Users },
               { id: 'beers', label: 'Beers', icon: Beer },
+              { id: 'wines', label: 'Wines', icon: Wine },
+              { id: 'spirits', label: 'Spirits', icon: Martini },
               { id: 'reviews', label: 'Reviews', icon: MessageSquare }
             ].map(tab => (
               <button
@@ -391,7 +517,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors select-none ${
                   activeTab === tab.id
-                    ? 'text-red-600 border-b-2 border-red-600'
+                    ? 'text-black border-b-2 border-black'
                     : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
@@ -405,27 +531,41 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                   <div className="bg-blue-50 p-6 rounded-lg">
                     <div className="flex items-center gap-3 mb-2">
                       <Users className="w-8 h-8 text-blue-600" />
-                      <h3 className="text-lg font-semibold text-gray-900 select-none">Total Users</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 select-none">Users</h3>
                     </div>
-                    <p className="text-3xl font-bold text-blue-600 select-none">{stats.totalUsers}</p>
+                    <p className="text-3xl font-bold text-blue-600 select-none">{users.length}</p>
                   </div>
-                  <div className="bg-green-50 p-6 rounded-lg">
+                  <div className="bg-red-50 p-6 rounded-lg">
                     <div className="flex items-center gap-3 mb-2">
-                      <Beer className="w-8 h-8 text-green-600" />
-                      <h3 className="text-lg font-semibold text-gray-900 select-none">Total Beers</h3>
+                      <Beer className="w-8 h-8 text-red-600" />
+                      <h3 className="text-lg font-semibold text-gray-900 select-none">Beers</h3>
                     </div>
-                    <p className="text-3xl font-bold text-green-600 select-none">{stats.totalBeers}</p>
+                    <p className="text-3xl font-bold text-red-600 select-none">{beers.length}</p>
                   </div>
                   <div className="bg-purple-50 p-6 rounded-lg">
                     <div className="flex items-center gap-3 mb-2">
-                      <MessageSquare className="w-8 h-8 text-purple-600" />
-                      <h3 className="text-lg font-semibold text-gray-900 select-none">Total Reviews</h3>
+                      <Wine className="w-8 h-8 text-purple-600" />
+                      <h3 className="text-lg font-semibold text-gray-900 select-none">Wines</h3>
                     </div>
-                    <p className="text-3xl font-bold text-purple-600 select-none">{stats.totalReviews}</p>
+                    <p className="text-3xl font-bold text-purple-600 select-none">{wines.length}</p>
+                  </div>
+                  <div className="bg-amber-50 p-6 rounded-lg">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Martini className="w-8 h-8 text-amber-600" />
+                      <h3 className="text-lg font-semibold text-gray-900 select-none">Spirits</h3>
+                    </div>
+                    <p className="text-3xl font-bold text-amber-600 select-none">{spirits.length}</p>
+                  </div>
+                  <div className="bg-green-50 p-6 rounded-lg">
+                    <div className="flex items-center gap-3 mb-2">
+                      <MessageSquare className="w-8 h-8 text-green-600" />
+                      <h3 className="text-lg font-semibold text-gray-900 select-none">Reviews</h3>
+                    </div>
+                    <p className="text-3xl font-bold text-green-600 select-none">{reviews.length}</p>
                   </div>
                 </div>
 
@@ -529,7 +669,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
               </div>
             )}
 
-            {/* Beers Tab */}
+              {/* Beers Tab */}
             {activeTab === 'beers' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -625,6 +765,173 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
                 </div>
               </div>
             )}
+            {/* Wines Tab */}
+            {activeTab === 'wines' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900 select-none">Manage Wines ({wines.length})</h3>
+                  <div className="flex items-center gap-2">
+                    {selectedWines.length > 0 && (
+                      <button
+                        onClick={handleBatchDeleteWines}
+                        disabled={batchDeleting}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50 select-none"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete Selected ({selectedWines.length})
+                      </button>
+                    )}
+                    <button
+                      onClick={handleSelectAllWines}
+                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors select-none"
+                    >
+                      {selectedWines.length === wines.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border-collapse border border-gray-200">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="border border-gray-200 px-4 py-2 text-left">
+                          <input
+                            type="checkbox"
+                            checked={selectedWines.length === wines.length}
+                            onChange={handleSelectAllWines}
+                            className="rounded"
+                          />
+                        </th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Name</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Winery</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Style</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">ABV</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Vintage</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Reviews</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Rating</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {wines.map(wine => (
+                        <tr key={wine._id} className="hover:bg-gray-50">
+                          <td className="border border-gray-200 px-4 py-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedWines.includes(wine._id)}
+                              onChange={() => handleSelectWine(wine._id)}
+                              className="rounded"
+                            />
+                          </td>
+                          <td className="border border-gray-200 px-4 py-2 font-medium select-none">{wine.name}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{wine.winery}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{wine.style}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{wine.abv}%</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{wine.vintage || 'N/A'}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{wine.totalReviews || 0}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">
+                            {wine.averageRating ? wine.averageRating.toFixed(1) : 'N/A'}
+                          </td>
+                          <td className="border border-gray-200 px-4 py-2">
+                            <button
+                              onClick={() => handleDeleteWine(wine._id)}
+                              className="text-red-600 hover:text-red-800 p-1"
+                              title="Delete Wine"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Spirits Tab */}
+            {activeTab === 'spirits' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900 select-none">Manage Spirits ({spirits.length})</h3>
+                  <div className="flex items-center gap-2">
+                    {selectedSpirits.length > 0 && (
+                      <button
+                        onClick={handleBatchDeleteSpirits}
+                        disabled={batchDeleting}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50 select-none"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete Selected ({selectedSpirits.length})
+                      </button>
+                    )}
+                    <button
+                      onClick={handleSelectAllSpirits}
+                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors select-none"
+                    >
+                      {selectedSpirits.length === spirits.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border-collapse border border-gray-200">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="border border-gray-200 px-4 py-2 text-left">
+                          <input
+                            type="checkbox"
+                            checked={selectedSpirits.length === spirits.length}
+                            onChange={handleSelectAllSpirits}
+                            className="rounded"
+                          />
+                        </th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Name</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Distillery</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Style</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">ABV</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Age</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Reviews</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Rating</th>
+                        <th className="border border-gray-200 px-4 py-2 text-left select-none">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {spirits.map(spirit => (
+                        <tr key={spirit._id} className="hover:bg-gray-50">
+                          <td className="border border-gray-200 px-4 py-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedSpirits.includes(spirit._id)}
+                              onChange={() => handleSelectSpirit(spirit._id)}
+                              className="rounded"
+                            />
+                          </td>
+                          <td className="border border-gray-200 px-4 py-2 font-medium select-none">{spirit.name}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{spirit.distillery}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{spirit.style}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{spirit.abv}%</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{spirit.age ? `${spirit.age}Y` : 'N/A'}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">{spirit.totalReviews || 0}</td>
+                          <td className="border border-gray-200 px-4 py-2 select-none">
+                            {spirit.averageRating ? spirit.averageRating.toFixed(1) : 'N/A'}
+                          </td>
+                          <td className="border border-gray-200 px-4 py-2">
+                            <button
+                              onClick={() => handleDeleteSpirit(spirit._id)}
+                              className="text-red-600 hover:text-red-800 p-1"
+                              title="Delete Spirit"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
             {/* Reviews Tab */}
             {activeTab === 'reviews' && (
@@ -663,7 +970,7 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers }) => 
                           />
                           <span className="font-medium select-none">{review.username}</span>
                           <span className="text-sm text-gray-500 select-none">
-                            reviewed {review.beer?.name || 'Unknown Beer'}
+                            reviewed {getBeverageName(review)} ({getBeverageType(review)})
                           </span>
                           <div className="flex items-center gap-1">
                             <span className="select-none">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>

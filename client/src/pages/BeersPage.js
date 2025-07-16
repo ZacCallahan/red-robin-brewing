@@ -49,17 +49,17 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
   const sessionableCount = beers.filter(beer => beer.sessionable).length;
     
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-black to-gray-800 rounded-xl p-6 mb-8">
+        <div className="bg-gradient-to-r from-red-800 to-red-600 rounded-xl p-6 mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between max-w-5xl mx-auto">
             <div className="text-center md:text-left mb-4 md:mb-0">
               <h2 className="text-4xl font-bold text-white mb-2 font-serif select-none">All Beers</h2>
-              <p className="text-gray-300 text-lg select-none">Explore our full beer database</p>
+              <p className="text-red-100 text-lg select-none">Explore our full beer database</p>
             </div>
             <div className="flex flex-col items-center md:items-end gap-2">
-              <div className="bg-red-600 text-white px-6 py-3 rounded-full text-sm font-semibold select-none">
+              <div className="bg-black text-white px-6 py-3 rounded-full text-sm font-semibold select-none">
                 <div>Total: {beers.length}</div>
                 <div>Sessionable: {sessionableCount}</div>
               </div>
@@ -74,13 +74,13 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-black mb-2 select-none">Search</label>
               <div className="relative">
-                <Search className="w-5 h-5 text-red-500 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+                <Search className="w-5 h-5 text-black absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Search beers, breweries, or styles..."
                   value={localSearchTerm}
                   onChange={(e) => setLocalSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
                 />
               </div>
             </div>
@@ -91,7 +91,7 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
               >
                 <option value="name">Name (A-Z)</option>
                 <option value="rating">Highest Rated</option>
@@ -108,7 +108,7 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
               <select
                 value={selectedStyle}
                 onChange={(e) => setSelectedStyle(e.target.value)}
-                className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
               >
                 <option value="">All Styles</option>
                 {availableStyles.map(style => (
@@ -208,7 +208,7 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
           ) : (
             <div className="col-span-full text-center py-12">
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-black to-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-black mb-2 select-none">No beers found</h3>

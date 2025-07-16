@@ -93,12 +93,12 @@ const BeerDetailPage = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto p-6">
         {/* Back Button */}
         <button
           onClick={() => handleNavigation('home')}
-          className="mb-6 flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          className="mb-6 flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
         >
           ← Back to Home
         </button>
@@ -162,13 +162,13 @@ const BeerDetailPage = ({
               <div className="space-y-3">
                 <button 
                   onClick={() => handleNavigation('login')}
-                  className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-semibold"
+                  className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors font-semibold"
                 >
                   Login to Review
                 </button>
                 <button 
                   onClick={() => handleNavigation('register')}
-                  className="border-2 border-red-600 text-red-600 px-6 py-2 rounded-lg hover:bg-red-600 hover:text-white transition-colors font-semibold ml-3"
+                  className="border-2 border-black text-black px-6 py-2 rounded-lg hover:bg-black hover:text-white transition-colors font-semibold ml-3"
                 >
                   Create Account
                 </button>
@@ -205,7 +205,7 @@ const BeerDetailPage = ({
                     value={localUserReview.notes}
                     onChange={(e) => handleReviewChange('notes', e.target.value)}
                     rows="4"
-                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
                     placeholder="Share your thoughts about this beer..."
                   />
                 </div>

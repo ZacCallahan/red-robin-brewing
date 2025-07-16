@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Review = require('../models/Review');
 const Beer = require('../models/Beer');
+const Wine = require('../models/Wine');
+const Spirit = require('../models/Spirit');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
@@ -14,7 +16,35 @@ router.get('/beer/:beerId', async (req, res) => {
     
     res.json(reviews);
   } catch (error) {
-    console.error('Error fetching reviews:', error);
+    console.error('Error fetching beer reviews:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get all reviews for a specific wine
+router.get('/wine/:wineId', async (req, res) => {
+  try {
+    const reviews = await Review.find({ wine: req.params.wineId })
+      .populate('user', 'username firstName lastName')
+      .sort({ createdAt: -1 });
+    
+    res.json(reviews);
+  } catch (error) {
+    console.error('Error fetching wine reviews:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get all reviews for a specific spirit
+router.get('/spirit/:spiritId', async (req, res) => {
+  try {
+    const reviews = await Review.find({ spirit: req.params.spiritId })
+      .populate('user', 'username firstName lastName')
+      .sort({ createdAt: -1 });
+    
+    res.json(reviews);
+  } catch (error) {
+    console.error('Error fetching spirit reviews:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -22,14 +52,39 @@ router.get('/beer/:beerId', async (req, res) => {
 // Create or update a review
 router.post('/', auth, async (req, res) => {
   try {
-    const { beerId, rating, notes } = req.body;
+    const { beerId, wineId, spiritId, rating, notes } = req.body;
     const userId = req.user._id;
     const username = req.user.username;
     
-    // Check if user already reviewed this beer
+    // Validate that exactly one beverage type is provided
+    const beverageIds = [beerId, wineId, spiritId].filter(Boolean);
+    if (beverageIds.length !== 1) {
+      return res.status(400).json({ message: 'Must specify exactly one beverage (beer, wine, or spirit)' });
+    }
+    
+    // Determine beverage type and create query
+    let beverageQuery = {};
+    let beverageField = '';
+    let beverageId = '';
+    
+    if (beerId) {
+      beverageQuery = { beer: beerId };
+      beverageField = 'beer';
+      beverageId = beerId;
+    } else if (wineId) {
+      beverageQuery = { wine: wineId };
+      beverageField = 'wine';
+      beverageId = wineId;
+    } else if (spiritId) {
+      beverageQuery = { spirit: spiritId };
+      beverageField = 'spirit';
+      beverageId = spiritId;
+    }
+    
+    // Check if user already reviewed this beverage
     let review = await Review.findOne({ 
       user: userId, 
-      beer: beerId 
+      ...beverageQuery
     });
     
     if (review) {
@@ -39,18 +94,20 @@ router.post('/', auth, async (req, res) => {
       await review.save();
     } else {
       // Create new review
-      review = new Review({
+      const reviewData = {
         user: userId,
-        beer: beerId,
         rating,
         notes,
         username
-      });
+      };
+      reviewData[beverageField] = beverageId;
+      
+      review = new Review(reviewData);
       await review.save();
     }
     
-    // Update beer statistics
-    await updateBeerRating(beerId);
+    // Update beverage statistics
+    await updateBeverageRating(beverageId, beverageField);
     
     // Update user statistics
     await updateUserStats(userId);
@@ -81,22 +138,43 @@ async function updateUserStats(userId) {
   }
 }
 
-// Update beer rating statistics
-async function updateBeerRating(beerId) {
+// Update beverage rating statistics
+async function updateBeverageRating(beverageId, beverageType) {
   try {
-    const reviews = await Review.find({ beer: beerId });
+    let Model;
+    let query = {};
+    
+    // Determine the model and query based on beverage type
+    switch (beverageType) {
+      case 'beer':
+        Model = Beer;
+        query = { beer: beverageId };
+        break;
+      case 'wine':
+        Model = Wine;
+        query = { wine: beverageId };
+        break;
+      case 'spirit':
+        Model = Spirit;
+        query = { spirit: beverageId };
+        break;
+      default:
+        throw new Error('Invalid beverage type');
+    }
+    
+    const reviews = await Review.find(query);
     
     if (reviews.length > 0) {
       const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
       const averageRating = totalRating / reviews.length;
       
-      await Beer.findByIdAndUpdate(beerId, {
+      await Model.findByIdAndUpdate(beverageId, {
         averageRating: Math.round(averageRating * 10) / 10,
         totalReviews: reviews.length
       });
     }
   } catch (error) {
-    console.error('Error updating beer rating:', error);
+    console.error('Error updating beverage rating:', error);
   }
 }
 
