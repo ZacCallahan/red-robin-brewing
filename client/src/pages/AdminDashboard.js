@@ -28,6 +28,11 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers, reloa
   const [selectedReviews, setSelectedReviews] = useState([]);
   const [batchDeleting, setBatchDeleting] = useState(false);
 
+  // Import loading states
+const [importingBeers, setImportingBeers] = useState(false);
+const [importingWines, setImportingWines] = useState(false);
+const [importingSpirits, setImportingSpirits] = useState(false);
+
   // Check if user is admin
   const isAdmin = user?.role === 'admin' || user?.isAdmin;
 
@@ -273,50 +278,98 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers, reloa
   };
 
   // Import curated beer collection
-  const handlePopulateDatabase = async () => {
-    if (!window.confirm('This will import 50 curated popular beers (Australian and international favorites). This should only be done once or after purging the database. Continue?')) {
-      return;
-    }
+const handleImportBeers = async () => {
+  if (!window.confirm('This will import 25 curated popular beers (Australian and international favorites). Continue?')) {
+    return;
+  }
 
-    try {
-      setLoading(true);
-      const result = await api.admin.populateDatabase();
-      
-      let message = `🍺 Beer Import Complete!\n\n`;
-      message += `Source: ${result.source}\n`;
-      message += `Total processed: ${result.processed} beers\n`;
-      message += `Successfully imported: ${result.inserted} new beers\n`;
-      
-      if (result.exactDuplicates > 0) {
-        message += `Skipped exact duplicates: ${result.exactDuplicates}\n`;
-      }
-      
-      if (result.similarDuplicates > 0) {
-        message += `Skipped similar beers: ${result.similarDuplicates}\n`;
-      }
-      
-      if (result.errors > 0) {
-        message += `Import errors: ${result.errors}\n`;
-      }
-      
-      if (result.inserted === 0) {
-        message += `\nAll beers already exist in the database!`;
-      } else if (result.sampleBeers?.length > 0) {
-        message += `\nSample imported beers:\n`;
-        result.sampleBeers.forEach(beer => {
-          message += `• ${beer.name} (${beer.brewery}, ${beer.abv}% ABV)\n`;
-        });
-      }
-      
-      alert(message);
-      loadDashboardData();
-    } catch (error) {
-      console.error('Error importing beers:', error);
-      setError('Failed to import curated beer collection: ' + (error.message || 'Unknown error'));
-    } finally {
-      setLoading(false);
+  try {
+    setImportingBeers(true);
+    const result = await api.admin.populateBeers();
+    
+    let message = `🍺 Beer Import Complete!\n\n`;
+    message += `Source: ${result.source}\n`;
+    message += `Total processed: ${result.processed} beers\n`;
+    message += `Successfully imported: ${result.inserted} new beers\n`;
+    
+    if (result.duplicates > 0) {
+      message += `Skipped duplicates: ${result.duplicates}\n`;
     }
-  };
+    
+    if (result.errors > 0) {
+      message += `Import errors: ${result.errors}\n`;
+    }
+    
+    alert(message);
+    await loadDashboardData();
+    if (reloadBeers) await reloadBeers();
+  } catch (error) {
+    console.error('Error importing beers:', error);
+    setError('Failed to import curated beer collection: ' + (error.message || 'Unknown error'));
+  } finally {
+    setImportingBeers(false);
+  }
+};
+
+// Import curated wine collection
+const handleImportWines = async () => {
+  if (!window.confirm('This will import 25 curated popular wines (Australian and international favorites). Continue?')) {
+    return;
+  }
+
+  try {
+    setImportingWines(true);
+    const result = await api.admin.populateWines();
+    
+    let message = `🍷 Wine Import Complete!\n\n`;
+    message += `Source: ${result.source}\n`;
+    message += `Total processed: ${result.processed} wines\n`;
+    message += `Successfully imported: ${result.inserted} new wines\n`;
+    
+    if (result.duplicates > 0) {
+      message += `Skipped duplicates: ${result.duplicates}\n`;
+    }
+    
+    alert(message);
+    await loadDashboardData();
+    if (reloadWines) await reloadWines();
+  } catch (error) {
+    console.error('Error importing wines:', error);
+    setError('Failed to import curated wine collection: ' + (error.message || 'Unknown error'));
+  } finally {
+    setImportingWines(false);
+  }
+};
+
+// Import curated spirit collection
+const handleImportSpirits = async () => {
+  if (!window.confirm('This will import 25 curated popular spirits (Australian and international favorites). Continue?')) {
+    return;
+  }
+
+  try {
+    setImportingSpirits(true);
+    const result = await api.admin.populateSpirits();
+    
+    let message = `🥃 Spirit Import Complete!\n\n`;
+    message += `Source: ${result.source}\n`;
+    message += `Total processed: ${result.processed} spirits\n`;
+    message += `Successfully imported: ${result.inserted} new spirits\n`;
+    
+    if (result.duplicates > 0) {
+      message += `Skipped duplicates: ${result.duplicates}\n`;
+    }
+    
+    alert(message);
+    await loadDashboardData();
+    if (reloadSpirits) await reloadSpirits();
+  } catch (error) {
+    console.error('Error importing spirits:', error);
+    setError('Failed to import curated spirit collection: ' + (error.message || 'Unknown error'));
+  } finally {
+    setImportingSpirits(false);
+  }
+};
 
   // Selection handlers
   const handleSelectUser = (userId) => {
@@ -476,22 +529,38 @@ const AdminDashboard = ({ user, isLoggedIn, handleNavigation, reloadBeers, reloa
               <h1 className="text-3xl font-bold text-gray-900 font-serif select-none">Admin Dashboard</h1>
               <p className="text-gray-600 select-none">Welcome back, {user?.firstName}!</p>
             </div>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handlePopulateDatabase}
-                disabled={loading}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 select-none"
-              >
-                <Database className="w-4 h-4" />
-                {loading ? 'Importing Beers...' : 'Import Curated Beers'}
-              </button>
-              <button
-                onClick={() => handleNavigation('home')}
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors select-none"
-              >
-                Back to Site
-              </button>
-            </div>
+            <div className="flex items-center gap-2">
+  <button
+    onClick={handleImportBeers}
+    disabled={importingBeers}
+    className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-1 disabled:opacity-50 select-none text-sm"
+  >
+    <Beer className="w-4 h-4" />
+    {importingBeers ? 'Importing...' : 'Import Beers'}
+  </button>
+  <button
+    onClick={handleImportWines}
+    disabled={importingWines}
+    className="bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1 disabled:opacity-50 select-none text-sm"
+  >
+    <Wine className="w-4 h-4" />
+    {importingWines ? 'Importing...' : 'Import Wines'}
+  </button>
+  <button
+    onClick={handleImportSpirits}
+    disabled={importingSpirits}
+    className="bg-amber-600 text-white px-3 py-2 rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-1 disabled:opacity-50 select-none text-sm"
+  >
+    <Martini className="w-4 h-4" />
+    {importingSpirits ? 'Importing...' : 'Import Spirits'}
+  </button>
+  <button
+    onClick={() => handleNavigation('home')}
+    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors select-none"
+  >
+    Back to Site
+  </button>
+</div>
           </div>
         </div>
 

@@ -19,6 +19,7 @@ const SpiritDetailPage = ({
   const [reviewSuccess, setReviewSuccess] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
+  const [localSpiritData, setLocalSpiritData] = useState(null);
 
   // Ensure spiritReviews is always an array
   const reviews = Array.isArray(spiritReviews) ? spiritReviews : [];
@@ -36,9 +37,10 @@ const SpiritDetailPage = ({
     }
   }, [existingReview, isLoggedIn]);
 
-  // Initialize edit data
+  // Initialize local spirit data and edit data
   useEffect(() => {
     if (selectedSpirit) {
+      setLocalSpiritData(selectedSpirit);
       setEditData({
         name: selectedSpirit.name || '',
         distillery: selectedSpirit.distillery || '',
@@ -102,15 +104,47 @@ const SpiritDetailPage = ({
         age: editData.age ? parseFloat(editData.age) : undefined
       };
 
-      await api.spirits.update(selectedSpirit._id, updatedData);
+      const result = await api.spirits.update(selectedSpirit._id, updatedData);
+      console.log('Spirit updated successfully:', result);
       
+      // Update local spirit data immediately to show changes in UI
+      setLocalSpiritData({
+        ...selectedSpirit,
+        ...updatedData
+      });
+      
+      // Refresh the spirit data and reviews
       if (refreshSpirits) {
         await refreshSpirits();
+        console.log('refreshSpirits called');
       }
       
+      // Reload the spirit reviews to get fresh data
+      if (loadSpiritReviews) {
+        await loadSpiritReviews(selectedSpirit._id);
+        console.log('loadSpiritReviews called');
+      }
+      
+      // Force update the editData with the new values to trigger re-render
+      setEditData({
+        name: updatedData.name,
+        distillery: updatedData.distillery,
+        style: updatedData.style,
+        abv: updatedData.abv,
+        age: updatedData.age || '',
+        category: updatedData.category || '',
+        region: updatedData.region || '',
+        description: updatedData.description || ''
+      });
+      
       setIsEditing(false);
+      
+      console.log('Spirit edit completed, editData updated');
+      
     } catch (error) {
       console.error('Error updating spirit:', error);
+      // You might want to show an error message to the user here
+      alert('Error updating spirit: ' + (error.message || 'Unknown error'));
     }
   };
 
@@ -131,6 +165,8 @@ const SpiritDetailPage = ({
     );
   }
 
+  // Use local spirit data if available, fallback to selectedSpirit
+  const displaySpirit = localSpiritData || selectedSpirit;
   const canEdit = isLoggedIn && (user?.isAdmin || selectedSpirit.addedBy?._id === user?._id);
 
   return (
@@ -149,24 +185,24 @@ const SpiritDetailPage = ({
 
         {/* Spirit Details Card */}
         <div className="bg-white rounded-xl shadow-xl p-8 border-2 border-gray-200 mb-8">
-          <div className="flex justify-between items-start mb-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <Martini className="w-8 h-8 text-amber-600" />
+          <div className="flex justify-between items-start mb-6 gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-4 flex-wrap">
+                <Martini className="w-8 h-8 text-amber-600 flex-shrink-0" />
                 {isEditing ? (
                   <input
                     type="text"
                     value={editData.name}
                     onChange={(e) => setEditData({...editData, name: e.target.value})}
-                    className="text-3xl font-bold text-gray-900 font-serif border-b-2 border-amber-300 focus:border-amber-600 outline-none bg-transparent"
+                    className="text-3xl font-bold text-gray-900 font-serif border-b-2 border-amber-300 focus:border-amber-600 outline-none bg-transparent flex-1 min-w-0"
                   />
                 ) : (
-                  <h1 className="text-3xl font-bold text-gray-900 font-serif">{selectedSpirit.name}</h1>
+                  <h1 className="text-3xl font-bold text-gray-900 font-serif break-words">{displaySpirit.name}</h1>
                 )}
-                {selectedSpirit.age && selectedSpirit.age > 0 && (
-                  <span className="bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                {displaySpirit.age && displaySpirit.age > 0 && (
+                  <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1 flex-shrink-0">
                     <Clock className="w-3 h-3" />
-                    {selectedSpirit.age}Y
+                    {displaySpirit.age}Y
                   </span>
                 )}
               </div>
@@ -179,12 +215,12 @@ const SpiritDetailPage = ({
                   className="text-xl text-amber-600 font-semibold border-b border-amber-300 focus:border-amber-600 outline-none bg-transparent"
                 />
               ) : (
-                <p className="text-xl text-amber-600 font-semibold mb-4">{selectedSpirit.distillery}</p>
+                <p className="text-xl text-amber-600 font-semibold mb-4">{displaySpirit.distillery}</p>
               )}
             </div>
 
             {canEdit && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-shrink-0">
                 {isEditing ? (
                   <>
                     <button
@@ -225,6 +261,7 @@ const SpiritDetailPage = ({
                   onChange={(e) => setEditData({...editData, style: e.target.value})}
                   className="w-full bg-transparent border border-amber-300 rounded px-2 py-1"
                 >
+                  <option value="">Select style</option>
                   <option value="Whiskey">Whiskey</option>
                   <option value="Rum">Rum</option>
                   <option value="Vodka">Vodka</option>
@@ -235,7 +272,7 @@ const SpiritDetailPage = ({
                   <option value="Other">Other</option>
                 </select>
               ) : (
-                <div className="font-bold text-amber-800">{selectedSpirit.style}</div>
+                <div className="font-bold text-amber-800">{displaySpirit.style}</div>
               )}
             </div>
 
@@ -250,11 +287,11 @@ const SpiritDetailPage = ({
                   className="w-full bg-transparent border border-amber-300 rounded px-2 py-1"
                 />
               ) : (
-                <div className="font-bold text-amber-800">{selectedSpirit.abv}%</div>
+                <div className="font-bold text-amber-800">{displaySpirit.abv}%</div>
               )}
             </div>
 
-            {(selectedSpirit.age || isEditing) && (
+            {(displaySpirit.age || isEditing) && (
               <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
                 <div className="text-sm text-amber-600 mb-1">Age</div>
                 {isEditing ? (
@@ -266,7 +303,7 @@ const SpiritDetailPage = ({
                     className="w-full bg-transparent border border-amber-300 rounded px-2 py-1"
                   />
                 ) : (
-                  <div className="font-bold text-amber-800">{selectedSpirit.age} years</div>
+                  <div className="font-bold text-amber-800">{displaySpirit.age} years</div>
                 )}
               </div>
             )}
@@ -274,18 +311,18 @@ const SpiritDetailPage = ({
             <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
               <div className="text-sm text-amber-600 mb-1">Rating</div>
               <div className="flex items-center gap-2">
-                <StarRating rating={selectedSpirit.averageRating || 0} />
+                <StarRating rating={displaySpirit.averageRating || 0} />
                 <span className="font-bold text-amber-800">
-                  {selectedSpirit.averageRating ? selectedSpirit.averageRating.toFixed(1) : '0.0'}
+                  {displaySpirit.averageRating ? displaySpirit.averageRating.toFixed(1) : '0.0'}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Additional Spirit Info */}
-          {(selectedSpirit.category || selectedSpirit.region || isEditing) && (
+          {(displaySpirit.category || displaySpirit.region || isEditing) && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {(selectedSpirit.category || isEditing) && (
+              {(displaySpirit.category || isEditing) && (
                 <div className="flex items-center gap-2">
                   <Star className="w-5 h-5 text-amber-600" />
                   <div>
@@ -299,13 +336,13 @@ const SpiritDetailPage = ({
                         placeholder="e.g., Single Malt, Bourbon, VSOP"
                       />
                     ) : (
-                      <span className="ml-2 font-medium text-gray-800">{selectedSpirit.category}</span>
+                      <span className="ml-2 font-medium text-gray-800">{displaySpirit.category}</span>
                     )}
                   </div>
                 </div>
               )}
 
-              {(selectedSpirit.region || isEditing) && (
+              {(displaySpirit.region || isEditing) && (
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-amber-600" />
                   <div>
@@ -319,7 +356,7 @@ const SpiritDetailPage = ({
                         placeholder="e.g., Speyside, Kentucky, Jalisco"
                       />
                     ) : (
-                      <span className="ml-2 font-medium text-gray-800">{selectedSpirit.region}</span>
+                      <span className="ml-2 font-medium text-gray-800">{displaySpirit.region}</span>
                     )}
                   </div>
                 </div>
@@ -328,7 +365,7 @@ const SpiritDetailPage = ({
           )}
 
           {/* Description */}
-          {(selectedSpirit.description || isEditing) && (
+          {(displaySpirit.description || isEditing) && (
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
               {isEditing ? (
@@ -339,19 +376,19 @@ const SpiritDetailPage = ({
                   className="w-full border border-amber-300 rounded-lg px-3 py-2"
                 />
               ) : (
-                <p className="text-gray-700 leading-relaxed">{selectedSpirit.description}</p>
+                <p className="text-gray-700 leading-relaxed">{displaySpirit.description}</p>
               )}
             </div>
           )}
 
           {/* Added by */}
-          {selectedSpirit.addedBy && (
+          {displaySpirit.addedBy && (
             <div className="border-t border-gray-200 pt-6 mt-6">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <User className="w-4 h-4" />
-                <span>Added by {selectedSpirit.addedBy.username || selectedSpirit.addedBy.firstName}</span>
+                <span>Added by {displaySpirit.addedBy.username || displaySpirit.addedBy.firstName}</span>
                 <Calendar className="w-4 h-4 ml-4" />
-                <span>{new Date(selectedSpirit.createdAt).toLocaleDateString()}</span>
+                <span>{new Date(displaySpirit.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
           )}

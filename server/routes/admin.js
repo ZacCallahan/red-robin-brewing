@@ -413,7 +413,7 @@ router.put('/spirits/:id', async (req, res) => {
 });
 
 // Populate database with curated beer collection
-router.post('/populate', async (req, res) => {
+router.post('/populate-beers', async (req, res) => {
   try {
     console.log('🍺 Starting curated beer import...');
     
@@ -529,6 +529,188 @@ router.post('/populate', async (req, res) => {
       message: 'Server error during beer import',
       error: error.message 
     });
+  }
+});
+
+// Populate database with curated wine collection
+router.post('/populate-wines', async (req, res) => {
+  try {
+    console.log('🍷 Starting curated wine import...');
+    
+    const curatedWines = [
+      // 25 Popular Australian & International Wines
+      { name: "Yellow Tail Shiraz", winery: "Yellow Tail", style: "Shiraz", abv: 13.5, vintage: 2022, region: "South Eastern Australia", description: "Australia's most exported wine with rich berry flavors and smooth finish." },
+      { name: "Penfolds Grange", winery: "Penfolds", style: "Shiraz", abv: 14.5, vintage: 2018, region: "South Australia", description: "Australia's most iconic wine - full-bodied Shiraz with exceptional aging potential." },
+      { name: "Wolf Blass Yellow Label Cabernet Sauvignon", winery: "Wolf Blass", style: "Cabernet Sauvignon", abv: 14.0, vintage: 2021, region: "South Australia", description: "Medium-bodied red with blackcurrant flavors and soft tannins." },
+      { name: "Jacob's Creek Classic Chardonnay", winery: "Jacob's Creek", style: "Chardonnay", abv: 13.0, vintage: 2022, region: "South Australia", description: "Fresh, fruit-driven Chardonnay with citrus and stone fruit flavors." },
+      { name: "Oyster Bay Sauvignon Blanc", winery: "Oyster Bay", style: "Sauvignon Blanc", abv: 12.5, vintage: 2023, region: "Marlborough", description: "Crisp New Zealand Sauvignon Blanc with tropical fruit and herbaceous notes." },
+      { name: "Lindeman's Bin 65 Chardonnay", winery: "Lindeman's", style: "Chardonnay", abv: 13.5, vintage: 2022, region: "South Eastern Australia", description: "Easy-drinking Chardonnay with peachy fruit flavors." },
+      { name: "McGuigan Black Label Shiraz", winery: "McGuigan", style: "Shiraz", abv: 14.5, vintage: 2021, region: "South Eastern Australia", description: "Rich, full-bodied Shiraz with dark berry and spice notes." },
+      { name: "Rosemount Estate Diamond Label Shiraz", winery: "Rosemount Estate", style: "Shiraz", abv: 14.0, vintage: 2021, region: "South Eastern Australia", description: "Smooth, approachable Shiraz with berry fruit and subtle oak." },
+      { name: "Hardys VR Cabernet Sauvignon", winery: "Hardys", style: "Cabernet Sauvignon", abv: 13.5, vintage: 2022, region: "South Eastern Australia", description: "Medium-bodied red with blackcurrant and mint flavors." },
+      { name: "De Bortoli Noble One", winery: "De Bortoli", style: "Dessert Wine", abv: 10.5, vintage: 2020, region: "Riverina", description: "Award-winning botrytis dessert wine with honeyed sweetness." },
+      { name: "Tyrrell's Vat 1 Semillon", winery: "Tyrrell's", style: "Semillon", abv: 10.5, vintage: 2018, region: "Hunter Valley", description: "Iconic Hunter Valley Semillon that develops complexity with age." },
+      { name: "Penfolds Bin 389 Cabernet Shiraz", winery: "Penfolds", style: "Cabernet Shiraz", abv: 14.5, vintage: 2019, region: "South Australia", description: "Premium blend known as 'Baby Grange' with rich fruit and oak integration." },
+      { name: "Henschke Hill of Grace", winery: "Henschke", style: "Shiraz", abv: 14.5, vintage: 2017, region: "Eden Valley", description: "Ultra-premium Shiraz from 150+ year old vines in Eden Valley." },
+      { name: "Leeuwin Estate Art Series Chardonnay", winery: "Leeuwin Estate", style: "Chardonnay", abv: 14.0, vintage: 2021, region: "Margaret River", description: "Elegant Margaret River Chardonnay with citrus and oak complexity." },
+      { name: "Cullen Diana Madeline", winery: "Cullen", style: "Cabernet Merlot", abv: 14.0, vintage: 2019, region: "Margaret River", description: "Biodynamic wine with exceptional elegance and aging potential." },
+      { name: "Cloudy Bay Sauvignon Blanc", winery: "Cloudy Bay", style: "Sauvignon Blanc", abv: 13.0, vintage: 2023, region: "Marlborough", description: "Benchmark Marlborough Sauvignon Blanc with tropical and citrus notes." },
+      { name: "Torbreck RunRig", winery: "Torbreck", style: "Shiraz Viognier", abv: 15.0, vintage: 2018, region: "Barossa Valley", description: "Powerful Barossa Shiraz co-fermented with Viognier." },
+      { name: "Moss Wood Cabernet Sauvignon", winery: "Moss Wood", style: "Cabernet Sauvignon", abv: 14.0, vintage: 2019, region: "Margaret River", description: "Elegant Margaret River Cabernet from a pioneering winery." },
+      { name: "Yalumba The Octavius", winery: "Yalumba", style: "Shiraz", abv: 14.5, vintage: 2018, region: "Barossa Valley", description: "Premium Barossa Shiraz aged in rare octave barrels." },
+      { name: "Cape Mentelle Cabernet Sauvignon", winery: "Cape Mentelle", style: "Cabernet Sauvignon", abv: 14.0, vintage: 2020, region: "Margaret River", description: "Classic Margaret River Cabernet with cassis and cedar notes." },
+      { name: "Brokenwood ILR Reserve Semillon", winery: "Brokenwood", style: "Semillon", abv: 10.5, vintage: 2018, region: "Hunter Valley", description: "Premium Hunter Valley Semillon with exceptional aging potential." },
+      { name: "Mount Pleasant Elizabeth Semillon", winery: "Mount Pleasant", style: "Semillon", abv: 10.5, vintage: 2017, region: "Hunter Valley", description: "Iconic aged Hunter Valley Semillon with honey and toast complexity." },
+      { name: "Wynns Coonawarra Estate Black Label Cabernet", winery: "Wynns", style: "Cabernet Sauvignon", abv: 14.0, vintage: 2018, region: "Coonawarra", description: "Premium Coonawarra Cabernet with eucalyptus and blackcurrant." },
+      { name: "Kaesler Old Bastard Shiraz", winery: "Kaesler", style: "Shiraz", abv: 15.5, vintage: 2019, region: "Barossa Valley", description: "Full-bodied Barossa Shiraz from old vine fruit with intense concentration." },
+      { name: "Veuve Clicquot Champagne", winery: "Veuve Clicquot", style: "Champagne", abv: 12.0, vintage: null, region: "Champagne", description: "Iconic French champagne with elegant bubbles and rich flavor." }
+    ];
+    
+    // Wine import logic (similar to beer import)
+    const insertedWines = [];
+    const duplicates = [];
+    let errors = 0;
+    
+    for (const wineData of curatedWines) {
+      try {
+        const existingWine = await Wine.findOne({ 
+          name: wineData.name, 
+          winery: wineData.winery,
+          vintage: wineData.vintage 
+        });
+        
+        if (existingWine) {
+          duplicates.push(`${wineData.name} ${wineData.vintage}`);
+        } else {
+          const newWine = await Wine.create({
+            ...wineData,
+            addedBy: req.user._id
+          });
+          insertedWines.push(newWine);
+        }
+      } catch (error) {
+        console.error(`❌ Error inserting wine ${wineData.name}:`, error.message);
+        errors++;
+      }
+    }
+    
+    res.json({
+      message: 'Wine database populated successfully',
+      source: 'Curated Australian & International Wine Collection',
+      processed: curatedWines.length,
+      inserted: insertedWines.length,
+      duplicates: duplicates.length,
+      errors: errors,
+      sampleItems: insertedWines.slice(0, 5).map(w => ({ 
+        name: w.name, 
+        winery: w.winery,
+        vintage: w.vintage,
+        style: w.style 
+      }))
+    });
+    
+  } catch (error) {
+    console.error('❌ Wine import failed:', error);
+    res.status(500).json({ 
+      message: 'Server error during wine import',
+      error: error.message 
+    });
+  }
+});
+
+// Populate database with curated spirit collection
+router.post('/populate-spirits', async (req, res) => {
+  try {
+    console.log('🥃 Starting curated spirit import...');
+    
+    const curatedSpirits = [
+      // 25 Popular Australian & International Spirits
+      { name: "Bundaberg Rum", distillery: "Bundaberg Distilling Company", style: "Dark Rum", abv: 37.0, age: null, region: "Queensland", description: "Australia's most famous rum, distilled in Queensland since 1888." },
+      { name: "Four Pillars Rare Dry Gin", distillery: "Four Pillars", style: "Gin", abv: 41.8, age: null, region: "Yarra Valley", description: "Award-winning Australian gin with native botanicals and Asian spices." },
+      { name: "Starward Nova", distillery: "Starward", style: "Single Malt Whisky", abv: 41.0, age: null, region: "Melbourne", description: "Melbourne single malt whisky matured in Australian wine barrels." },
+      { name: "Lark Classic Cask", distillery: "Lark Distillery", style: "Single Malt Whisky", abv: 43.0, age: null, region: "Tasmania", description: "Pioneer Tasmanian single malt whisky with rich, complex flavors." },
+      { name: "Archie Rose Signature Dry Gin", distillery: "Archie Rose", style: "Gin", abv: 40.0, age: null, region: "Sydney", description: "Sydney-distilled gin with native Australian botanicals." },
+      { name: "Sullivans Cove French Oak", distillery: "Sullivans Cove", style: "Single Malt Whisky", abv: 47.5, age: null, region: "Tasmania", description: "World Whisky of the Year winner from Tasmania." },
+      { name: "Botany Bay Vodka", distillery: "Botany Bay", style: "Vodka", abv: 40.0, age: null, region: "New South Wales", description: "Premium Australian vodka with smooth, clean finish." },
+      { name: "Hippocampus Gin", distillery: "Hippocampus", style: "Gin", abv: 41.8, age: null, region: "Tasmania", description: "Tasmanian gin with unique marine botanicals." },
+      { name: "Heartwood Convict Redemption", distillery: "Heartwood", style: "Single Malt Whisky", abv: 68.9, age: null, region: "Tasmania", description: "Cask strength Tasmanian whisky with intense flavors." },
+      { name: "Manly Spirits Australian Dry Gin", distillery: "Manly Spirits", style: "Gin", abv: 40.0, age: null, region: "Sydney", description: "Sydney gin with native Australian botanicals including sea lettuce." },
+      { name: "Nant Single Malt Whisky", distillery: "Nant Distillery", style: "Single Malt Whisky", abv: 43.0, age: null, region: "Tasmania", description: "Highland-style Tasmanian single malt whisky." },
+      { name: "West Winds Gin The Sabre", distillery: "West Winds", style: "Gin", abv: 40.0, age: null, region: "Margaret River", description: "Western Australian gin with native botanicals." },
+      { name: "Overeem Sherry Cask", distillery: "Overeem", style: "Single Malt Whisky", abv: 43.0, age: null, region: "Tasmania", description: "Tasmanian single malt matured in sherry casks." },
+      { name: "Poor Tom's Gin", distillery: "Poor Tom's", style: "Gin", abv: 40.0, age: null, region: "Sydney", description: "Sydney gin with honey and native Australian botanicals." },
+      { name: "Beenleigh Rum", distillery: "Beenleigh Artisan Distillery", style: "White Rum", abv: 40.0, age: null, region: "Queensland", description: "Australia's oldest registered distillery producing premium rum." },
+      { name: "Johnnie Walker Black Label", distillery: "Johnnie Walker", style: "Blended Scotch Whisky", abv: 40.0, age: 12, region: "Scotland", description: "Rich, complex blended Scotch whisky aged 12 years." },
+      { name: "Jack Daniel's Old No. 7", distillery: "Jack Daniel's", style: "Tennessee Whiskey", abv: 40.0, age: null, region: "Tennessee", description: "Classic Tennessee whiskey with charcoal mellowing process." },
+      { name: "Tanqueray London Dry Gin", distillery: "Tanqueray", style: "London Dry Gin", abv: 47.3, age: null, region: "England", description: "Classic London Dry gin with juniper and citrus botanicals." },
+      { name: "Grey Goose Vodka", distillery: "Grey Goose", style: "Vodka", abv: 40.0, age: null, region: "France", description: "Premium French vodka made from wheat and spring water." },
+      { name: "Captain Morgan Spiced Rum", distillery: "Captain Morgan", style: "Spiced Rum", abv: 35.0, age: null, region: "Caribbean", description: "Popular spiced rum with vanilla and warm spice notes." },
+      { name: "Bombay Sapphire Gin", distillery: "Bombay Sapphire", style: "London Dry Gin", abv: 40.0, age: null, region: "England", description: "Premium gin with 10 hand-selected botanicals." },
+      { name: "Jameson Irish Whiskey", distillery: "Jameson", style: "Irish Whiskey", abv: 40.0, age: null, region: "Ireland", description: "Smooth Irish whiskey triple-distilled for exceptional smoothness." },
+      { name: "Hennessy VS Cognac", distillery: "Hennessy", style: "Cognac", abv: 40.0, age: null, region: "France", description: "Classic French cognac with rich fruit and spice notes." },
+      { name: "José Cuervo Especial Tequila", distillery: "José Cuervo", style: "Tequila", abv: 38.0, age: null, region: "Mexico", description: "World's best-selling tequila brand from Mexico." },
+      { name: "Absolut Vodka", distillery: "Absolut", style: "Vodka", abv: 40.0, age: null, region: "Sweden", description: "Swedish vodka made from winter wheat with rich full-bodied taste." }
+    ];
+    
+    // Spirit import logic (similar to beer import)
+    const insertedSpirits = [];
+    const duplicates = [];
+    let errors = 0;
+    
+    for (const spiritData of curatedSpirits) {
+      try {
+        const existingSpirit = await Spirit.findOne({ 
+          name: spiritData.name, 
+          distillery: spiritData.distillery 
+        });
+        
+        if (existingSpirit) {
+          duplicates.push(spiritData.name);
+        } else {
+          const newSpirit = await Spirit.create({
+            ...spiritData,
+            addedBy: req.user._id
+          });
+          insertedSpirits.push(newSpirit);
+        }
+      } catch (error) {
+        console.error(`❌ Error inserting spirit ${spiritData.name}:`, error.message);
+        errors++;
+      }
+    }
+    
+    res.json({
+      message: 'Spirit database populated successfully',
+      source: 'Curated Australian & International Spirit Collection',
+      processed: curatedSpirits.length,
+      inserted: insertedSpirits.length,
+      duplicates: duplicates.length,
+      errors: errors,
+      sampleItems: insertedSpirits.slice(0, 5).map(s => ({ 
+        name: s.name, 
+        distillery: s.distillery,
+        abv: s.abv, 
+        style: s.style 
+      }))
+    });
+    
+  } catch (error) {
+    console.error('❌ Spirit import failed:', error);
+    res.status(500).json({ 
+      message: 'Server error during spirit import',
+      error: error.message 
+    });
+  }
+});
+
+// Legacy endpoint for backward compatibility
+router.post('/populate', async (req, res) => {
+  // Redirect to beer populate endpoint
+  try {
+    const result = await api.admin.populateBeers();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: 'Error populating beers', error: error.message });
   }
 });
 

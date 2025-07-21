@@ -2,6 +2,24 @@ import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import StarRating from './StarRating';
 
+// Function to abbreviate long wine style names
+const abbreviateWineStyle = (style) => {
+  const abbreviations = {
+    'Cabernet Sauvignon': 'Cab Sav',
+    'Cabernet Shiraz': 'Cab Shiraz',
+    'Cabernet Merlot': 'Cab Merlot',
+    'Shiraz Viognier': 'Shiraz Viog',
+    'Sauvignon Blanc': 'Sav Blanc',
+    'Sparkling Chardonnay': 'Sparkling Chard',
+    'Sparkling Pinot Noir': 'Sparkling Pinot',
+    'Sparkling Shiraz': 'Sparkling Shiraz',
+    'Dessert Wine': 'Dessert',
+    'Orange Wine': 'Orange'
+  };
+  
+  return abbreviations[style] || style;
+};
+
 // Card component for displaying wine information
 const WineCard = ({ wine, onClick }) => (
   <div 
@@ -16,7 +34,7 @@ const WineCard = ({ wine, onClick }) => (
         </h3>
         {wine.vintage && (
           <div className="ml-2 flex-shrink-0">
-            <div className="bg-purple-600 text-white px-2 py-1 rounded-full text-xs font-bold">
+           <div className="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg text-xs font-medium">
               {wine.vintage}
             </div>
           </div>
@@ -32,8 +50,8 @@ const WineCard = ({ wine, onClick }) => (
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
           <div className="text-xs text-gray-600 mb-3">Style</div>
-          <span className="text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-purple-800 px-3 py-1 rounded-full select-none">
-            {wine.style}
+          <span className="text-sm font-medium text-purple-700 bg-purple-100 px-3 py-1 rounded-lg select-none">
+            {abbreviateWineStyle(wine.style)}
           </span>
         </div>
         <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
@@ -53,21 +71,10 @@ const WineCard = ({ wine, onClick }) => (
               <span className="text-sm font-medium text-gray-800">{wine.region}</span>
             </div>
           )}
-          {wine.sweetness && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-600">Sweetness:</span>
-              <span className="text-sm font-medium text-gray-800">{wine.sweetness}</span>
-            </div>
-          )}
-          {wine.grapeVariety && wine.grapeVariety.length > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-600">Grapes:</span>
-              <span className="text-sm font-medium text-gray-800">
-                {wine.grapeVariety.slice(0, 2).join(', ')}
-                {wine.grapeVariety.length > 2 && ` +${wine.grapeVariety.length - 2} more`}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-600">Sweetness:</span>
+            <span className="text-sm font-medium text-gray-800">{wine.sweetness || 'Not specified'}</span>
+          </div>
         </div>
       )}
       

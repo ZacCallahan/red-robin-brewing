@@ -41,11 +41,14 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
     <>
       {/* Desktop Navigation */}
       <nav className="bg-gradient-to-r from-black via-gray-900 to-black shadow-xl border-b-2 border-red-600 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo Section */}
-            <div className="flex items-center gap-3">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg">
+        <div className="max-w-8xl mx-auto px-6">
+          <div className="flex items-center justify-between h-16 relative px-4">
+            {/* Logo Section - Left (Clickable) */}
+            <button 
+              onClick={() => handleNavigation('home')}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+            >
+              <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
                 <img 
                   src="/logo.png" 
                   alt="Red Robin Brewing Co. Logo" 
@@ -59,35 +62,34 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
                   <span className="text-white font-bold text-base">RR</span>
                 </div>
               </div>
-              <div className="hidden sm:block">
+              <div className="hidden sm:block text-left">
                 <h1 className="text-xl font-bold text-white tracking-tight select-none">
                   Red Robin Rating
                 </h1>
-                <p className="text-xs text-gray-300 -mt-1 select-none pointer-events-none">
+                <p className="text-xs text-gray-300 -mt-1 select-none">
                   Alcoholic Beverage Reviews
                 </p>
               </div>
-            </div>
+            </button>
 
-            {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-1">
+            {/* Desktop Navigation Links - Centered */}
+            <div className="hidden xl:flex items-center gap-3 absolute left-1/2 transform -translate-x-1/2">
               <NavButton page="home" icon={Home}>Home</NavButton>
-              <NavButton page="beers" icon={Beer}>Beers</NavButton>
+              <NavButton page="beers" icon={Beer}>Beer + Cider</NavButton>
               <NavButton page="wines" icon={Wine}>Wines</NavButton>
               <NavButton page="spirits" icon={Martini}>Spirits</NavButton>
               <NavButton page="friends" icon={Users}>Users</NavButton>
               <NavButton page="add-beverage" icon={Plus}>Add Beverage</NavButton>
-              
-              {/* Admin link - only show for admin users */}
-              {isLoggedIn && user?.isAdmin && (
-                <NavButton page="admin" icon={Settings}>Admin</NavButton>
-              )}
             </div>
 
-            {/* User Section */}
-            <div className="flex items-center gap-2">
+            {/* User Section - Right */}
+            <div className="flex items-center gap-4">
               {isLoggedIn ? (
-                <div className="hidden md:flex items-center gap-2">
+                <div className="hidden lg:flex items-center gap-3">
+                  {/* Admin link - only show for admin users */}
+                  {user?.isAdmin && (
+                    <NavButton page="admin" icon={Settings}>Admin</NavButton>
+                  )}
                   <NavButton page="profile" icon={User}>
                     {user?.username || 'Profile'}
                   </NavButton>
@@ -100,7 +102,7 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
                   </button>
                 </div>
               ) : (
-                <div className="hidden md:flex items-center gap-2">
+                <div className="hidden lg:flex items-center gap-3">
                   <NavButton page="login" icon={LogIn}>Login</NavButton>
                   <NavButton page="register" icon={User}>Sign Up</NavButton>
                 </div>
@@ -109,7 +111,7 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
               {/* Mobile Menu Button */}
               <button
                 onClick={toggleMobileMenu}
-                className="md:hidden p-2 rounded-lg text-white hover:bg-red-600 transition-colors"
+                className="lg:hidden p-2 rounded-lg text-white hover:bg-red-600 transition-colors"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -119,10 +121,10 @@ const Navigation = ({ currentPage, isLoggedIn, user, handleNavigation, handleLog
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-black border-t border-gray-700 shadow-lg">
+          <div className="lg:hidden bg-black border-t border-gray-700 shadow-lg">
             <div className="px-4 py-3 space-y-1">
               <NavButton page="home" icon={Home} mobile>Home</NavButton>
-              <NavButton page="beers" icon={Beer} mobile>Beers</NavButton>
+              <NavButton page="beers" icon={Beer} mobile>Beer + Cider</NavButton>
               <NavButton page="wines" icon={Wine} mobile>Wines</NavButton>
               <NavButton page="spirits" icon={Martini} mobile>Spirits</NavButton>
               <NavButton page="friends" icon={Users} mobile>Users</NavButton>

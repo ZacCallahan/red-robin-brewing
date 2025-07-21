@@ -21,18 +21,17 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
   });
 
   // Wine data
-  const [wineData, setWineData] = useState({
-    name: '',
-    winery: '',
-    customWinery: '',
-    style: '',
-    abv: '',
-    vintage: '',
-    region: '',
-    grapeVariety: [],
-    sweetness: '',
-    description: ''
-  });
+const [wineData, setWineData] = useState({
+  name: '',
+  winery: '',
+  customWinery: '',
+  style: '',
+  abv: '',
+  vintage: '',
+  region: '',
+  sweetness: '',
+  description: ''
+});
 
   // Spirit data
   const [spiritData, setSpiritData] = useState({
@@ -48,15 +47,62 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
   });
 
   // Available options for each beverage type
-  const beerStyles = ['IPA', 'Stout', 'Wheat', 'Lager', 'Ale', 'Pilsner', 'Sour', 'Porter', 'Other'];
-  const wineStyles = ['Red', 'White', 'Rosé', 'Sparkling', 'Dessert', 'Fortified', 'Orange', 'Other'];
+  const beerStyles = [
+  // Beer Styles
+  'IPA', 'Stout', 'Wheat', 'Lager', 'Ale', 'Pilsner', 'Sour', 'Porter', 
+  // Cider Styles
+  'Traditional Cider', 'Fruit Cider', 'Hopped Cider', 'Sour Cider', 
+  'Other'
+];
+  const wineStyles = [
+  // Red Wine Styles
+  'Shiraz',
+  'Cabernet Sauvignon', 
+  'Cabernet Shiraz',
+  'Cabernet Merlot',
+  'Shiraz Viognier',
+  'Pinot Noir',
+  'Merlot',
+  'Grenache',
+  'Sangiovese',
+  'Tempranillo',
+  'Barbera',
+  'Nebbiolo',
+  'Malbec',
+  'Petit Verdot',
+  'Durif',
+  
+  // White Wine Styles
+  'Chardonnay',
+  'Sauvignon Blanc',
+  'Semillon',
+  'Riesling',
+  'Pinot Grigio',
+  'Pinot Gris',
+  'Gewürztraminer',
+  'Viognier',
+  'Verdelho',
+  'Chenin Blanc',
+  'Moscato',
+  'Albariño',
+  
+  // Sparkling & Other
+  'Champagne',
+  'Sparkling Shiraz',
+  'Sparkling Chardonnay',
+  'Sparkling Pinot Noir',
+  'Cava',
+  'Prosecco',
+  'Rosé',
+  'Dessert Wine',
+  'Fortified',
+  'Port',
+  'Sherry',
+  'Orange Wine',
+  'Other'
+];
   const spiritStyles = ['Whiskey', 'Rum', 'Vodka', 'Gin', 'Tequila', 'Brandy', 'Liqueur', 'Other'];
   const sweetnessLevels = ['Bone Dry', 'Dry', 'Off-Dry', 'Medium-Dry', 'Medium-Sweet', 'Sweet', 'Very Sweet'];
-  const grapeVarieties = [
-    'Cabernet Sauvignon', 'Merlot', 'Pinot Noir', 'Syrah/Shiraz', 'Chardonnay', 
-    'Sauvignon Blanc', 'Riesling', 'Pinot Grigio/Pinot Gris', 'Gewürztraminer', 
-    'Sangiovese', 'Tempranillo', 'Grenache', 'Nebbiolo', 'Chenin Blanc', 'Viognier'
-  ];
 
   // Get existing producers for each type
   const existingBreweries = beers && beers.length > 0 
@@ -73,7 +119,7 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
 
   // Tab configuration
   const tabs = [
-    { id: 'beer', label: 'Beer', icon: Beer, color: 'red' },
+    { id: 'beer', label: 'Beer + Cider', icon: Beer, color: 'red' },
     { id: 'wine', label: 'Wine', icon: Wine, color: 'purple' },
     { id: 'spirit', label: 'Spirit', icon: Martini, color: 'amber' }
   ];
@@ -112,16 +158,6 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
         customDistillery: value === 'Other' ? prev.customDistillery : ''
       }));
     }
-  };
-
-  // Handle grape variety selection for wines
-  const handleGrapeVarietyChange = (grape) => {
-    setWineData(prev => ({
-      ...prev,
-      grapeVariety: prev.grapeVariety.includes(grape)
-        ? prev.grapeVariety.filter(g => g !== grape)
-        : [...prev.grapeVariety, grape]
-    }));
   };
 
   // Submit form based on active tab
@@ -197,11 +233,9 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
           abv: abvValue,
           vintage: wineData.vintage ? parseInt(wineData.vintage) : undefined,
           region: wineData.region?.trim() || undefined,
-          grapeVariety: wineData.grapeVariety,
           sweetness: wineData.sweetness || undefined,
           description: wineData.description?.trim() || ''
         };
-
         result = await api.wines.create(submitData);
         setSuccessMessage('Wine added successfully!');
         redirectPage = 'wines';
@@ -252,7 +286,7 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
         name: '', brewery: '', customBrewery: '', style: '', abv: '', description: '', sessionable: false
       });
       setWineData({
-        name: '', winery: '', customWinery: '', style: '', abv: '', vintage: '', region: '', grapeVariety: [], sweetness: '', description: ''
+        name: '', winery: '', customWinery: '', style: '', abv: '', vintage: '', region: '', sweetness: '', description: ''
       });
       setSpiritData({
         name: '', distillery: '', customDistillery: '', style: '', abv: '', age: '', category: '', region: '', description: ''
@@ -325,38 +359,38 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
   const getColorClasses = (color, type = 'bg') => {
     const colors = {
       red: {
-        bg: 'bg-red-600',
-        hover: 'hover:bg-red-700',
+        bg: 'bg-red-500',
+        hover: 'hover:bg-red-600',
         border: 'border-red-500',
         focus: 'focus:ring-red-500 focus:border-red-500',
-        text: 'text-red-600'
+        text: 'text-red-500'
       },
       purple: {
-        bg: 'bg-purple-800',
-        hover: 'hover:bg-purple-900',
-        border: 'border-purple-700',
-        focus: 'focus:ring-purple-700 focus:border-purple-700',
-        text: 'text-purple-800'
+        bg: 'bg-purple-500',
+        hover: 'hover:bg-purple-600',
+        border: 'border-purple-500',
+        focus: 'focus:ring-purple-500 focus:border-purple-500',
+        text: 'text-purple-500'
       },
       amber: {
-        bg: 'bg-amber-600',
-        hover: 'hover:bg-amber-700',
+        bg: 'bg-amber-500',
+        hover: 'hover:bg-amber-600',
         border: 'border-amber-500',
         focus: 'focus:ring-amber-500 focus:border-amber-500',
-        text: 'text-amber-600'
+        text: 'text-amber-500'
       }
     };
     return colors[color]?.[type] || colors.red[type];
   };
 
   const getHeaderClasses = (color) => {
-    const headerColors = {
-      red: 'bg-gradient-to-r from-red-800 to-red-600',
-      purple: 'bg-gradient-to-r from-purple-900 to-purple-700',
-      amber: 'bg-gradient-to-r from-amber-700 to-amber-500'
-    };
-    return headerColors[color] || headerColors.red;
+  const headerColors = {
+    red: 'bg-gradient-to-r from-red-500 to-red-600',
+    purple: 'bg-gradient-to-r from-purple-500 to-purple-600',
+    amber: 'bg-gradient-to-r from-amber-500 to-amber-600'
   };
+  return headerColors[color] || headerColors.red;
+};
 
   const currentColor = getCurrentTabColor();
 
@@ -366,9 +400,11 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
         {/* Header */}
         <div className={`${getHeaderClasses(currentColor)} rounded-xl p-2 mb-8 text-center`}>
           <h2 className="text-3xl font-bold text-white mb-2 font-serif select-none">
-            Add New {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-          </h2>
-          <p className="text-gray-100 select-none">Share your favorite {activeTab}s with our community</p>
+              Add New {activeTab === 'beer' ? 'Beer/Cider' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+            </h2>
+            <p className="text-gray-100 select-none">
+              Share your favorite {activeTab === 'beer' ? 'beer and cider' : activeTab + 's'} with our community
+            </p>
         </div>
 
         {/* Tabs */}
@@ -416,20 +452,18 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
             )}
 
             {/* Wine Form */}
-            {activeTab === 'wine' && (
-              <WineForm 
-                wineData={wineData}
-                handleWineChange={handleWineChange}
-                handleProducerChange={handleProducerChange}
-                handleGrapeVarietyChange={handleGrapeVarietyChange}
-                existingWineries={existingWineries}
-                wineStyles={wineStyles}
-                sweetnessLevels={sweetnessLevels}
-                grapeVarieties={grapeVarieties}
-                currentColor={currentColor}
-                getColorClasses={getColorClasses}
-              />
-            )}
+              {activeTab === 'wine' && (
+                <WineForm 
+                  wineData={wineData}
+                  handleWineChange={handleWineChange}
+                  handleProducerChange={handleProducerChange}
+                  existingWineries={existingWineries}
+                  wineStyles={wineStyles}
+                  sweetnessLevels={sweetnessLevels}
+                  currentColor={currentColor}
+                  getColorClasses={getColorClasses}
+                />
+              )}
 
             {/* Spirit Form */}
             {activeTab === 'spirit' && (
@@ -453,9 +487,9 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
               >
                 {isSubmitting 
                   ? `Adding ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}...` 
-                  : `Add ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} to Collection`
+                  : `Add Beverage to Collection`
                 }
-              </button>
+              </button> 
             </div>
 
             {/* Back Button */}
@@ -465,7 +499,7 @@ const AddBeveragePage = ({ isLoggedIn, handleNavigation, refreshBeers, refreshWi
                 onClick={() => handleNavigation(activeTab + 's')}
                 className="text-gray-600 hover:text-gray-800 font-medium"
               >
-                ← Back to {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}s
+                ← Back to Beer + Cider
               </button>
             </div>
           </div>
@@ -480,13 +514,13 @@ const BeerForm = ({ beerData, handleBeerChange, handleProducerChange, existingBr
   <div className="space-y-6">
     {/* Beer Name */}
     <div>
-      <label className="block text-sm font-medium text-gray-800 mb-2">Beer Name *</label>
+      <label className="block text-sm font-medium text-gray-800 mb-2">Name *</label>
       <input
         type="text"
         value={beerData.name}
         onChange={(e) => handleBeerChange('name', e.target.value)}
         className={`w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 ${getColorClasses(currentColor, 'focus')}`}
-        placeholder="e.g., Hazy IPA, Imperial Stout"
+        placeholder="e.g., Hazy IPA, Imperial Stout, Sour Cider"
         required
       />
     </div>
@@ -528,7 +562,7 @@ const BeerForm = ({ beerData, handleBeerChange, handleProducerChange, existingBr
     {/* Style and ABV */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
-        <label className="block text-sm font-medium text-gray-800 mb-2">Beer Style *</label>
+        <label className="block text-sm font-medium text-gray-800 mb-2">Style *</label>
         <select
           value={beerData.style}
           onChange={(e) => handleBeerChange('style', e.target.value)}
@@ -564,7 +598,7 @@ const BeerForm = ({ beerData, handleBeerChange, handleProducerChange, existingBr
         <div>
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <Clock className="w-5 h-5 text-green-600" />
-            Sessionable Beer
+            Sessionable
           </h3>
           <p className="text-sm text-gray-600 mt-1">Perfect for drinking multiple over a session</p>
         </div>
@@ -592,7 +626,7 @@ const BeerForm = ({ beerData, handleBeerChange, handleProducerChange, existingBr
         onChange={(e) => handleBeerChange('description', e.target.value)}
         rows="4"
         className={`w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 ${getColorClasses(currentColor, 'focus')}`}
-        placeholder="Describe the beer's flavor profile, aroma, appearance..."
+        placeholder="Describe the flavor profile, aroma, appearance..."
         maxLength="500"
       />
       <div className="text-right text-sm text-gray-500 mt-1">
@@ -603,7 +637,7 @@ const BeerForm = ({ beerData, handleBeerChange, handleProducerChange, existingBr
 );
 
 // Wine Form Component  
-const WineForm = ({ wineData, handleWineChange, handleProducerChange, handleGrapeVarietyChange, existingWineries, wineStyles, sweetnessLevels, grapeVarieties, currentColor, getColorClasses }) => (
+const WineForm = ({ wineData, handleWineChange, handleProducerChange, existingWineries, wineStyles, sweetnessLevels, currentColor, getColorClasses }) => (
   <div className="space-y-6">
     {/* Wine Name */}
     <div>

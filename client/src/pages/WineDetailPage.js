@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Wine, User, Calendar, MapPin, Grape, Star, MessageSquare, Edit, Save, X } from 'lucide-react';
+import { ArrowLeft, Wine, User, Calendar, MapPin, Star, MessageSquare, Edit, Save, X } from 'lucide-react';
 import StarRating from '../components/StarRating';
 import { api } from '../services/api';
 
@@ -36,9 +36,12 @@ const WineDetailPage = ({
     }
   }, [existingReview, isLoggedIn]);
 
-  // Initialize edit data
+  const [localWineData, setLocalWineData] = useState(null);
+
+  // Initialize local wine data and edit data
   useEffect(() => {
     if (selectedWine) {
+      setLocalWineData(selectedWine);
       setEditData({
         name: selectedWine.name || '',
         winery: selectedWine.winery || '',
@@ -102,15 +105,47 @@ const WineDetailPage = ({
         vintage: editData.vintage ? parseInt(editData.vintage) : undefined
       };
 
-      await api.wines.update(selectedWine._id, updatedData);
+      const result = await api.wines.update(selectedWine._id, updatedData);
+      console.log('Wine updated successfully:', result);
       
+      // Update local wine data immediately to show changes in UI
+      setLocalWineData({
+        ...selectedWine,
+        ...updatedData
+      });
+      
+      // Refresh the wine data and reviews
       if (refreshWines) {
         await refreshWines();
+        console.log('refreshWines called');
       }
       
+      // Reload the wine reviews to get fresh data
+      if (loadWineReviews) {
+        await loadWineReviews(selectedWine._id);
+        console.log('loadWineReviews called');
+      }
+      
+      // Force update the editData with the new values to trigger re-render
+      setEditData({
+        name: updatedData.name,
+        winery: updatedData.winery,
+        style: updatedData.style,
+        abv: updatedData.abv,
+        vintage: updatedData.vintage || '',
+        region: updatedData.region || '',
+        sweetness: updatedData.sweetness || '',
+        description: updatedData.description || ''
+      });
+      
       setIsEditing(false);
+      
+      console.log('Wine edit completed, editData updated');
+      
     } catch (error) {
       console.error('Error updating wine:', error);
+      // You might want to show an error message to the user here
+      alert('Error updating wine: ' + (error.message || 'Unknown error'));
     }
   };
 
@@ -131,6 +166,8 @@ const WineDetailPage = ({
     );
   }
 
+  // Use local wine data if available, fallback to selectedWine
+  const displayWine = localWineData || selectedWine;
   const canEdit = isLoggedIn && (user?.isAdmin || selectedWine.addedBy?._id === user?._id);
 
   return (
@@ -149,23 +186,23 @@ const WineDetailPage = ({
 
         {/* Wine Details Card */}
         <div className="bg-white rounded-xl shadow-xl p-8 border-2 border-gray-200 mb-8">
-          <div className="flex justify-between items-start mb-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <Wine className="w-8 h-8 text-purple-600" />
+          <div className="flex justify-between items-start mb-6 gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-4 flex-wrap">
+                <Wine className="w-8 h-8 text-purple-600 flex-shrink-0" />
                 {isEditing ? (
                   <input
                     type="text"
                     value={editData.name}
                     onChange={(e) => setEditData({...editData, name: e.target.value})}
-                    className="text-3xl font-bold text-gray-900 font-serif border-b-2 border-purple-300 focus:border-purple-600 outline-none bg-transparent"
+                    className="text-3xl font-bold text-gray-900 font-serif border-b-2 border-purple-300 focus:border-purple-600 outline-none bg-transparent flex-1 min-w-0"
                   />
                 ) : (
-                  <h1 className="text-3xl font-bold text-gray-900 font-serif">{selectedWine.name}</h1>
+                  <h1 className="text-3xl font-bold text-gray-900 font-serif break-words">{displayWine.name}</h1>
                 )}
-                {selectedWine.vintage && (
-                  <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold">
-                    {selectedWine.vintage}
+                {displayWine.vintage && (
+                  <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg text-xs font-medium flex-shrink-0">
+                    {displayWine.vintage}
                   </span>
                 )}
               </div>
@@ -178,12 +215,12 @@ const WineDetailPage = ({
                   className="text-xl text-purple-600 font-semibold border-b border-purple-300 focus:border-purple-600 outline-none bg-transparent"
                 />
               ) : (
-                <p className="text-xl text-purple-600 font-semibold mb-4">{selectedWine.winery}</p>
+                <p className="text-xl text-purple-600 font-semibold mb-4">{displayWine.winery}</p>
               )}
             </div>
 
             {canEdit && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-shrink-0">
                 {isEditing ? (
                   <>
                     <button
@@ -224,17 +261,50 @@ const WineDetailPage = ({
                   onChange={(e) => setEditData({...editData, style: e.target.value})}
                   className="w-full bg-transparent border border-purple-300 rounded px-2 py-1"
                 >
-                  <option value="Red">Red</option>
-                  <option value="White">White</option>
+                  <option value="">Select style</option>
+                  <option value="Shiraz">Shiraz</option>
+                  <option value="Cabernet Sauvignon">Cabernet Sauvignon</option>
+                  <option value="Cabernet Shiraz">Cabernet Shiraz</option>
+                  <option value="Cabernet Merlot">Cabernet Merlot</option>
+                  <option value="Shiraz Viognier">Shiraz Viognier</option>
+                  <option value="Pinot Noir">Pinot Noir</option>
+                  <option value="Merlot">Merlot</option>
+                  <option value="Grenache">Grenache</option>
+                  <option value="Sangiovese">Sangiovese</option>
+                  <option value="Tempranillo">Tempranillo</option>
+                  <option value="Barbera">Barbera</option>
+                  <option value="Nebbiolo">Nebbiolo</option>
+                  <option value="Malbec">Malbec</option>
+                  <option value="Petit Verdot">Petit Verdot</option>
+                  <option value="Durif">Durif</option>
+                  <option value="Chardonnay">Chardonnay</option>
+                  <option value="Sauvignon Blanc">Sauvignon Blanc</option>
+                  <option value="Semillon">Semillon</option>
+                  <option value="Riesling">Riesling</option>
+                  <option value="Pinot Grigio">Pinot Grigio</option>
+                  <option value="Pinot Gris">Pinot Gris</option>
+                  <option value="Gewürztraminer">Gewürztraminer</option>
+                  <option value="Viognier">Viognier</option>
+                  <option value="Verdelho">Verdelho</option>
+                  <option value="Chenin Blanc">Chenin Blanc</option>
+                  <option value="Moscato">Moscato</option>
+                  <option value="Albariño">Albariño</option>
+                  <option value="Champagne">Champagne</option>
+                  <option value="Sparkling Shiraz">Sparkling Shiraz</option>
+                  <option value="Sparkling Chardonnay">Sparkling Chardonnay</option>
+                  <option value="Sparkling Pinot Noir">Sparkling Pinot Noir</option>
+                  <option value="Cava">Cava</option>
+                  <option value="Prosecco">Prosecco</option>
                   <option value="Rosé">Rosé</option>
-                  <option value="Sparkling">Sparkling</option>
-                  <option value="Dessert">Dessert</option>
+                  <option value="Dessert Wine">Dessert Wine</option>
                   <option value="Fortified">Fortified</option>
-                  <option value="Orange">Orange</option>
+                  <option value="Port">Port</option>
+                  <option value="Sherry">Sherry</option>
+                  <option value="Orange Wine">Orange Wine</option>
                   <option value="Other">Other</option>
                 </select>
               ) : (
-                <div className="font-bold text-purple-800">{selectedWine.style}</div>
+                <div className="font-bold text-purple-800">{displayWine.style}</div>
               )}
             </div>
 
@@ -249,41 +319,47 @@ const WineDetailPage = ({
                   className="w-full bg-transparent border border-purple-300 rounded px-2 py-1"
                 />
               ) : (
-                <div className="font-bold text-purple-800">{selectedWine.abv}%</div>
+                <div className="font-bold text-purple-800">{displayWine.abv}%</div>
               )}
             </div>
 
-            {(selectedWine.vintage || isEditing) && (
-              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                <div className="text-sm text-purple-600 mb-1">Vintage</div>
-                {isEditing ? (
-                  <input
-                    type="number"
-                    value={editData.vintage}
-                    onChange={(e) => setEditData({...editData, vintage: e.target.value})}
-                    className="w-full bg-transparent border border-purple-300 rounded px-2 py-1"
-                  />
-                ) : (
-                  <div className="font-bold text-purple-800">{selectedWine.vintage}</div>
-                )}
-              </div>
-            )}
+            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <div className="text-sm text-purple-600 mb-1">Sweetness</div>
+              {isEditing ? (
+                <select
+                  value={editData.sweetness}
+                  onChange={(e) => setEditData({...editData, sweetness: e.target.value})}
+                  className="w-full bg-transparent border border-purple-300 rounded px-2 py-1"
+                >
+                  <option value="">Select sweetness</option>
+                  <option value="Bone Dry">Bone Dry</option>
+                  <option value="Dry">Dry</option>
+                  <option value="Off-Dry">Off-Dry</option>
+                  <option value="Medium-Dry">Medium-Dry</option>
+                  <option value="Medium-Sweet">Medium-Sweet</option>
+                  <option value="Sweet">Sweet</option>
+                  <option value="Very Sweet">Very Sweet</option>
+                </select>
+              ) : (
+                <div className="font-bold text-purple-800">{displayWine.sweetness || 'Not specified'}</div>
+              )}
+            </div>
 
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
               <div className="text-sm text-purple-600 mb-1">Rating</div>
               <div className="flex items-center gap-2">
-                <StarRating rating={selectedWine.averageRating || 0} />
+                <StarRating rating={displayWine.averageRating || 0} />
                 <span className="font-bold text-purple-800">
-                  {selectedWine.averageRating ? selectedWine.averageRating.toFixed(1) : '0.0'}
+                  {displayWine.averageRating ? displayWine.averageRating.toFixed(1) : '0.0'}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Additional Wine Info */}
-          {(selectedWine.region || selectedWine.sweetness || selectedWine.grapeVariety?.length > 0 || isEditing) && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              {(selectedWine.region || isEditing) && (
+          {(displayWine.region || displayWine.sweetness || isEditing) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {(displayWine.region || isEditing) && (
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-purple-600" />
                   <div>
@@ -296,13 +372,13 @@ const WineDetailPage = ({
                         className="ml-2 border border-purple-300 rounded px-2 py-1"
                       />
                     ) : (
-                      <span className="ml-2 font-medium text-gray-800">{selectedWine.region}</span>
+                      <span className="ml-2 font-medium text-gray-800">{displayWine.region}</span>
                     )}
                   </div>
                 </div>
               )}
 
-              {(selectedWine.sweetness || isEditing) && (
+              {(displayWine.sweetness || isEditing) && (
                 <div className="flex items-center gap-2">
                   <Star className="w-5 h-5 text-purple-600" />
                   <div>
@@ -323,21 +399,8 @@ const WineDetailPage = ({
                         <option value="Very Sweet">Very Sweet</option>
                       </select>
                     ) : (
-                      <span className="ml-2 font-medium text-gray-800">{selectedWine.sweetness}</span>
+                      <span className="ml-2 font-medium text-gray-800">{displayWine.sweetness}</span>
                     )}
-                  </div>
-                </div>
-              )}
-
-              {selectedWine.grapeVariety && selectedWine.grapeVariety.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Grape className="w-5 h-5 text-purple-600" />
-                  <div>
-                    <span className="text-sm text-purple-600">Grapes:</span>
-                    <span className="ml-2 font-medium text-gray-800">
-                      {selectedWine.grapeVariety.slice(0, 2).join(', ')}
-                      {selectedWine.grapeVariety.length > 2 && ` +${selectedWine.grapeVariety.length - 2} more`}
-                    </span>
                   </div>
                 </div>
               )}
@@ -345,7 +408,7 @@ const WineDetailPage = ({
           )}
 
           {/* Description */}
-          {(selectedWine.description || isEditing) && (
+          {(displayWine.description || isEditing) && (
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
               {isEditing ? (
@@ -356,19 +419,19 @@ const WineDetailPage = ({
                   className="w-full border border-purple-300 rounded-lg px-3 py-2"
                 />
               ) : (
-                <p className="text-gray-700 leading-relaxed">{selectedWine.description}</p>
+                <p className="text-gray-700 leading-relaxed">{displayWine.description}</p>
               )}
             </div>
           )}
 
           {/* Added by */}
-          {selectedWine.addedBy && (
+          {displayWine.addedBy && (
             <div className="border-t border-gray-200 pt-6 mt-6">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <User className="w-4 h-4" />
-                <span>Added by {selectedWine.addedBy.username || selectedWine.addedBy.firstName}</span>
+                <span>Added by {displayWine.addedBy.username || displayWine.addedBy.firstName}</span>
                 <Calendar className="w-4 h-4 ml-4" />
-                <span>{new Date(selectedWine.createdAt).toLocaleDateString()}</span>
+                <span>{new Date(displayWine.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
           )}

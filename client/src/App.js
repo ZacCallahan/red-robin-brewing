@@ -147,6 +147,8 @@ function App() {
   // Handle page navigation
   const handleNavigation = (page) => {
     setCurrentPage(page);
+    // Scroll to top when navigating to any page
+    window.scrollTo(0, 0);
   };
 
   // Reload beverages for admin dashboard
@@ -193,6 +195,8 @@ function App() {
       
       console.log('🏠 Navigating to home');
       setCurrentPage('home');
+      // Scroll to top after login
+      window.scrollTo(0, 0);
       
       console.log('✅ Login completed successfully');
     } catch (error) {
@@ -231,6 +235,8 @@ function App() {
     setUser(null);
     setIsLoggedIn(false);
     setCurrentPage('home');
+    // Scroll to top after logout
+    window.scrollTo(0, 0);
   };
 
   // Handle beverage selection and navigation
@@ -238,24 +244,32 @@ function App() {
     setSelectedBeer(beer);
     loadBeerReviews(beer._id);
     setCurrentPage('beer-detail');
+    // Scroll to top when viewing beer details
+    window.scrollTo(0, 0);
   };
 
   const handleWineSelect = (wine) => {
     setSelectedWine(wine);
     loadWineReviews(wine._id);
     setCurrentPage('wine-detail');
+    // Scroll to top when viewing wine details
+    window.scrollTo(0, 0);
   };
 
   const handleSpiritSelect = (spirit) => {
     setSelectedSpirit(spirit);
     loadSpiritReviews(spirit._id);
     setCurrentPage('spirit-detail');
+    // Scroll to top when viewing spirit details
+    window.scrollTo(0, 0);
   };
 
   // Handle user selection and navigation
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setCurrentPage('user-profile');
+    // Scroll to top when viewing user profile
+    window.scrollTo(0, 0);
   };
 
   // Render current page based on state

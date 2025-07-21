@@ -11,11 +11,29 @@ const spiritSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  style: {
-    type: String,
-    required: true,
-    enum: ['Whiskey', 'Rum', 'Vodka', 'Gin', 'Tequila', 'Brandy', 'Liqueur', 'Other']
-  },
+ // In your Spirit model
+style: {
+  type: String,
+  required: true,
+  enum: [
+    // Whiskey/Whisky
+    'Whiskey', 'Single Malt Whisky', 'Blended Scotch Whisky', 'Irish Whiskey', 'Tennessee Whiskey', 'Bourbon',
+    // Rum
+    'Rum', 'White Rum', 'Dark Rum', 'Spiced Rum', 'Aged Rum',
+    // Gin
+    'Gin', 'London Dry Gin', 'Plymouth Gin', 'Old Tom Gin',
+    // Vodka
+    'Vodka', 'Premium Vodka',
+    // Tequila
+    'Tequila', 'Blanco Tequila', 'Reposado Tequila', 'Añejo Tequila',
+    // Brandy & Cognac
+    'Brandy', 'Cognac', 'Armagnac', 'Calvados',
+    // Liqueur
+    'Liqueur', 'Herbal Liqueur', 'Fruit Liqueur', 'Cream Liqueur',
+    // Other
+    'Other'
+  ]
+},
   abv: {
     type: Number,
     required: true,

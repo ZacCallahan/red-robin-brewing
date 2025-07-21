@@ -16,7 +16,7 @@ const SpiritCard = ({ spirit, onClick }) => (
         </h3>
         {spirit.age && spirit.age > 0 && (
           <div className="ml-2 flex-shrink-0">
-            <div className="bg-amber-600 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+            <div className="bg-amber-100 text-amber-700 px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {spirit.age}Y
             </div>
@@ -33,7 +33,7 @@ const SpiritCard = ({ spirit, onClick }) => (
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
           <div className="text-xs text-gray-600 mb-3">Style</div>
-          <span className="text-sm font-bold text-white bg-gradient-to-r from-amber-600 to-amber-800 px-3 py-1 rounded-full select-none">
+          <span className="text-sm font-medium text-gray-700 bg-gray-200 px-3 py-1 rounded-lg select-none">
             {spirit.style}
           </span>
         </div>

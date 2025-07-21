@@ -14,7 +14,53 @@ const wineSchema = new mongoose.Schema({
   style: {
     type: String,
     required: true,
-    enum: ['Red', 'White', 'Rosé', 'Sparkling', 'Dessert', 'Fortified', 'Orange', 'Other']
+    enum: [
+      // Red Wine Styles
+      'Shiraz',
+      'Cabernet Sauvignon', 
+      'Cabernet Shiraz',
+      'Cabernet Merlot',
+      'Shiraz Viognier',
+      'Pinot Noir',
+      'Merlot',
+      'Grenache',
+      'Sangiovese',
+      'Tempranillo',
+      'Barbera',
+      'Nebbiolo',
+      'Malbec',
+      'Petit Verdot',
+      'Durif',
+      
+      // White Wine Styles
+      'Chardonnay',
+      'Sauvignon Blanc',
+      'Semillon',
+      'Riesling',
+      'Pinot Grigio',
+      'Pinot Gris',
+      'Gewürztraminer',
+      'Viognier',
+      'Verdelho',
+      'Chenin Blanc',
+      'Moscato',
+      'Albariño',
+      
+      // Sparkling & Other
+      'Champagne',
+      'Sparkling Shiraz',
+      'Sparkling Chardonnay',
+      'Sparkling Pinot Noir',
+      'Cava',
+      'Prosecco',
+      'Rosé',
+      'Dessert Wine',
+      'Fortified',
+      'Port',
+      'Sherry',
+      'Orange Wine',
+      'Other'
+    ]
   },
   abv: {
     type: Number,

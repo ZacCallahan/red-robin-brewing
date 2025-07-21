@@ -924,6 +924,61 @@ export const api = {
         console.error('Error populating database:', error);
         throw error;
       }
+    },
+    
+    // Add these new methods to the admin object
+populateBeers: async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/populate-beers`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to populate beers');
     }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error populating beers:', error);
+    throw error;
+  }
+},
+
+populateWines: async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/populate-wines`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to populate wines');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error populating wines:', error);
+    throw error;
+  }
+},
+
+populateSpirits: async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/populate-spirits`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to populate spirits');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error populating spirits:', error);
+    throw error;
+  }
+}
   }
 };
