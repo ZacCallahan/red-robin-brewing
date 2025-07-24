@@ -111,7 +111,7 @@ const ResetPasswordPage = ({ handleNavigation }) => {
             <div className="space-y-3">
               <button 
                 onClick={() => handleNavigation('login')}
-                className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white py-3 px-6 rounded-lg hover:from-red-700 hover:to-red-900 transition-all duration-300 font-semibold select-none"
+                className="w-full bg-red-500 text-white py-3 px-6 rounded-lg hover:bg-red-600 transition-all duration-300 font-semibold select-none"
               >
                 Continue to Login
               </button>
@@ -140,7 +140,7 @@ const ResetPasswordPage = ({ handleNavigation }) => {
             <div className="space-y-3">
               <button 
                 onClick={() => handleNavigation('forgot-password')}
-                className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white py-3 px-6 rounded-lg hover:from-red-700 hover:to-red-900 transition-all duration-300 font-semibold select-none"
+                className="w-full bg-red-500 text-white py-3 px-6 rounded-lg hover:bg-red-600 transition-all duration-300 font-semibold select-none"
               >
                 Request New Reset Link
               </button>
@@ -164,7 +164,7 @@ const ResetPasswordPage = ({ handleNavigation }) => {
         <div className="bg-white rounded-lg shadow-lg p-8 border-4 border-gray-200">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg border-2 border-gray-300">
+            <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg border-2 border-gray-300">
               <Lock className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 font-serif select-none">Reset Password</h2>
@@ -253,7 +253,7 @@ const ResetPasswordPage = ({ handleNavigation }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white py-4 px-6 rounded-full hover:from-red-700 hover:to-red-900 transition-all duration-300 font-bold text-lg shadow-xl border-2 border-gray-300 hover:border-white transform hover:scale-105 disabled:opacity-50 select-none"
+              className="w-full bg-red-500 text-white py-4 px-6 rounded-full hover:bg-red-600 transition-all duration-300 font-bold text-lg shadow-xl border-2 border-gray-300 hover:border-white transform hover:scale-105 disabled:opacity-50 select-none"
             >
               {loading ? 'Resetting Password...' : 'Reset Password'}
             </button>

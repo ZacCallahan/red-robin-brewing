@@ -32,6 +32,26 @@ const UserProfilePage = ({ selectedUser }) => {
     fetchUserReviews();
   }, [selectedUser]);
 
+  // Helper function to get user initials
+  const getUserInitials = (user) => {
+    if (!user) return '?';
+    
+    const firstName = user.firstName?.trim() || '';
+    const lastName = user.lastName?.trim() || '';
+    
+    if (firstName && lastName) {
+      return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (lastName) {
+      return lastName.charAt(0).toUpperCase();
+    } else if (user.username) {
+      return user.username.charAt(0).toUpperCase();
+    }
+    
+    return '?';
+  };
+
   // Handle no user selected
   if (!selectedUser) {
     return (
@@ -47,9 +67,9 @@ const UserProfilePage = ({ selectedUser }) => {
         {/* User Profile Header */}
         <div className="bg-white rounded-xl shadow-xl p-8 mb-8 border-4 border-gray-200">
           <div className="flex items-center gap-6 mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center">
+            <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-2xl select-none">
-                {selectedUser.username?.charAt(0).toUpperCase()}
+                {getUserInitials(selectedUser)}
               </span>
             </div>
             <div>
@@ -95,7 +115,7 @@ const UserProfilePage = ({ selectedUser }) => {
           {/* Loading state */}
           {loading ? (
             <div className="text-center py-8">
-              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
                 <span className="text-white font-bold">⭐</span>
               </div>
               <p className="text-gray-600">Loading reviews...</p>
@@ -166,9 +186,9 @@ const UserProfilePage = ({ selectedUser }) => {
         {/* User Activity Summary */}
         {userReviews.length > 0 && (
           <div className="bg-white rounded-xl shadow-xl p-8 border-4 border-gray-200 text-center mt-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-white font-bold text-2xl select-none">
-                {selectedUser.username?.charAt(0).toUpperCase()}
+                {getUserInitials(selectedUser)}
               </span>
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">

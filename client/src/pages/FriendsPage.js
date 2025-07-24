@@ -17,7 +17,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in to find users</h2>
           <button 
             onClick={() => handleNavigation('login')}
-            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+            className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
           >
             Login
           </button>
@@ -96,7 +96,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
             <button
               onClick={handleSearch}
               disabled={searching || searchTerm.length < 2}
-              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {searching ? 'Searching...' : 'Search'}
             </button>
@@ -112,7 +112,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
         {/* Loading state during search */}
         {searching && (
           <div className="bg-white rounded-xl shadow-lg p-8 border-4 border-gray-200 text-center">
-            <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
               <Search className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-xl font-semibold text-gray-600 mb-2">Searching...</h3>
@@ -133,7 +133,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
                   onClick={() => handleUserSelect(user)}
                   className="flex items-center gap-4 p-4 border-2 border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-all cursor-pointer"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-lg select-none">
                       {user.username?.charAt(0).toUpperCase()}
                     </span>
@@ -174,7 +174,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
         {/* Initial state with instructions */}
         {!hasSearched && !searching && (
           <div className="bg-white rounded-xl shadow-lg p-8 border-4 border-gray-200 text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <Users className="w-10 h-10 text-white" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">Find Beer Enthusiasts</h3>

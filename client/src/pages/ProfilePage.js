@@ -38,6 +38,26 @@ const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) =
     }
   };
 
+  // Helper function to get user initials
+  const getUserInitials = (user) => {
+    if (!user) return '?';
+    
+    const firstName = user.firstName?.trim() || '';
+    const lastName = user.lastName?.trim() || '';
+    
+    if (firstName && lastName) {
+      return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (lastName) {
+      return lastName.charAt(0).toUpperCase();
+    } else if (user.username) {
+      return user.username.charAt(0).toUpperCase();
+    }
+    
+    return '?';
+  };
+
   // Redirect if not logged in
   if (!isLoggedIn) {
     return (
@@ -46,7 +66,7 @@ const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) =
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in to view your profile</h2>
           <button 
             onClick={() => handleNavigation('login')}
-            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+            className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
           >
             Login
           </button>
@@ -82,8 +102,8 @@ const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) =
         {/* Profile Header */}
         <div className="bg-white rounded-xl shadow-xl p-8 mb-8 border-4 border-gray-200">
           <div className="flex items-center gap-6 mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center select-none">
-              <span className="text-white font-bold text-2xl select-none">{user?.username?.charAt(0).toUpperCase()}</span>
+            <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center select-none">
+              <span className="text-white font-bold text-2xl select-none">{getUserInitials(user)}</span>
             </div>
             <div>
               <h1 className="text-4xl font-bold text-gray-900 font-serif select-none">{user?.firstName} {user?.lastName}</h1>
@@ -126,7 +146,7 @@ const ProfilePage = ({ isLoggedIn, user, handleNavigation, handleBeerSelect }) =
               <div className="space-y-4">
                 {topRatedReviews.map((review, index) => (
                   <div key={review._id} className="flex items-center gap-4 p-4 bg-red-50 rounded-lg">
-                    <div className="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold select-none">
+                    <div className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center font-bold select-none">
                       {index + 1}
                     </div>
                     <div className="flex-1">

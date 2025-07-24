@@ -1,38 +1,54 @@
-# 🍺 Red Robin Brewing - Craft Beer Review Platform
+# 🍺🍷🥃 Red Robin Rating - Alcoholic Beverage Review Platform
 
-A full-stack web application for craft beer enthusiasts to discover, review, and manage their favorite beverage's.
-Built with React and Node.js.
+A full-stack web application for craft beverage enthusiasts to discover, review, and manage their favorite **beers, wines, and spirits**. Built with React and Node.js.
 
 ## ✨ Features
 
-### 🍻 **Beer Management**
+### 🍻 **Beer + Cider Management**
 
-- Browse and search the beer database
-- Add new beers to the collection
-- Detailed beer information (name, brewery, style, ABV)
+- Browse and search the beer and cider database
+- Add new beers and ciders to the collection
+- Detailed beverage information (name, brewery/producer, style, ABV)
 - **Sessionable beer classification** - mark beers perfect for long drinking sessions
-- Filter by style, rating, and sessionable status
+- Filter by type (beer/cider), style, rating, and sessionable status
+- Support for traditional ciders, fruit ciders, hopped ciders, and more
 
-### ⭐ **Review System**
+### 🍷 **Wine Management**
 
-- Rate beers within a 5-star system
-- Write detailed tasting notes
+- Comprehensive wine database with detailed information
+- Wine-specific data: vintage, region, winery, sweetness levels
+- Extensive wine style support (red, white, sparkling, fortified, etc.)
+- Sweetness classification (Bone Dry to Very Sweet)
+- Advanced filtering by wine type, vintage, and region
+
+### 🥃 **Spirits Management**
+
+- Complete spirits collection with distillery information
+- Spirits-specific data: age, category, region, distillery
+- Support for whiskey, rum, vodka, gin, tequila, brandy, and liqueurs
+- Detailed categorisation (Single Malt, Bourbon, VSOP, etc.)
+- Age and region-based filtering
+
+### ⭐ **Universal Review System**
+
+- Rate beverages within a 5-star system across all categories
+- Write detailed tasting notes for beers, wines, and spirits
 - View community reviews and ratings
-- Track your personal beer history
+- Track your personal beverage history across all types
 
 ### 👥 **Social Features**
 
-- User profiles with review history
-- Find and connect with fellow beer enthusiasts
-- View other users' beer collections and reviews
+- User profiles with comprehensive review history
+- Find and connect with fellow beverage enthusiasts
+- View other users' collections across beers, wines, and spirits
 
 ### 🛡️ **Admin Dashboard**
 
-- Complete user and beer management
-- Toggle sessionable status for any beer
+- Complete user and beverage management across all categories
+- Toggle sessionable status for beers
 - Bulk operations for efficient management
-- Import curated beer collections (50+ popular Australian & international beers)
-- Review moderation tools
+- Import curated beverage collections (80+ popular beverages)
+- Review moderation tools for all beverage types
 
 ### 🎯 **Sessionable Beer Feature**
 
@@ -40,7 +56,7 @@ Special focus on "sessionable" beers - those perfect for drinking multiple over 
 
 - **User Control**: Mark beers as sessionable when adding
 - **Admin Management**: Retroactively manage sessionable status
-- **Visual Indicators**: Green badges on sessionable beers
+- **Visual Indicators**: Badges on sessionable beers
 - **Smart Filtering**: Filter to show only sessionable options
 - **Real-time Updates**: Changes sync across all pages instantly
 
@@ -57,8 +73,8 @@ Special focus on "sessionable" beers - those perfect for drinking multiple over 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/red-robin-brewing.git
-   cd red-robin-brewing
+   git clone https://github.com/yourusername/red-robin-rating.git
+   cd red-robin-rating
    ```
 
 2. **Backend Setup**
@@ -172,18 +188,38 @@ This project uses environment variables to keep sensitive information secure:
 ## 🏗️ Project Structure
 
 ```
-red-robin-brewing/
+red-robin-rating/
 ├── client/                 # React Frontend
 │   ├── src/
 │   │   ├── components/     # Reusable UI components
+│   │   │   ├── BeerCard.js     # Beer/cider display
+│   │   │   ├── WineCard.js     # Wine display
+│   │   │   ├── SpiritCard.js   # Spirits display
+│   │   │   └── StarRating.js   # Universal rating component
 │   │   ├── pages/          # Main page components
+│   │   │   ├── BeersPage.js    # Beer + cider browsing
+│   │   │   ├── WinesPage.js    # Wine browsing
+│   │   │   ├── SpiritsPage.js  # Spirits browsing
+│   │   │   ├── BeerDetailPage.js
+│   │   │   ├── WineDetailPage.js
+│   │   │   ├── SpiritDetailPage.js
+│   │   │   └── AddBeveragePage.js # Multi-category add form
 │   │   ├── services/       # API service layer
 │   │   └── App.js          # Main app component
 │   └── package.json
 │
 ├── server/                 # Node.js Backend
 │   ├── models/             # MongoDB schemas
+│   │   ├── Beer.js         # Beer + cider model
+│   │   ├── Wine.js         # Wine model
+│   │   ├── Spirit.js       # Spirits model
+│   │   ├── Review.js       # Universal review model
+│   │   └── User.js         # User model
 │   ├── routes/             # API endpoints
+│   │   ├── beers.js        # Beer + cider routes
+│   │   ├── wines.js        # Wine routes
+│   │   ├── spirits.js      # Spirits routes
+│   │   └── reviews.js      # Review routes
 │   ├── middleware/         # Authentication & utilities
 │   └── server.js           # Express server
 │
@@ -210,42 +246,64 @@ red-robin-brewing/
 
 ## 📱 Usage Guide
 
-### For Beer Enthusiasts
+### For Beverage Enthusiasts
 
 1. **Register/Login** to create your account
-2. **Browse Beers** on the main page or dedicated beers section
-3. **Filter by Sessionable** to find beers perfect for long sessions
-4. **Add Reviews** with ratings and tasting notes
-5. **Add New Beers** to expand the community database
-6. **Connect with Friends** to see their beer preferences
+2. **Browse Beverages** across beers, wines, and spirits
+3. **Filter by Category**:
+   - **Beers + Ciders**: Filter by sessionable status, style, brewery
+   - **Wines**: Filter by sweetness, vintage, region, winery
+   - **Spirits**: Filter by age, category, distillery, region
+4. **Add Reviews** with ratings and detailed tasting notes
+5. **Add New Beverages** to expand the community database
+6. **Connect with Friends** to see their beverage preferences
 
 ### For Administrators
 
 1. **Access Admin Dashboard** (admin role required)
 2. **Manage Users** - view, edit, or remove users
-3. **Manage Beers** - edit details, toggle sessionable status
-4. **Sessionable Management**:
-   - Click any beer's sessionable status to toggle
-   - Use bulk operations for multiple beers
-   - Import curated beer collections
-5. **Review Moderation** - manage community reviews
+3. **Manage All Beverages** - edit details across all categories
+4. **Category-Specific Management**:
+   - **Beers**: Toggle sessionable status, manage brewery info
+   - **Wines**: Update vintage, sweetness, region data
+   - **Spirits**: Manage age statements, categories, distilleries
+5. **Review Moderation** - manage community reviews across all categories
 
-## 🍺 Sessionable Beer System
+## 🍺🍷🥃 Beverage Categories
 
-The sessionable feature helps users identify beers perfect for extended drinking sessions:
+### Beer + Cider System
 
-### What Makes a Beer Sessionable?
+Support for both traditional beers and ciders:
 
-- **Low to moderate ABV** (typically 3-5%)
-- **Balanced flavor profile** (not overly hoppy or heavy)
-- **Refreshing character** suitable for multiple servings
+**Beer Styles**: IPA, Stout, Wheat, Lager, Ale, Pilsner, Sour, Porter, and more
 
-### How It Works
+**Cider Styles**: Traditional Cider, Fruit Cider, Hopped Cider, Sour Cider, Perry, Ice Cider, Cyser
 
-- **User Input**: Anyone can mark their added beers as sessionable
-- **Admin Control**: Admins can retroactively manage all sessionable tags
-- **Visual Indicators**: Green "SESSIONABLE" badges appear on qualifying beers
-- **Smart Filtering**: Dedicated filter to show only sessionable options
+**Sessionable Feature**: Mark beers perfect for extended drinking sessions
+
+### Wine System
+
+Comprehensive wine classification:
+
+**Red Wines**: Shiraz, Cabernet Sauvignon, Pinot Noir, Merlot, and many blends
+
+**White Wines**: Chardonnay, Sauvignon Blanc, Riesling, Pinot Grigio, and more
+
+**Sparkling & Other**: Champagne, Prosecco, Rosé, Fortified, Port, Dessert Wines
+
+**Sweetness Levels**: Bone Dry, Dry, Off-Dry, Medium-Dry, Medium-Sweet, Sweet, Very Sweet
+
+### Spirits System
+
+Complete spirits coverage:
+
+**Whiskey/Whisky**: Single Malt, Blended Scotch, Irish Whiskey, Bourbon, Tennessee Whiskey
+
+**Rum**: White, Dark, Spiced, Aged varieties
+
+**Gin**: London Dry, Plymouth, Old Tom styles
+
+**Other Categories**: Vodka, Tequila, Brandy, Cognac, Liqueurs
 
 ## 🔐 Security & Best Practices
 
@@ -282,14 +340,6 @@ When deploying to production platforms:
 3. **Generate new JWT secret** for production (different from development)
 4. **Use production MongoDB** cluster (not development database)
 
-### Database Security
-
-- **Enable authentication** on MongoDB
-- **Use strong passwords** for database users
-- **Restrict network access** to trusted IPs
-- **Enable encryption** in transit and at rest
-- **Regular backups** of your data
-
 ## 🛠️ API Endpoints
 
 ### Authentication
@@ -297,17 +347,35 @@ When deploying to production platforms:
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 
-### Beers
+### Beers + Ciders
 
-- `GET /api/beers` - Get all beers
-- `POST /api/beers` - Add new beer (auth required)
-- `GET /api/beers/:id` - Get specific beer
-- `PUT /api/beers/:id` - Update beer (auth required)
-- `DELETE /api/beers/:id` - Delete beer (auth required)
+- `GET /api/beers` - Get all beers and ciders
+- `POST /api/beers` - Add new beer/cider (auth required)
+- `GET /api/beers/:id` - Get specific beer/cider
+- `PUT /api/beers/:id` - Update beer/cider (auth required)
+- `DELETE /api/beers/:id` - Delete beer/cider (auth required)
 
-### Reviews
+### Wines
 
-- `GET /api/reviews/beer/:id` - Get reviews for beer
+- `GET /api/wines` - Get all wines
+- `POST /api/wines` - Add new wine (auth required)
+- `GET /api/wines/:id` - Get specific wine
+- `PUT /api/wines/:id` - Update wine (auth required)
+- `DELETE /api/wines/:id` - Delete wine (auth required)
+
+### Spirits
+
+- `GET /api/spirits` - Get all spirits
+- `POST /api/spirits` - Add new spirit (auth required)
+- `GET /api/spirits/:id` - Get specific spirit
+- `PUT /api/spirits/:id` - Update spirit (auth required)
+- `DELETE /api/spirits/:id` - Delete spirit (auth required)
+
+### Reviews (Universal)
+
+- `GET /api/reviews/beer/:id` - Get reviews for beer/cider
+- `GET /api/reviews/wine/:id` - Get reviews for wine
+- `GET /api/reviews/spirit/:id` - Get reviews for spirit
 - `POST /api/reviews` - Add review (auth required)
 
 ### Admin (Admin Role Required)
@@ -315,9 +383,11 @@ When deploying to production platforms:
 - `GET /api/admin/stats` - Dashboard statistics
 - `GET /api/admin/users` - All users
 - `GET /api/admin/beers` - All beers with management
-- `PUT /api/admin/beers/:id` - Update any beer (including sessionable)
+- `GET /api/admin/wines` - All wines with management
+- `GET /api/admin/spirits` - All spirits with management
+- `PUT /api/admin/beverages/:category/:id` - Update any beverage
 - `DELETE /api/admin/users/:id` - Delete users
-- `POST /api/admin/populate` - Import curated beer collection
+- `POST /api/admin/populate` - Import curated beverage collections
 
 ## 🎨 UI/UX Features
 
@@ -325,21 +395,49 @@ When deploying to production platforms:
 
 - **Responsive Design** - Works on mobile, tablet, and desktop
 - **Modern Interface** - Clean, intuitive user experience
-- **Tailwind Styling** - Consistent, professional appearance
+- **Category-Specific Styling** - Each beverage type has distinct theming:
+  - **Beers**: Red accent colors
+  - **Wines**: Purple accent colors
+  - **Spirits**: Amber accent colors
 - **Interactive Elements** - Hover effects, smooth transitions
 
-### Beer Cards
+### Beverage Cards
 
-- **Visual Hierarchy** - Clear beer information display
-- **Sessionable Badges** - Prominent green indicators
-- **Star Ratings** - Visual rating system
+- **Category-Specific Cards** - Tailored displays for each beverage type
+- **Visual Hierarchy** - Clear information display
+- **Sessionable Badges** - Green indicators for beers
+- **Star Ratings** - Universal rating system
 - **Quick Actions** - Easy navigation to details
 
-### Filtering & Search
+### Advanced Filtering & Search
 
-- **Multi-criteria Filtering** - Style, rating, sessionable status
+**Beer + Cider Page**:
+
+- Filter by beer vs cider type
+- Sessionable filter
+- Style and brewery filtering
+- ABV range filtering
+
+**Wine Page**:
+
+- Sweetness level filtering
+- Vintage year filtering
+- Region and winery filtering
+- Wine style categorisation
+
+**Spirits Page**:
+
+- Age statement filtering
+- Category filtering (Single Malt, Bourbon, etc.)
+- Distillery and region filtering
+- Spirit type classification
+
+### Universal Features
+
+- **Multi-criteria Filtering** - Combine multiple filters
 - **Real-time Search** - Instant results as you type
 - **Sort Options** - Name, rating, ABV, recent additions
+- **Responsive Grid** - Adapts to screen size
 
 ## 🤝 Contributing
 
@@ -379,13 +477,12 @@ cp .env.example .env
 - **Generate your own** JWT secrets for development
 - **Use your own** MongoDB database for testing
 
-
 ## 🙏 Acknowledgments
 
-- Built for craft beer enthusiasts by enthusiasts
-- Special focus on Australian craft beer scene
-- Community-driven beer database
-- Inspired by the social aspect of beer appreciation
+- Built for craft beverage enthusiasts by enthusiasts
+- Special focus on Australian craft beverage scene
+- Community-driven database across all beverage categories
+- Inspired by the social aspect of beverage appreciation
 
 ## 🛠️ Troubleshooting
 
@@ -414,8 +511,14 @@ cp .env.example .env
 - Change `PORT` in `server/.env` to different value (e.g., 5001)
 - Kill existing processes: `lsof -ti:5000 | xargs kill`
 
+**Beverage Category Issues:**
 
-## 🍻 Cheers!
+- Ensure proper enum values in your database models
+- Check that wine/spirit styles match the defined enums
+- Verify API endpoints are correctly configured for all beverage types
 
-Ready to discover your next favorite brew? Start exploring the world of craft beer with Red Robin Brewing!
+## 🍻🍷🥃 Cheers!
 
+Ready to discover your next favorite beverage? Start exploring the world of craft beers, fine wines, and premium spirits with Red Robin Rating!
+
+_From hoppy IPAs to aged whiskeys, from crisp whites to robust reds - your perfect beverage is waiting to be discovered and reviewed._

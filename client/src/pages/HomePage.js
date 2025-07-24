@@ -110,21 +110,21 @@ const HomePage = ({
           {/* Feature Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             <div className="bg-white rounded-xl p-8 shadow-xl border border-gray-200 hover:border-red-500 transition-all duration-300 transform hover:scale-105">
-              <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <TrendingUp className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-black mb-4 font-serif select-none">Track Your Favorites</h3>
               <p className="text-gray-700 text-lg leading-relaxed select-none">Rate and review beverages as you taste them to build a profile tailored to your preference</p>
             </div>
             <div className="bg-white rounded-xl p-8 shadow-xl border border-gray-200 hover:border-red-500 transition-all duration-300 transform hover:scale-105">
-              <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-black mb-4 font-serif select-none">Connect with Friends</h3>
               <p className="text-gray-700 text-lg leading-relaxed select-none">See what your mates are drinking and discover new favorites through user recommendations</p>
             </div>
             <div className="bg-white rounded-xl p-8 shadow-xl border border-gray-200 hover:border-red-500 transition-all duration-300 transform hover:scale-105">
-              <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Beer className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-black mb-4 font-serif select-none">Explore New Brews</h3>
@@ -229,7 +229,7 @@ const HomePage = ({
                   {/* Featured Spirits */}
                   {featuredBeverages.spirits.length > 0 && (
                     <div className="mb-8">
-                      <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-t-xl p-4 mb-0">
+                      <div className="bg-amber-500 rounded-t-xl p-4 mb-0">
                         <h4 className="text-2xl font-bold text-white text-center font-serif">🥃 Featured Spirits</h4>
                       </div>
                       <div className="bg-white border-2 border-amber-200 border-t-0 rounded-b-xl p-6">

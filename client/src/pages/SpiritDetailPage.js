@@ -152,11 +152,11 @@ const SpiritDetailPage = ({
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Martini className="w-16 h-16 text-amber-600 mx-auto mb-4" />
+          <Martini className="w-16 h-16 text-amber-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Spirit not found</h2>
           <button 
             onClick={() => handleNavigation('spirits')}
-            className="bg-amber-600 text-white px-6 py-3 rounded-lg hover:bg-amber-700 transition-colors"
+            className="bg-amber-500 text-white px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors"
           >
             Back to Spirits
           </button>
@@ -176,7 +176,7 @@ const SpiritDetailPage = ({
         <div className="flex items-center gap-4 mb-8">
           <button 
             onClick={() => handleNavigation('spirits')}
-            className="flex items-center gap-2 text-amber-600 hover:text-amber-800 font-medium transition-colors"
+            className="flex items-center gap-2 text-amber-500 hover:text-amber-600 font-medium transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Spirits
@@ -188,13 +188,13 @@ const SpiritDetailPage = ({
           <div className="flex justify-between items-start mb-6 gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <Martini className="w-8 h-8 text-amber-600 flex-shrink-0" />
+                <Martini className="w-8 h-8 text-amber-500 flex-shrink-0" />
                 {isEditing ? (
                   <input
                     type="text"
                     value={editData.name}
                     onChange={(e) => setEditData({...editData, name: e.target.value})}
-                    className="text-3xl font-bold text-gray-900 font-serif border-b-2 border-amber-300 focus:border-amber-600 outline-none bg-transparent flex-1 min-w-0"
+                    className="text-3xl font-bold text-gray-900 font-serif border-b-2 border-amber-300 focus:border-amber-500 outline-none bg-transparent flex-1 min-w-0"
                   />
                 ) : (
                   <h1 className="text-3xl font-bold text-gray-900 font-serif break-words">{displaySpirit.name}</h1>
@@ -212,10 +212,10 @@ const SpiritDetailPage = ({
                   type="text"
                   value={editData.distillery}
                   onChange={(e) => setEditData({...editData, distillery: e.target.value})}
-                  className="text-xl text-amber-600 font-semibold border-b border-amber-300 focus:border-amber-600 outline-none bg-transparent"
+                  className="text-xl text-amber-500 font-semibold border-b border-amber-300 focus:border-amber-500 outline-none bg-transparent"
                 />
               ) : (
-                <p className="text-xl text-amber-600 font-semibold mb-4">{displaySpirit.distillery}</p>
+                <p className="text-xl text-amber-500 font-semibold mb-4">{displaySpirit.distillery}</p>
               )}
             </div>
 
@@ -241,7 +241,7 @@ const SpiritDetailPage = ({
                 ) : (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+                    className="flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors"
                   >
                     <Edit className="w-4 h-4" />
                     Edit
@@ -254,7 +254,7 @@ const SpiritDetailPage = ({
           {/* Spirit Info Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
             <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="text-sm text-amber-600 mb-1">Style</div>
+              <div className="text-sm text-amber-500 mb-1">Style</div>
               {isEditing ? (
                 <select
                   value={editData.style}
@@ -272,12 +272,12 @@ const SpiritDetailPage = ({
                   <option value="Other">Other</option>
                 </select>
               ) : (
-                <div className="font-bold text-amber-800">{displaySpirit.style}</div>
+                <div className="font-bold text-amber-600">{displaySpirit.style}</div>
               )}
             </div>
 
             <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="text-sm text-amber-600 mb-1">ABV</div>
+              <div className="text-sm text-amber-500 mb-1">ABV</div>
               {isEditing ? (
                 <input
                   type="number"
@@ -287,13 +287,13 @@ const SpiritDetailPage = ({
                   className="w-full bg-transparent border border-amber-300 rounded px-2 py-1"
                 />
               ) : (
-                <div className="font-bold text-amber-800">{displaySpirit.abv}%</div>
+                <div className="font-bold text-amber-600">{displaySpirit.abv}%</div>
               )}
             </div>
 
             {(displaySpirit.age || isEditing) && (
               <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                <div className="text-sm text-amber-600 mb-1">Age</div>
+                <div className="text-sm text-amber-500 mb-1">Age</div>
                 {isEditing ? (
                   <input
                     type="number"
@@ -303,16 +303,16 @@ const SpiritDetailPage = ({
                     className="w-full bg-transparent border border-amber-300 rounded px-2 py-1"
                   />
                 ) : (
-                  <div className="font-bold text-amber-800">{displaySpirit.age} years</div>
+                  <div className="font-bold text-amber-600">{displaySpirit.age} years</div>
                 )}
               </div>
             )}
 
             <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="text-sm text-amber-600 mb-1">Rating</div>
+              <div className="text-sm text-amber-500 mb-1">Rating</div>
               <div className="flex items-center gap-2">
                 <StarRating rating={displaySpirit.averageRating || 0} />
-                <span className="font-bold text-amber-800">
+                <span className="font-bold text-amber-600">
                   {displaySpirit.averageRating ? displaySpirit.averageRating.toFixed(1) : '0.0'}
                 </span>
               </div>
@@ -324,9 +324,9 @@ const SpiritDetailPage = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {(displaySpirit.category || isEditing) && (
                 <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-amber-600" />
+                  <Star className="w-5 h-5 text-amber-500" />
                   <div>
-                    <span className="text-sm text-amber-600">Category:</span>
+                    <span className="text-sm text-amber-500">Category:</span>
                     {isEditing ? (
                       <input
                         type="text"
@@ -344,9 +344,9 @@ const SpiritDetailPage = ({
 
               {(displaySpirit.region || isEditing) && (
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-amber-600" />
+                  <MapPin className="w-5 h-5 text-amber-500" />
                   <div>
-                    <span className="text-sm text-amber-600">Region:</span>
+                    <span className="text-sm text-amber-500">Region:</span>
                     {isEditing ? (
                       <input
                         type="text"
@@ -398,7 +398,7 @@ const SpiritDetailPage = ({
         {isLoggedIn && (
           <div className="bg-white rounded-xl shadow-xl p-8 border-2 border-gray-200 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <MessageSquare className="w-6 h-6 text-amber-600" />
+              <MessageSquare className="w-6 h-6 text-amber-500" />
               {existingReview ? 'Update Your Review' : 'Write a Review'}
             </h2>
 
@@ -460,7 +460,7 @@ const SpiritDetailPage = ({
               <button
                 onClick={handleReviewSubmit}
                 disabled={isSubmittingReview || userRating === 0}
-                className="bg-gradient-to-r from-amber-600 to-amber-800 text-white px-8 py-3 rounded-lg hover:from-amber-700 hover:to-amber-900 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-amber-500 text-white px-8 py-3 rounded-lg hover:bg-amber-600 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmittingReview 
                   ? 'Submitting...' 
@@ -485,7 +485,7 @@ const SpiritDetailPage = ({
                 <div key={review._id} className="border-b border-gray-200 pb-6 last:border-b-0">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-amber-600 rounded-full flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white font-semibold">
                         {(review.user?.firstName || review.username || 'U')[0].toUpperCase()}
                       </div>
                       <div>
