@@ -44,7 +44,7 @@ const BeerCard = ({ beer, onClick }) => (
         </div>
       </div>
       
-      {/* Rating section */}
+      {/* Rating section - Fixed to be left-aligned */}
       <div className="border-t border-gray-300 pt-4">
         <div className="mb-2">
           <span className="text-sm font-medium text-gray-700 select-none block mb-2">

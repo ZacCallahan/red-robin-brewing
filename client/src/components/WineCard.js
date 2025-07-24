@@ -78,7 +78,7 @@ const WineCard = ({ wine, onClick }) => (
         </div>
       )}
       
-      {/* Rating section */}
+      {/* Rating section - Fixed overflow with proper containment */}
       <div className="border-t border-gray-300 pt-4">
         <div className="mb-2">
           <span className="text-sm font-medium text-gray-700 select-none block mb-2">
@@ -87,7 +87,7 @@ const WineCard = ({ wine, onClick }) => (
           <div className="mb-1">
             <StarRating rating={wine.averageRating || 0} />
           </div>
-          <div className="text-sm font-semibold text-black select-none">
+          <div className="text-sm font-semibold text-black select-none break-words">
             {wine.averageRating ? wine.averageRating.toFixed(1) : '0.0'}
           </div>
         </div>
