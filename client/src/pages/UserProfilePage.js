@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StarRating from '../components/StarRating';
 import { api } from '../services/api';
+import { Beer, Wine, Martini } from 'lucide-react';
 
 const UserProfilePage = ({ selectedUser }) => {
   const [userReviews, setUserReviews] = useState([]);
@@ -52,6 +53,59 @@ const UserProfilePage = ({ selectedUser }) => {
     return '?';
   };
 
+  // Helper function to get beverage info from review
+  const getBeverageInfo = (review) => {
+    if (review.beer) {
+      return {
+        type: 'beer',
+        name: review.beer.name,
+        producer: review.beer.brewery,
+        style: review.beer.style,
+        icon: Beer,
+        color: 'text-red-600',
+        bgColor: 'bg-red-50'
+      };
+    } else if (review.wine) {
+      return {
+        type: 'wine',
+        name: review.wine.name,
+        producer: review.wine.winery,
+        style: review.wine.style,
+        icon: Wine,
+        color: 'text-purple-600',
+        bgColor: 'bg-purple-50'
+      };
+    } else if (review.spirit) {
+      return {
+        type: 'spirit',
+        name: review.spirit.name,
+        producer: review.spirit.distillery,
+        style: review.spirit.style,
+        icon: Martini,
+        color: 'text-amber-600',
+        bgColor: 'bg-amber-50'
+      };
+    }
+    
+    return {
+      type: 'unknown',
+      name: 'Unknown Beverage',
+      producer: 'Unknown Producer',
+      style: 'Unknown Style',
+      icon: Beer,
+      color: 'text-gray-600',
+      bgColor: 'bg-gray-50'
+    };
+  };
+
+  // Get review counts by type
+  const reviewCounts = userReviews.reduce((acc, review) => {
+    if (review.beer) acc.beer++;
+    else if (review.wine) acc.wine++;
+    else if (review.spirit) acc.spirit++;
+    return acc;
+  }, { beer: 0, wine: 0, spirit: 0 });
+
   // Handle no user selected
   if (!selectedUser) {
     return (
@@ -84,24 +138,33 @@ const UserProfilePage = ({ selectedUser }) => {
           </div>
           
           {/* User stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-red-50 p-4 rounded-lg text-center">
               <div className="text-2xl font-bold text-red-600 select-none">
-                {selectedUser.totalReviews || 0}
+                {userReviews.length}
               </div>
-              <div className="text-sm text-gray-600 select-none">Reviews</div>
+              <div className="text-sm text-gray-600 select-none">Total Reviews</div>
             </div>
             <div className="bg-red-50 p-4 rounded-lg text-center">
-              <div className="text-2xl font-bold text-red-600 select-none">
-                {selectedUser.averageRating ? selectedUser.averageRating.toFixed(1) : '0.0'}
+              <div className="text-lg font-bold text-red-600 select-none flex items-center justify-center gap-1">
+                <Beer className="w-4 h-4" />
+                {reviewCounts.beer}
               </div>
-              <div className="text-sm text-gray-600 select-none">Avg Rating</div>
+              <div className="text-xs text-gray-600 select-none">Beer Reviews</div>
             </div>
-            <div className="bg-red-50 p-4 rounded-lg text-center">
-              <div className="text-2xl font-bold text-red-600 select-none">
-                {selectedUser.totalBeersAdded || 0}
+            <div className="bg-purple-50 p-4 rounded-lg text-center">
+              <div className="text-lg font-bold text-purple-600 select-none flex items-center justify-center gap-1">
+                <Wine className="w-4 h-4" />
+                {reviewCounts.wine}
               </div>
-              <div className="text-sm text-gray-600 select-none">Beers Added</div>
+              <div className="text-xs text-gray-600 select-none">Wine Reviews</div>
+            </div>
+            <div className="bg-amber-50 p-4 rounded-lg text-center">
+              <div className="text-lg font-bold text-amber-600 select-none flex items-center justify-center gap-1">
+                <Martini className="w-4 h-4" />
+                {reviewCounts.spirit}
+              </div>
+              <div className="text-xs text-gray-600 select-none">Spirit Reviews</div>
             </div>
           </div>
         </div>
@@ -134,51 +197,62 @@ const UserProfilePage = ({ selectedUser }) => {
               </div>
               <p className="text-gray-600 mb-2">No reviews yet</p>
               <p className="text-gray-500 text-sm">
-                {selectedUser.firstName} hasn't reviewed any beers yet
+                {selectedUser.firstName} hasn't reviewed any beverages yet
               </p>
             </div>
           ) : (
             /* Reviews list */
             <div className="space-y-6">
-              {userReviews.map((review) => (
-                <div
-                  key={review._id}
-                  className="border-2 border-gray-200 rounded-lg p-6 hover:border-red-300 transition-colors"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h4 className="text-xl font-bold text-gray-900">
-                        {review.beer?.name || 'Unknown Beer'}
-                      </h4>
-                      <p className="text-red-600 font-medium">
-                        {review.beer?.brewery || 'Unknown Brewery'}
-                      </p>
-                      <p className="text-gray-600 text-sm">
-                        {review.beer?.style || 'Unknown Style'}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div className="flex items-center gap-2 mb-2">
-                        <StarRating rating={review.rating} />
-                        <span className="text-lg font-bold text-red-600">
-                          {review.rating}/5
-                        </span>
+              {userReviews.map((review) => {
+                const beverageInfo = getBeverageInfo(review);
+                const Icon = beverageInfo.icon;
+                
+                return (
+                  <div
+                    key={review._id}
+                    className={`border-2 border-gray-200 rounded-lg p-6 hover:border-gray-300 transition-colors ${beverageInfo.bgColor}`}
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-start gap-3">
+                        <Icon className={`w-6 h-6 ${beverageInfo.color} flex-shrink-0 mt-1`} />
+                        <div>
+                          <h4 className="text-xl font-bold text-gray-900">
+                            {beverageInfo.name}
+                          </h4>
+                          <p className={`font-medium ${beverageInfo.color}`}>
+                            {beverageInfo.producer}
+                          </p>
+                          <p className="text-gray-600 text-sm">
+                            {beverageInfo.style}
+                          </p>
+                          <span className={`text-xs px-2 py-1 rounded-full ${beverageInfo.bgColor} ${beverageInfo.color} font-medium mt-1 inline-block`}>
+                            {beverageInfo.type.charAt(0).toUpperCase() + beverageInfo.type.slice(1)}
+                          </span>
+                        </div>
                       </div>
-                      <p className="text-gray-500 text-sm">
-                        {new Date(review.createdAt).toLocaleDateString()}
-                      </p>
+                      <div className="text-right">
+                        <div className="flex items-center gap-2 mb-2">
+                          <StarRating rating={review.rating} />
+                          <span className={`text-lg font-bold ${beverageInfo.color}`}>
+                            {review.rating}/5
+                          </span>
+                        </div>
+                        <p className="text-gray-500 text-sm">
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
+                    
+                    {review.notes && (
+                      <div className="bg-white p-4 rounded-lg border border-gray-200">
+                        <p className="text-gray-700 leading-relaxed italic">
+                          "{review.notes}"
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  
-                  {review.comment && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-700 leading-relaxed italic">
-                        "{review.comment}"
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -192,13 +266,13 @@ const UserProfilePage = ({ selectedUser }) => {
               </span>
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">
-              {selectedUser.firstName}'s Beer Journey
+              {selectedUser.firstName}'s Beverage Journey
             </h3>
             
             <div className="space-y-4">
               <p className="text-gray-700 text-lg">
                 <span className="font-semibold text-red-600">{selectedUser.firstName}</span> has reviewed{' '}
-                <span className="font-bold">{selectedUser.totalReviews}</span> beer{selectedUser.totalReviews !== 1 ? 's' : ''}
+                <span className="font-bold">{userReviews.length}</span> beverage{userReviews.length !== 1 ? 's' : ''}
                 {selectedUser.averageRating > 0 && (
                   <>
                     {' '}with an average rating of{' '}
@@ -207,10 +281,35 @@ const UserProfilePage = ({ selectedUser }) => {
                 )}
               </p>
               
+              {/* Breakdown by category */}
+              <div className="flex items-center justify-center gap-6 text-sm">
+                {reviewCounts.beer > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Beer className="w-4 h-4 text-red-600" />
+                    <span className="font-semibold">{reviewCounts.beer}</span>
+                    <span className="text-gray-600">beer{reviewCounts.beer !== 1 ? 's' : ''}</span>
+                  </div>
+                )}
+                {reviewCounts.wine > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Wine className="w-4 h-4 text-purple-600" />
+                    <span className="font-semibold">{reviewCounts.wine}</span>
+                    <span className="text-gray-600">wine{reviewCounts.wine !== 1 ? 's' : ''}</span>
+                  </div>
+                )}
+                {reviewCounts.spirit > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Martini className="w-4 h-4 text-amber-600" />
+                    <span className="font-semibold">{reviewCounts.spirit}</span>
+                    <span className="text-gray-600">spirit{reviewCounts.spirit !== 1 ? 's' : ''}</span>
+                  </div>
+                )}
+              </div>
+
               {selectedUser.totalBeersAdded > 0 && (
                 <p className="text-gray-700">
                   They've also contributed <span className="font-bold text-red-600">{selectedUser.totalBeersAdded}</span>{' '}
-                  beer{selectedUser.totalBeersAdded !== 1 ? 's' : ''} to our collection
+                  beverage{selectedUser.totalBeersAdded !== 1 ? 's' : ''} to our collection
                 </p>
               )}
 
@@ -222,7 +321,7 @@ const UserProfilePage = ({ selectedUser }) => {
             
             <div className="mt-8 pt-6 border-t border-gray-200">
               <p className="text-sm text-gray-500 italic">
-                "Every beer tells a story, and every review helps others discover their next favorite brew"
+                "Every beverage tells a story, and every review helps others discover their next favorite drink"
               </p>
             </div>
           </div>
