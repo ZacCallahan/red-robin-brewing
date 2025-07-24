@@ -14,7 +14,14 @@ const beerSchema = new mongoose.Schema({
   style: {
     type: String,
     required: true,
-    enum: ['IPA', 'Stout', 'Wheat', 'Lager', 'Ale', 'Pilsner', 'Sour', 'Porter', 'Other']
+       enum: [
+      // Beer Styles
+      'IPA', 'Stout', 'Wheat', 'Lager', 'Ale', 'Pilsner', 'Sour', 'Porter',
+      // Cider Styles
+      'Traditional Cider', 'Fruit Cider', 'Hopped Cider', 'Sour Cider',
+      // Other
+      'Other'
+    ]
   },
   abv: {
     type: Number,
