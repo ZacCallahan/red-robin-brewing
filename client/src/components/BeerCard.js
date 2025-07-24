@@ -46,13 +46,13 @@ const BeerCard = ({ beer, onClick }) => (
       
       {/* Rating section */}
       <div className="border-t border-gray-300 pt-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700 select-none">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2 min-w-0">
+          <span className="text-sm font-medium text-gray-700 select-none flex-shrink-0">
             Community Rating:
           </span>
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <StarRating rating={beer.averageRating || 0} />
-            <span className="text-sm font-semibold text-black select-none flex-shrink-0">
+            <span className="text-sm font-semibold text-black select-none">
               {beer.averageRating ? beer.averageRating.toFixed(1) : '0.0'}
             </span>
           </div>
