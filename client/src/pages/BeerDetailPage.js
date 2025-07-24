@@ -299,13 +299,13 @@ const BeerDetailPage = ({
             </div>
             <div className="bg-red-50 p-4 rounded-lg border border-red-200">
               <div className="text-sm text-red-500 mb-1">Community Rating</div>
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2">
                 <StarRating rating={selectedBeer.averageRating || 0} />
                 <span className="font-bold text-gray-900">
                   {selectedBeer.averageRating ? selectedBeer.averageRating.toFixed(1) : '0.0'}
                 </span>
               </div>
-              <div className="text-sm text-gray-500 text-center">{selectedBeer.totalReviews || 0} reviews</div>
+              <div className="text-sm text-gray-500">{selectedBeer.totalReviews || 0} reviews</div>
             </div>
           </div>
 

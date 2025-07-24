@@ -367,11 +367,14 @@ const WineDetailPage = ({
 
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
               <div className="text-sm text-purple-500 mb-1">Rating</div>
-              <div className="flex items-center gap-2">
+              <div className="mb-2">
                 <StarRating rating={displayWine.averageRating || 0} />
-                <span className="font-bold text-purple-600">
-                  {displayWine.averageRating ? displayWine.averageRating.toFixed(1) : '0.0'}
-                </span>
+              </div>
+              <div className="font-bold text-purple-600 mb-1">
+                {displayWine.averageRating ? displayWine.averageRating.toFixed(1) : '0.0'}
+              </div>
+              <div className="text-sm text-gray-500">
+                {displayWine.totalReviews || 0} reviews
               </div>
             </div>
           </div>

@@ -330,11 +330,14 @@ const SpiritDetailPage = ({
 
             <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
               <div className="text-sm text-amber-500 mb-1">Rating</div>
-              <div className="flex items-center gap-2">
+              <div className="mb-2">
                 <StarRating rating={displaySpirit.averageRating || 0} />
-                <span className="font-bold text-amber-600">
-                  {displaySpirit.averageRating ? displaySpirit.averageRating.toFixed(1) : '0.0'}
-                </span>
+              </div>
+              <div className="font-bold text-amber-600 mb-1">
+                {displaySpirit.averageRating ? displaySpirit.averageRating.toFixed(1) : '0.0'}
+              </div>
+              <div className="text-sm text-gray-500">
+                {displaySpirit.totalReviews || 0} reviews
               </div>
             </div>
           </div>
