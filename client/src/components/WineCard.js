@@ -80,12 +80,14 @@ const WineCard = ({ wine, onClick }) => (
       
       {/* Rating section */}
       <div className="border-t border-gray-300 pt-4">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
           <span className="text-sm font-medium text-gray-700 select-none">
             Community Rating:
           </span>
           <div className="flex items-center gap-2">
-            <StarRating rating={wine.averageRating || 0} />
+            <div className="flex-shrink-0">
+              <StarRating rating={wine.averageRating || 0} />
+            </div>
             <span className="text-sm font-semibold text-black select-none">
               {wine.averageRating ? wine.averageRating.toFixed(1) : '0.0'}
             </span>

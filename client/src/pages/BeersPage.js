@@ -216,12 +216,12 @@ const BeersPage = ({ beers, handleBeerSelect }) => {
           {/* Rating Filter */}
           <div className="mt-4">
             <label className="block text-sm font-medium text-black mb-3 select-none">Minimum Rating</label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
               {[0, 1, 2, 3, 4, 5].map((rating) => (
                 <button
                   key={rating}
                   onClick={() => setMinRating(rating)}
-                  className={`px-3 py-1.5 rounded-lg border-2 transition-all duration-200 text-sm font-medium select-none ${
+                  className={`px-2 sm:px-3 py-1.5 rounded-lg border-2 transition-all duration-200 text-xs sm:text-sm font-medium select-none flex-shrink-0 ${
                     minRating === rating
                       ? 'border-black bg-black text-white'
                       : 'border-gray-300 hover:border-black text-gray-600 hover:text-black'
