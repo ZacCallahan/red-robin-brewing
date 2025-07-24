@@ -20,6 +20,26 @@ const BeerDetailPage = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
 
+  // Helper function to get user initials
+  const getUserInitials = (user) => {
+    if (!user) return '?';
+    
+    const firstName = user.firstName?.trim() || '';
+    const lastName = user.lastName?.trim() || '';
+    
+    if (firstName && lastName) {
+      return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (lastName) {
+      return lastName.charAt(0).toUpperCase();
+    } else if (user.username) {
+      return user.username.charAt(0).toUpperCase();
+    }
+    
+    return '?';
+  };
+
   // Initialize edit data
   useEffect(() => {
     if (selectedBeer) {
@@ -139,11 +159,11 @@ const BeerDetailPage = ({
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Beer className="w-16 h-16 text-red-600 mx-auto mb-4" />
+          <Beer className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Beer not found</h2>
           <button 
             onClick={() => handleNavigation('beers')}
-            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+            className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
           >
             Back to Beers
           </button>
@@ -159,7 +179,7 @@ const BeerDetailPage = ({
         <div className="flex items-center gap-4 mb-8">
           <button 
             onClick={() => handleNavigation('beers')}
-            className="flex items-center gap-2 text-red-600 hover:text-red-800 font-medium transition-colors"
+            className="flex items-center gap-2 text-red-500 hover:text-red-600 font-medium transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Beers
@@ -171,13 +191,13 @@ const BeerDetailPage = ({
           <div className="flex justify-between items-start mb-6 gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <Beer className="w-8 h-8 text-red-600 flex-shrink-0" />
+                <Beer className="w-8 h-8 text-red-500 flex-shrink-0" />
                 {isEditing ? (
                   <input
                     type="text"
                     value={editData.name}
                     onChange={(e) => setEditData({...editData, name: e.target.value})}
-                    className="text-3xl font-bold text-gray-900 font-serif border-b-2 border-red-300 focus:border-red-600 outline-none bg-transparent flex-1 min-w-0"
+                    className="text-3xl font-bold text-gray-900 font-serif border-b-2 border-red-300 focus:border-red-500 outline-none bg-transparent flex-1 min-w-0"
                   />
                 ) : (
                   <h1 className="text-3xl font-bold text-gray-900 font-serif break-words">{selectedBeer.name}</h1>
@@ -195,10 +215,10 @@ const BeerDetailPage = ({
                   type="text"
                   value={editData.brewery}
                   onChange={(e) => setEditData({...editData, brewery: e.target.value})}
-                  className="text-xl text-red-600 font-semibold border-b border-red-300 focus:border-red-600 outline-none bg-transparent"
+                  className="text-xl text-red-500 font-semibold border-b border-red-300 focus:border-red-500 outline-none bg-transparent"
                 />
               ) : (
-                <p className="text-xl text-red-600 font-semibold mb-4">{selectedBeer.brewery}</p>
+                <p className="text-xl text-red-500 font-semibold mb-4">{selectedBeer.brewery}</p>
               )}
             </div>
 
@@ -224,7 +244,7 @@ const BeerDetailPage = ({
                 ) : (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                    className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
                   >
                     <Edit className="w-4 h-4" />
                     Edit
@@ -237,12 +257,12 @@ const BeerDetailPage = ({
           {/* Beer details grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-              <div className="text-sm text-red-600 mb-1">Style</div>
+              <div className="text-sm text-red-500 mb-1">Style</div>
               {isEditing ? (
                 <select
                   value={editData.style}
                   onChange={(e) => setEditData({...editData, style: e.target.value})}
-                  className="w-full bg-transparent border border-red-300 rounded px-2 py-1 font-bold text-red-800"
+                  className="w-full bg-transparent border border-red-300 rounded px-2 py-1 font-bold text-red-600"
                 >
                   <option value="">Select style</option>
                     <option value="IPA">IPA</option>
@@ -260,11 +280,11 @@ const BeerDetailPage = ({
                     <option value="Other">Other</option>
                 </select>
               ) : (
-                <div className="font-bold text-red-800">{selectedBeer.style}</div>
+                <div className="font-bold text-red-600">{selectedBeer.style}</div>
               )}
             </div>
             <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-              <div className="text-sm text-red-600 mb-1">ABV</div>
+              <div className="text-sm text-red-500 mb-1">ABV</div>
               {isEditing ? (
                 <input
                   type="number"
@@ -278,7 +298,7 @@ const BeerDetailPage = ({
               )}
             </div>
             <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-              <div className="text-sm text-red-600 mb-1">Community Rating</div>
+              <div className="text-sm text-red-500 mb-1">Community Rating</div>
               <div className="flex items-center justify-center gap-2">
                 <StarRating rating={selectedBeer.averageRating || 0} />
                 <span className="font-bold text-gray-900">
@@ -297,7 +317,7 @@ const BeerDetailPage = ({
                   type="checkbox"
                   checked={editData.sessionable}
                   onChange={(e) => setEditData({...editData, sessionable: e.target.checked})}
-                  className="rounded border-red-300 text-red-600 focus:ring-red-500"
+                  className="rounded border-red-300 text-red-500 focus:ring-red-500"
                 />
                 <span className="text-sm font-medium text-gray-700">Sessionable beer</span>
               </label>
@@ -338,7 +358,7 @@ const BeerDetailPage = ({
         {/* Add Your Review */}
         <div className="bg-white rounded-xl shadow-xl p-8 mb-8 border-2 border-gray-200">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 font-serif flex items-center gap-2">
-            <MessageSquare className="w-6 h-6 text-red-600" />
+            <MessageSquare className="w-6 h-6 text-red-500" />
             Add Your Review
           </h3>
           
@@ -371,7 +391,7 @@ const BeerDetailPage = ({
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-2">
-                    Reviewing as: <span className="text-red-600 font-semibold">{user?.username}</span>
+                    Reviewing as: <span className="text-red-500 font-semibold">{user?.username}</span>
                   </label>
                 </div>
 
@@ -413,7 +433,7 @@ const BeerDetailPage = ({
                 <button
                   onClick={submitReview}
                   disabled={submittingReview || localUserReview.rating === 0}
-                  className="bg-gradient-to-r from-red-600 to-red-800 text-white px-8 py-3 rounded-lg hover:from-red-700 hover:to-red-900 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submittingReview ? 'Submitting...' : 'Submit Review'}
                 </button>
@@ -447,8 +467,8 @@ const BeerDetailPage = ({
                 <div key={review._id} className="border-b border-gray-200 pb-6 last:border-b-0">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white font-semibold">
-                        {(review.user?.firstName || review.username || 'U')[0].toUpperCase()}
+                      <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white font-semibold">
+                        {getUserInitials(review.user)}
                       </div>
                       <div>
                         <div className="font-semibold text-gray-900">

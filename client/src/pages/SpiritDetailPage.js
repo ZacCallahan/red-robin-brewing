@@ -21,6 +21,26 @@ const SpiritDetailPage = ({
   const [editData, setEditData] = useState({});
   const [localSpiritData, setLocalSpiritData] = useState(null);
 
+  // Helper function to get user initials
+  const getUserInitials = (user) => {
+    if (!user) return '?';
+    
+    const firstName = user.firstName?.trim() || '';
+    const lastName = user.lastName?.trim() || '';
+    
+    if (firstName && lastName) {
+      return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (lastName) {
+      return lastName.charAt(0).toUpperCase();
+    } else if (user.username) {
+      return user.username.charAt(0).toUpperCase();
+    }
+    
+    return '?';
+  };
+
   // Ensure spiritReviews is always an array
   const reviews = Array.isArray(spiritReviews) ? spiritReviews : [];
 
@@ -486,7 +506,7 @@ const SpiritDetailPage = ({
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white font-semibold">
-                        {(review.user?.firstName || review.username || 'U')[0].toUpperCase()}
+                        {getUserInitials(review.user)}
                       </div>
                       <div>
                         <div className="font-semibold text-gray-900">

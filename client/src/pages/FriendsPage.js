@@ -9,6 +9,26 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
   const [searchError, setSearchError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
 
+  // Helper function to get user initials
+  const getUserInitials = (user) => {
+    if (!user) return '?';
+    
+    const firstName = user.firstName?.trim() || '';
+    const lastName = user.lastName?.trim() || '';
+    
+    if (firstName && lastName) {
+      return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (lastName) {
+      return lastName.charAt(0).toUpperCase();
+    } else if (user.username) {
+      return user.username.charAt(0).toUpperCase();
+    }
+    
+    return '?';
+  };
+
   // Redirect if not logged in
   if (!isLoggedIn) {
     return (
@@ -135,7 +155,7 @@ const FriendsPage = ({ isLoggedIn, handleNavigation, handleUserSelect }) => {
                 >
                   <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-lg select-none">
-                      {user.username?.charAt(0).toUpperCase()}
+                      {getUserInitials(user)}
                     </span>
                   </div>
                   <div className="flex-1">

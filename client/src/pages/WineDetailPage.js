@@ -20,6 +20,26 @@ const WineDetailPage = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
 
+  // Helper function to get user initials
+  const getUserInitials = (user) => {
+    if (!user) return '?';
+    
+    const firstName = user.firstName?.trim() || '';
+    const lastName = user.lastName?.trim() || '';
+    
+    if (firstName && lastName) {
+      return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (lastName) {
+      return lastName.charAt(0).toUpperCase();
+    } else if (user.username) {
+      return user.username.charAt(0).toUpperCase();
+    }
+    
+    return '?';
+  };
+
   // Ensure wineReviews is always an array
   const reviews = Array.isArray(wineReviews) ? wineReviews : [];
 
@@ -153,11 +173,11 @@ const WineDetailPage = ({
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Wine className="w-16 h-16 text-purple-600 mx-auto mb-4" />
+          <Wine className="w-16 h-16 text-purple-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Wine not found</h2>
           <button 
             onClick={() => handleNavigation('wines')}
-            className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+            className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors"
           >
             Back to Wines
           </button>
@@ -177,7 +197,7 @@ const WineDetailPage = ({
         <div className="flex items-center gap-4 mb-8">
           <button 
             onClick={() => handleNavigation('wines')}
-            className="flex items-center gap-2 text-purple-600 hover:text-purple-800 font-medium transition-colors"
+            className="flex items-center gap-2 text-purple-500 hover:text-purple-600 font-medium transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Wines
@@ -189,13 +209,13 @@ const WineDetailPage = ({
           <div className="flex justify-between items-start mb-6 gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <Wine className="w-8 h-8 text-purple-600 flex-shrink-0" />
+                <Wine className="w-8 h-8 text-purple-500 flex-shrink-0" />
                 {isEditing ? (
                   <input
                     type="text"
                     value={editData.name}
                     onChange={(e) => setEditData({...editData, name: e.target.value})}
-                    className="text-3xl font-bold text-gray-900 font-serif border-b-2 border-purple-300 focus:border-purple-600 outline-none bg-transparent flex-1 min-w-0"
+                    className="text-3xl font-bold text-gray-900 font-serif border-b-2 border-purple-300 focus:border-purple-500 outline-none bg-transparent flex-1 min-w-0"
                   />
                 ) : (
                   <h1 className="text-3xl font-bold text-gray-900 font-serif break-words">{displayWine.name}</h1>
@@ -212,10 +232,10 @@ const WineDetailPage = ({
                   type="text"
                   value={editData.winery}
                   onChange={(e) => setEditData({...editData, winery: e.target.value})}
-                  className="text-xl text-purple-600 font-semibold border-b border-purple-300 focus:border-purple-600 outline-none bg-transparent"
+                  className="text-xl text-purple-500 font-semibold border-b border-purple-300 focus:border-purple-500 outline-none bg-transparent"
                 />
               ) : (
-                <p className="text-xl text-purple-600 font-semibold mb-4">{displayWine.winery}</p>
+                <p className="text-xl text-purple-500 font-semibold mb-4">{displayWine.winery}</p>
               )}
             </div>
 
@@ -241,7 +261,7 @@ const WineDetailPage = ({
                 ) : (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                    className="flex items-center gap-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
                   >
                     <Edit className="w-4 h-4" />
                     Edit
@@ -254,7 +274,7 @@ const WineDetailPage = ({
           {/* Wine Info Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-              <div className="text-sm text-purple-600 mb-1">Style</div>
+              <div className="text-sm text-purple-500 mb-1">Style</div>
               {isEditing ? (
                 <select
                   value={editData.style}
@@ -304,12 +324,12 @@ const WineDetailPage = ({
                   <option value="Other">Other</option>
                 </select>
               ) : (
-                <div className="font-bold text-purple-800">{displayWine.style}</div>
+                <div className="font-bold text-purple-600">{displayWine.style}</div>
               )}
             </div>
 
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-              <div className="text-sm text-purple-600 mb-1">ABV</div>
+              <div className="text-sm text-purple-500 mb-1">ABV</div>
               {isEditing ? (
                 <input
                   type="number"
@@ -319,12 +339,12 @@ const WineDetailPage = ({
                   className="w-full bg-transparent border border-purple-300 rounded px-2 py-1"
                 />
               ) : (
-                <div className="font-bold text-purple-800">{displayWine.abv}%</div>
+                <div className="font-bold text-purple-600">{displayWine.abv}%</div>
               )}
             </div>
 
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-              <div className="text-sm text-purple-600 mb-1">Sweetness</div>
+              <div className="text-sm text-purple-500 mb-1">Sweetness</div>
               {isEditing ? (
                 <select
                   value={editData.sweetness}
@@ -341,15 +361,15 @@ const WineDetailPage = ({
                   <option value="Very Sweet">Very Sweet</option>
                 </select>
               ) : (
-                <div className="font-bold text-purple-800">{displayWine.sweetness || 'Not specified'}</div>
+                <div className="font-bold text-purple-600">{displayWine.sweetness || 'Not specified'}</div>
               )}
             </div>
 
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-              <div className="text-sm text-purple-600 mb-1">Rating</div>
+              <div className="text-sm text-purple-500 mb-1">Rating</div>
               <div className="flex items-center gap-2">
                 <StarRating rating={displayWine.averageRating || 0} />
-                <span className="font-bold text-purple-800">
+                <span className="font-bold text-purple-600">
                   {displayWine.averageRating ? displayWine.averageRating.toFixed(1) : '0.0'}
                 </span>
               </div>
@@ -361,9 +381,9 @@ const WineDetailPage = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {(displayWine.region || isEditing) && (
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-purple-600" />
+                  <MapPin className="w-5 h-5 text-purple-500" />
                   <div>
-                    <span className="text-sm text-purple-600">Region:</span>
+                    <span className="text-sm text-purple-500">Region:</span>
                     {isEditing ? (
                       <input
                         type="text"
@@ -380,9 +400,9 @@ const WineDetailPage = ({
 
               {(displayWine.sweetness || isEditing) && (
                 <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-purple-600" />
+                  <Star className="w-5 h-5 text-purple-500" />
                   <div>
-                    <span className="text-sm text-purple-600">Sweetness:</span>
+                    <span className="text-sm text-purple-500">Sweetness:</span>
                     {isEditing ? (
                       <select
                         value={editData.sweetness}
@@ -441,7 +461,7 @@ const WineDetailPage = ({
         {isLoggedIn && (
           <div className="bg-white rounded-xl shadow-xl p-8 border-2 border-gray-200 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <MessageSquare className="w-6 h-6 text-purple-600" />
+              <MessageSquare className="w-6 h-6 text-purple-500" />
               {existingReview ? 'Update Your Review' : 'Write a Review'}
             </h2>
 
@@ -503,7 +523,7 @@ const WineDetailPage = ({
               <button
                 onClick={handleReviewSubmit}
                 disabled={isSubmittingReview || userRating === 0}
-                className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-8 py-3 rounded-lg hover:from-purple-700 hover:to-purple-900 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-purple-500 text-white px-8 py-3 rounded-lg hover:bg-purple-600 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmittingReview 
                   ? 'Submitting...' 
@@ -528,8 +548,8 @@ const WineDetailPage = ({
                 <div key={review._id} className="border-b border-gray-200 pb-6 last:border-b-0">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                        {(review.user?.firstName || review.username || 'U')[0].toUpperCase()}
+                      <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                        {getUserInitials(review.user)}
                       </div>
                       <div>
                         <div className="font-semibold text-gray-900">
