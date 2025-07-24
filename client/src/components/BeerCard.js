@@ -36,7 +36,7 @@ const BeerCard = ({ beer, onClick }) => (
             {beer.style}
           </span>
         </div>
-        <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
+        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
           <div className="text-xs text-gray-600 mb-1">Alcohol</div>
           <span className="text-lg font-bold text-black select-none">
             {beer.abv}% ABV

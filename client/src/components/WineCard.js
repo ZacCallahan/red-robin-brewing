@@ -78,23 +78,23 @@ const WineCard = ({ wine, onClick }) => (
         </div>
       )}
       
-      {/* Rating section - Fixed overflow with proper containment */}
+      {/* Rating section - Vertical layout */}
       <div className="border-t border-gray-300 pt-4">
-        <div className="mb-2">
+        <div className="mb-3">
           <span className="text-sm font-medium text-gray-700 select-none block mb-2">
             Community Rating:
           </span>
-          <div className="mb-1">
+          <div className="mb-2">
             <StarRating rating={wine.averageRating || 0} />
           </div>
-          <div className="text-sm font-semibold text-black select-none break-words">
+          <div className="text-sm font-semibold text-black select-none mb-2">
             {wine.averageRating ? wine.averageRating.toFixed(1) : '0.0'}
           </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600 select-none">
+          <div className="text-sm text-gray-600 select-none mb-3">
             {wine.totalReviews || 0} reviews
-          </span>
+          </div>
+        </div>
+        <div className="flex justify-end">
           <ChevronRight className="w-5 h-5 text-black group-hover:text-purple-600 transition-colors" />
         </div>
       </div>
