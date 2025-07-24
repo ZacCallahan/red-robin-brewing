@@ -155,31 +155,69 @@ router.get('/verify-email', async (req, res) => {
   try {
     const { token, email } = req.query;
     
+    console.log('🔍 Verification attempt:', { token, email });
+    console.log('🔍 Decoded email:', decodeURIComponent(email));
+    
     if (!token || !email) {
+      console.log('❌ Missing token or email');
       return res.status(400).json({ message: 'Missing verification token or email' });
     }
     
-    // Find user with matching token and email
-    const user = await User.findOne({
-      email: decodeURIComponent(email),
-      emailVerificationToken: token,
-      emailVerificationExpires: { $gt: new Date() }
-    });
+    // Decode the email properly
+    const decodedEmail = decodeURIComponent(email).toLowerCase();
+    
+    // Find user by email first
+    const user = await User.findOne({ email: decodedEmail });
+    
+    console.log('🔍 User found:', !!user);
+    if (user) {
+      console.log('🔍 User verification status:', user.isEmailVerified);
+      console.log('🔍 Stored token:', user.emailVerificationToken);
+      console.log('🔍 Token match:', user.emailVerificationToken === token);
+      console.log('🔍 Token expires:', user.emailVerificationExpires);
+      console.log('🔍 Current time:', new Date());
+      console.log('🔍 Token valid:', user.emailVerificationExpires > new Date());
+    }
     
     if (!user) {
-      return res.status(400).json({ 
-        message: 'Invalid or expired verification token' 
-      });
+      console.log('❌ User not found');
+      return res.status(400).json({ message: 'User not found' });
+    }
+    
+    // Check if already verified
+    if (user.isEmailVerified) {
+      console.log('ℹ️ User already verified');
+      return res.status(400).json({ message: 'Email is already verified' });
+    }
+    
+    // Check if token matches
+    if (user.emailVerificationToken !== token) {
+      console.log('❌ Token mismatch');
+      return res.status(400).json({ message: 'Invalid verification token' });
+    }
+    
+    // Check if token has expired
+    if (!user.emailVerificationExpires || user.emailVerificationExpires < new Date()) {
+      console.log('❌ Token expired');
+      return res.status(400).json({ message: 'Verification token has expired' });
     }
     
     // Verify the user
     user.isEmailVerified = true;
-    user.emailVerificationToken = null;
-    user.emailVerificationExpires = null;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
     await user.save();
     
+    console.log('✅ User verified successfully:', user.email);
+    
     // Send welcome email
-    await sendWelcomeEmail(user);
+    try {
+      await sendWelcomeEmail(user);
+      console.log('✅ Welcome email sent');
+    } catch (emailError) {
+      console.log('⚠️ Welcome email failed:', emailError.message);
+      // Don't fail verification if welcome email fails
+    }
     
     res.json({ 
       message: 'Email verified successfully! You can now log in.',
@@ -187,7 +225,7 @@ router.get('/verify-email', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Email verification error:', error);
+    console.error('❌ Email verification error:', error);
     res.status(500).json({ message: 'Server error during verification' });
   }
 });
