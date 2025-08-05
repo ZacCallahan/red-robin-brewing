@@ -20,7 +20,35 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+  // URL synchronization functions
+  const getPageFromURL = () => {
+    const path = window.location.pathname;
+    const hash = window.location.hash.replace('#', '');
+    
+    // Map URL paths to your page states
+    if (path === '/spirits' || hash === 'spirits') return 'spirits';
+    if (path === '/beers' || hash === 'beers') return 'beers';
+    if (path === '/wines' || hash === 'wines') return 'wines';
+    if (path === '/friends' || hash === 'friends') return 'friends';
+    if (path === '/add-beverage' || hash === 'add-beverage') return 'add-beverage';
+    if (path === '/profile' || hash === 'profile') return 'profile';
+    if (path === '/login' || hash === 'login') return 'login';
+    if (path === '/register' || hash === 'register') return 'register';
+    if (path === '/admin' || hash === 'admin') return 'admin';
+    if (path === '/forgot-password' || hash === 'forgot-password') return 'forgot-password';
+    if (path === '/reset-password' || hash === 'reset-password') return 'reset-password';
+    
+    return 'home';
+  };
+
+  // Update URL when page changes
+  const updateURL = (page) => {
+    const url = page === 'home' ? '/' : `/${page}`;
+    window.history.pushState(null, '', url);
+  };
+
+  // State with URL synchronization
+  const [currentPage, setCurrentPage] = useState(getPageFromURL());
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   
@@ -39,6 +67,16 @@ function App() {
   const [beerReviews, setBeerReviews] = useState([]);
   const [wineReviews, setWineReviews] = useState([]);
   const [spiritReviews, setSpiritReviews] = useState([]);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPage(getPageFromURL());
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Check authentication status on app load
   useEffect(() => {
@@ -65,8 +103,10 @@ function App() {
       // Check if it's a password reset or email verification
       if (window.location.pathname === '/reset-password') {
         setCurrentPage('reset-password');
+        updateURL('reset-password');
       } else {
         setCurrentPage('verify-email');
+        updateURL('verify-email');
       }
     }
   }, []);
@@ -144,9 +184,10 @@ function App() {
     }
   };
 
-  // Handle page navigation
+  // Handle page navigation with URL updates
   const handleNavigation = (page) => {
     setCurrentPage(page);
+    updateURL(page);
     // Scroll to top when navigating to any page
     window.scrollTo(0, 0);
   };
@@ -194,9 +235,7 @@ function App() {
       setIsLoggedIn(true);
       
       console.log('🏠 Navigating to home');
-      setCurrentPage('home');
-      // Scroll to top after login
-      window.scrollTo(0, 0);
+      handleNavigation('home');
       
       console.log('✅ Login completed successfully');
     } catch (error) {
@@ -234,9 +273,7 @@ function App() {
     api.auth.logout();
     setUser(null);
     setIsLoggedIn(false);
-    setCurrentPage('home');
-    // Scroll to top after logout
-    window.scrollTo(0, 0);
+    handleNavigation('home');
   };
 
   // Handle beverage selection and navigation
@@ -244,6 +281,7 @@ function App() {
     setSelectedBeer(beer);
     loadBeerReviews(beer._id);
     setCurrentPage('beer-detail');
+    updateURL(`beer/${beer._id}`);
     // Scroll to top when viewing beer details
     window.scrollTo(0, 0);
   };
@@ -252,6 +290,7 @@ function App() {
     setSelectedWine(wine);
     loadWineReviews(wine._id);
     setCurrentPage('wine-detail');
+    updateURL(`wine/${wine._id}`);
     // Scroll to top when viewing wine details
     window.scrollTo(0, 0);
   };
@@ -260,6 +299,7 @@ function App() {
     setSelectedSpirit(spirit);
     loadSpiritReviews(spirit._id);
     setCurrentPage('spirit-detail');
+    updateURL(`spirit/${spirit._id}`);
     // Scroll to top when viewing spirit details
     window.scrollTo(0, 0);
   };
@@ -268,6 +308,7 @@ function App() {
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setCurrentPage('user-profile');
+    updateURL(`user/${user._id}`);
     // Scroll to top when viewing user profile
     window.scrollTo(0, 0);
   };
