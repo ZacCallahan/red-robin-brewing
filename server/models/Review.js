@@ -50,9 +50,23 @@ reviewSchema.pre('validate', function(next) {
   }
 });
 
-// Compound indexes to ensure one review per user per beverage
-reviewSchema.index({ user: 1, beer: 1 }, { unique: true, sparse: true });
-reviewSchema.index({ user: 1, wine: 1 }, { unique: true, sparse: true });
-reviewSchema.index({ user: 1, spirit: 1 }, { unique: true, sparse: true });
+// Replace the current indexes with these compound indexes
+reviewSchema.index({ user: 1, beer: 1 }, { 
+  unique: true, 
+  sparse: true,
+  partialFilterExpression: { beer: { $exists: true, $ne: null } }
+});
+
+reviewSchema.index({ user: 1, wine: 1 }, { 
+  unique: true, 
+  sparse: true,
+  partialFilterExpression: { wine: { $exists: true, $ne: null } }
+});
+
+reviewSchema.index({ user: 1, spirit: 1 }, { 
+  unique: true, 
+  sparse: true,
+  partialFilterExpression: { spirit: { $exists: true, $ne: null } }
+});
 
 module.exports = mongoose.model('Review', reviewSchema);
