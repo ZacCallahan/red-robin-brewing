@@ -37,6 +37,7 @@ function App() {
     if (path === '/admin' || hash === 'admin') return 'admin';
     if (path === '/forgot-password' || hash === 'forgot-password') return 'forgot-password';
     if (path === '/reset-password' || hash === 'reset-password') return 'reset-password';
+    if (path === '/verify-email' || hash === 'verify-email') return 'verify-email';
     
     return 'home';
   };
