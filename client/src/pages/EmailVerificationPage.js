@@ -26,7 +26,7 @@ const EmailVerificationPage = ({ handleNavigation }) => {
         }
 
         // Call verification API
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+        const apiUrl = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? 'https://redrobinrating.com' : 'http://localhost:5000');
         const fullUrl = `${apiUrl}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
         
         console.log('🔍 Making request to:', fullUrl);
