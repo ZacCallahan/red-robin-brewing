@@ -187,7 +187,11 @@ router.get('/verify-email', async (req, res) => {
     // Check if already verified
     if (user.isEmailVerified) {
       console.log('ℹ️ User already verified');
-      return res.status(400).json({ message: 'Email is already verified' });
+      return res.status(200).json({ 
+        message: 'Your email is already verified! You can log in to your account.',
+        verified: true,
+        alreadyVerified: true
+      });
     }
     
     // Check if token matches

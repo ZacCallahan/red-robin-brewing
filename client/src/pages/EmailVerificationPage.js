@@ -5,10 +5,15 @@ import { api } from '../services/api';
 const EmailVerificationPage = ({ handleNavigation }) => {
   const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('');
+  const [hasVerified, setHasVerified] = useState(false);
 
   useEffect(() => {
+    // Prevent double verification
+    if (hasVerified) return;
+    
     // Verify email using URL parameters
     const verifyEmail = async () => {
+      setHasVerified(true);
       try {
         // Get token and email from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
